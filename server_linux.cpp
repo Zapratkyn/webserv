@@ -2,14 +2,20 @@
 
 int main()
 {
-	TcpServer server("0.0.0.0", 8080);
+	TcpServer *server;
 
-	if (server.getSocket() < 0)
+	try
 	{
-		std::cerr << "ERROR:\nCouldn't create socket" << std::endl;
+		server = new TcpServer("0.0.0.0", 8080);
+	}
+	catch (const std::exception &e)
+	{
+		std::cerr << e.what() <<std::endl;
+		delete server;
 		return 1;
 	}
 	
+	delete server;
 
 	return 0;
 }
