@@ -1,6 +1,6 @@
 #include "http_tcpServer_linux.hpp"
 
-TcpServer::TcpServer(std::string ip_address, int port) : _ip_address(ip_address), _port(port)
+TcpServer::TcpServer(std::string ip_address, int port) : _ip_address(ip_address), _port(port), _socketAddrLen(sizeof(_socketAddr))
 {
 	/*Creating a socket, a communication entry point. 
 	AF_INET for TCP/IP protocol. AF stands for Address Family (in this case, IPv4)
@@ -12,13 +12,9 @@ TcpServer::TcpServer(std::string ip_address, int port) : _ip_address(ip_address)
 	
 	init_addr(); // Since the _socketAddr is a data structure, it needs to be set for incoming uses
 
-	if (bind(_socket, (sockaddr *)&_socketAddr, sizeof(_socketAddr)) < 0) // Binding the socket to the address
+	if (bind(_socket, (sockaddr *)&_socketAddr, _socketAddrLen) < 0) // Binding the socket to the address
 		throw bindException();
-	
-	if (listen(_socket, 10) < 0) // Start listening on the socket, with a maximum of 10 connections at a time
-		throw listenException();
-	
-	listen_log(); // Display informations about the listening socket
+
 	return;
 }
 TcpServer::~TcpServer() 
@@ -26,6 +22,32 @@ TcpServer::~TcpServer()
 	if (_socket >= 0)
 		close(_socket);
 	return;
+}
+
+void TcpServer::startListen()
+{
+	if (listen(_socket, 10) < 0) // Start listening on the socket, with a maximum of 10 connections at a time
+		throw listenException();
+	
+	listen_log(); // Display informations about the listening socket
+
+	while (true)
+	{
+		std::cout << "Waiting for new connection...\n\n" << std::endl;
+		if (!newConnection(_new_socket))
+			std::cerr << "Error" << std::endl;
+		else
+		{
+			
+		}
+	}
+}
+
+bool TcpServer::newConnection(int &new_socket)
+{
+	new_socket = accept(_socket, (sockaddr *)&_socketAddr, &_socketAddrLen);
+	if (new_socket < 0)
+		return false;
 }
 
 void TcpServer::init_addr()

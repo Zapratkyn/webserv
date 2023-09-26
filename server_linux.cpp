@@ -7,6 +7,7 @@ int main()
 	try
 	{
 		server = new TcpServer("0.0.0.0", 8080);
+		server->startListen();
 	}
 	catch (const std::exception &e)
 	{
