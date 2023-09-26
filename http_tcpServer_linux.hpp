@@ -12,9 +12,9 @@ class TcpServer {
 
 private:
 
-	int					_socket;
-	int					_new_socket;
-	int 				_port;
+	int			_socket;
+	int			_new_socket;
+	int 			_port;
 	std::string 		_ip_address;
 	struct sockaddr_in 	_socketAddr;
 	unsigned int		_socketAddrLen;
