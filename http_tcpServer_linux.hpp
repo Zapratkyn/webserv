@@ -15,7 +15,7 @@ private:
 	int					_socket;
 	int 				_port;
 	std::string 		_ip_address;
-	struct sockaddr_in 	_addr;
+	struct sockaddr_in 	_socketAddr;
 
 	void		init_addr();
 	void		listen_log() const;

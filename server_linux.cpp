@@ -2,7 +2,7 @@
 
 int main()
 {
-	TcpServer *server;
+	TcpServer *server; // A pointer because exceptions are possible in the constructor
 
 	try
 	{
