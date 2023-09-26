@@ -21,6 +21,8 @@ TcpServer::~TcpServer()
 {
 	if (_socket >= 0)
 		close(_socket);
+	if (_new_socket >= 0)
+		close(_new_socket);
 	return;
 }
 
@@ -75,7 +77,7 @@ void TcpServer::listenLog() const
 	std::ostringstream ss;
    	ss << "\n*** Listening on ADDRESS: " 
     << inet_ntoa(_socketAddr.sin_addr)  // inet_ntoa converts the Internet Host address to an IPv4 address (xxx.xxx.xxx.xxx)
-    << " PORT: " << ntohs(_socketAddr.sin_port)  // // Copies the port number. ntohs ensures the bytes order is respected (stands for Network to Host Short)
+    << " PORT: " << ntohs(_socketAddr.sin_port)  // Copies the port number. ntohs ensures the bytes order is respected (stands for Network to Host Short)
     << " ***\n\n";
 	std::cout << ss.str() << std::endl;
 }
