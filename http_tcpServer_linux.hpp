@@ -19,8 +19,8 @@ private:
 	struct sockaddr_in 	_socketAddr;
 	unsigned int		_socketAddrLen;
 
-	void		init_addr();
-	void		listen_log() const;
+	void		initAddr();
+	void		listenLog() const;
 	bool		newConnection(int&);
 
 public:
