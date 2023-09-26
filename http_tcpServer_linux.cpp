@@ -43,8 +43,8 @@ void TcpServer::startListen()
 		else
 		{
 			char buffer[30720] = {0};
-            bytesReceived = read(_new_socket, buffer, 30720); // since we are using AF_INET, the requests will be streams we can read()
-            if (bytesReceived < 0)
+           	 	bytesReceived = read(_new_socket, buffer, 30720); // since we are using AF_INET, the requests will be streams we can read()
+            		if (bytesReceived < 0)
 				std::cerr << "Failed to read bytes from client socket connection" << std::endl;
 			else
 			{
@@ -73,7 +73,7 @@ void TcpServer::initAddr()
 void TcpServer::listenLog() const
 {
 	std::ostringstream ss;
-    ss << "\n*** Listening on ADDRESS: " 
+   	 ss << "\n*** Listening on ADDRESS: " 
         << inet_ntoa(_socketAddr.sin_addr)  // inet_ntoa converts the Internet Host address to an IPv4 address (xxx.xxx.xxx.xxx)
         << " PORT: " << ntohs(_socketAddr.sin_port)  // // Copies the port number. ntohs ensures the bytes order is respected (stands for Network to Host Short)
         << " ***\n\n";
