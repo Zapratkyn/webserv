@@ -1,6 +1,6 @@
 #include "http_tcpServer_linux.hpp"
 
-TcpServer::TcpServer(std::string ip_address, int port) : _ip_address(ip_address), _port(port), _socketAddrLen(sizeof(_socketAddr))
+TcpServer::TcpServer(std::string ip_address, int port) : _ip_address(ip_address), _port(port), _socketAddrLen(sizeof(_socketAddr)), _serverMessage(buildResponse())
 {
 	/*Creating a socket, a communication entry point. 
 	AF_INET for TCP/IP protocol. AF stands for Address Family (in this case, IPv4)
@@ -50,8 +50,8 @@ void TcpServer::startListen()
 				std::cerr << "Failed to read bytes from client socket connection" << std::endl;
 			else
 			{
-				std::cout << "Request received from the client" << std::endl;
-				// sendResponse();
+				std::cout << "Request received from the client\n" << std::endl;
+				sendResponse();
 			}
 			close(_new_socket);
 		}
@@ -64,6 +64,28 @@ bool TcpServer::newConnection(int &new_socket)
 	if (new_socket < 0)
 		return false;
 	return true;
+}
+
+void TcpServer::sendResponse()
+{
+    unsigned long bytesSent;
+
+    bytesSent = write(_new_socket, _serverMessage.c_str(), _serverMessage.size());
+
+    if (bytesSent == _serverMessage.size())
+        std::cout << "------ Server Response sent to client ------\n" << std::endl;
+    else
+        std::cerr << "Error sending response to client" << std::endl;
+}
+
+std::string TcpServer::buildResponse()
+{
+	std::string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> HOME </h1><p> Hello from your Server :) </p></body></html>";
+    std::ostringstream ss;
+    ss << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " << htmlFile.size() << "\n\n"
+       << htmlFile;
+
+	return ss.str();
 }
 
 void TcpServer::initAddr()
