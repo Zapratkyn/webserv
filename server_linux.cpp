@@ -2,21 +2,18 @@
 
 int main()
 {
-	TcpServer *server; // A pointer because exceptions are possible in the constructor
+	TcpServer server("0.0.0.0", 8080);
 
 	try
 	{
-		server = new TcpServer("0.0.0.0", 8080);
-		server->startListen();
+		server.startServer();
+		server.startListen();
 	}
 	catch (const std::exception &e)
 	{
 		std::cerr << e.what() <<std::endl;
-		delete server;
 		return 1;
 	}
-	
-	delete server;
 
 	return 0;
 }

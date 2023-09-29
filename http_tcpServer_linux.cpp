@@ -2,6 +2,19 @@
 
 TcpServer::TcpServer(std::string ip_address, int port) : _ip_address(ip_address), _port(port), _socketAddrLen(sizeof(_socketAddr)), _serverMessage(buildResponse())
 {
+	return;
+}
+TcpServer::~TcpServer() 
+{
+	if (_socket >= 0)
+		close(_socket);
+	if (_new_socket >= 0)
+		close(_new_socket);
+	return;
+}
+
+void TcpServer::startServer()
+{
 	/*Creating a socket, a communication entry point. 
 	AF_INET for TCP/IP protocol. AF stands for Address Family (in this case, IPv4)
 	SOCK_STREAM is the type of communication > Safe binary stream
@@ -14,16 +27,6 @@ TcpServer::TcpServer(std::string ip_address, int port) : _ip_address(ip_address)
 
 	if (bind(_socket, (sockaddr *)&_socketAddr, _socketAddrLen) < 0) // Binding the socket to the address
 		throw bindException();
-
-	return;
-}
-TcpServer::~TcpServer() 
-{
-	if (_socket >= 0)
-		close(_socket);
-	if (_new_socket >= 0)
-		close(_new_socket);
-	return;
 }
 
 void TcpServer::startListen()
