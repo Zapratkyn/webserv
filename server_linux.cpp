@@ -2,7 +2,7 @@
 
 int main()
 {
-	TcpServer server("0.0.0.0", 8080);
+	TcpServer server(8080);
 
 	try
 	{

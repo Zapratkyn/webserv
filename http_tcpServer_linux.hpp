@@ -12,7 +12,7 @@ class TcpServer {
 
 private:
 
-	std::string 		_ip_address;
+	// std::string 		_ip_address;
 	int					_socket;
 	int					_new_socket;
 	int 				_port;
@@ -28,7 +28,7 @@ private:
 
 public:
 
-	TcpServer(std::string ip_address, int port);
+	TcpServer(int port);
 	~TcpServer();
 	void	startListen();
 	void	startServer();

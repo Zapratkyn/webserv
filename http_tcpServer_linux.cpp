@@ -1,6 +1,6 @@
 #include "http_tcpServer_linux.hpp"
 
-TcpServer::TcpServer(std::string ip_address, int port) : _ip_address(ip_address), _port(port), _socketAddrLen(sizeof(_socketAddr)), _serverMessage(buildResponse())
+TcpServer::TcpServer(int port) : _port(port), _socketAddrLen(sizeof(_socketAddr)), _serverMessage(buildResponse())
 {
 	return;
 }
@@ -63,7 +63,7 @@ void TcpServer::startListen()
 
 bool TcpServer::newConnection(int &new_socket)
 {
-	new_socket = accept(_socket, (sockaddr *)&_socketAddr, &_socketAddrLen); // _socket and _socketAddr are free to be used again since our server is listening on the _socket already
+	new_socket = accept(_socket, (sockaddr *)&_socketAddr, &_socketAddrLen); // _socket is the listening socket, never changes. _socketAddr is teh struct used for each new connection
 	if (new_socket < 0)
 		return false;
 	return true;
@@ -95,7 +95,7 @@ void TcpServer::initAddr()
 {
 	_socketAddr.sin_family = AF_INET; // The socket's address family
 	_socketAddr.sin_port = htons(_port); // Copies the port number. htons ensures the bytes order is respected (stands for Host to Network Short)
-	_socketAddr.sin_addr.s_addr = inet_addr(_ip_address.c_str()); // inet_addr converts host's IP into binary
+	_socketAddr.sin_addr.s_addr = htonl(INADDR_ANY); // INADDR_ANY = "0.0.0.0"
 }
 void TcpServer::listenLog() const
 {
