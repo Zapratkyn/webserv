@@ -53,7 +53,7 @@ int main()
 		valread = read( new_socket , buffer, 30000);
 		if (valread != -1)
 		{
-			//printf("%s\n",buffer);
+			printf("%s\n\n",buffer);
 			write(new_socket , hello , strlen(hello));
 			printf("------------------Hello message sent-------------------");
 		}
