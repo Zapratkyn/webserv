@@ -1,6 +1,6 @@
 #include "../include/Webserv.hpp"
 
-Webserv::Webserv(int port) : _port(port), _socketAddrLen(sizeof(_socketAddr)), _serverMessage(buildResponse())
+Webserv::Webserv(std::string conf_file) : _conf(conf_file)
 {
 	return;
 }
@@ -11,6 +11,44 @@ Webserv::~Webserv()
 	if (_new_socket >= 0)
 		close(_new_socket);
 	return;
+}
+
+std::string Webserv::getServerName(std::string server_block) const
+{
+
+}
+
+Server *Webserv::parseServer(std::string) const
+{
+
+}
+
+void Webserv::parseConf()
+{
+	std::ifstream 	infile(_conf);
+	std::string		buffer, server_block, server_name;
+	size_t			brackets = 0;
+
+	while(!infile.eof())
+	{
+		getline(infile, buffer);
+		if (buffer == "server {")
+		{
+			server_block = buffer;
+			brackets++;
+			while (brackets)
+			{
+				getline(infile, buffer);
+				server_block.append(buffer);
+				if (buffer.find('{') != buffer.npos)
+					brackets++;
+				else if (buffer.find('}') != buffer.npos)
+					brackets--;
+			}
+			server_name = getServerName(server_block);
+			_server_list[server_name] = parseServer(server_block);
+		}
+	}
 }
 
 void Webserv::startServer()
