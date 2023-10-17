@@ -6,8 +6,9 @@ RM					=	rm -rf
 
 OBJDIR				=	.obj
 
-SRC					=	server_linux.cpp \
-						http_tcpServer_linux.cpp
+SRC					=	srcs/main.cpp \
+						srcs/Server.cpp \
+						srcs/Webserv.cpp
 
 OBJ					=	$(addprefix $(OBJDIR)/, $(SRC:.cpp=.o))
 
