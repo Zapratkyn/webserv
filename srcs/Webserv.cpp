@@ -20,9 +20,10 @@ std::string getServerName(std::string server_block)
 	while (!ifs.eof())
 	{
 		getline(ifs, buffer);
-		pos = buffer.find("server_name") + 11;
+		pos = buffer.find("server_name");
 		if (pos != buffer.npos)
 		{
+			pos += 11;
 			while (buffer[pos] == ' ' || buffer[pos] == '\t')
 				pos++;
 			if (buffer[pos] != buffer.npos)
