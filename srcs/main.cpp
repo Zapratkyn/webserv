@@ -16,7 +16,10 @@ int main(int argc, char **argv)
 	if (argc == 2)
 	{
 		if (!valid_file(argv[1]))
+		{
+			std::cerr << "ERROR\nInvalid configuration file" << std::endl;
 			return EXIT_FAILURE;
+		}
 		conf_file = argv[1];
 	}
 
