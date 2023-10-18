@@ -6,35 +6,162 @@ Webserv::Webserv(std::string conf_file) : _conf(conf_file)
 }
 Webserv::~Webserv() 
 {
-	if (_socket >= 0)
-		close(_socket);
-	if (_new_socket >= 0)
-		close(_new_socket);
+	for (std::map<std::string, Server*>::iterator it = _server_list.begin(); it != _server_list.end(); it++)
+		delete it->second;
 	return;
 }
 
-std::string Webserv::getServerName(std::string server_block) const
+std::string getServerName(std::string server_block)
 {
+	std::ifstream 	ifs(server_block);
+	std::string 	buffer, result;
+	int				pos = 0;
 
+	while (!ifs.eof())
+	{
+		getline(ifs, buffer);
+		pos = buffer.find("server_name") + 11;
+		if (pos != buffer.npos)
+		{
+			while (buffer[pos] == ' ' || buffer[pos] == '\t')
+				pos++;
+			if (buffer[pos] != buffer.npos)
+			{
+				result = buffer.substr(pos);
+				pos = result.size() - 1;
+				while (result[pos] == ' ' || result[pos] == '\t' || result[pos] == ';' || result[pos] == '}')
+				{
+					result.pop_back();
+					pos--;
+				}
+				return (result);
+			}
+		}
+	}
+	return "webserv_42_";
 }
 
-Server *Webserv::parseServer(std::string) const
+t_location new_location(std::string location_block)
 {
+	t_location result;
+	std::ifstream ifs(location_block);
+	std::string buffer, name, value, option_list[3] = {"root", "index", "allow_methods"};
 
+
+	while (!ifs.eof())
+	{
+
+	}
+}
+
+Server *parseServer(std::string server_block)
+{
+	std::string 	buffer, name, value, option_list[7] = {"listen", "host", "server_name", "client_max_body_size", "root", "index", "location"};
+	std::ifstream	ifs(server_block);
+	int				pos, option;
+	Server			*server = new Server;
+
+	while (!ifs.eof())
+	{
+		getline(ifs, buffer);
+		pos = buffer.size() - 1;
+		while (pos && (buffer[pos] == ' ' || buffer[pos] == '\t'))
+		{
+			buffer.pop_back();
+			pos--;
+		}
+		if (!pos)
+			continue;
+		if (buffer[pos] != ';' && buffer[pos] != '{' && buffer[pos] != '}' && buffer[pos] != '/')
+		{
+			delete server;
+			return NULL;
+		}
+		buffer = &buffer[buffer.find_first_not_of(" \t")];
+		pos = buffer.find_first_of(" \t");
+		name = buffer.substr(0, pos);
+		buffer = &buffer[pos];
+		value = &buffer[buffer.find_first_not_of(" \t")];
+		option = -1;
+		for (int i = 0; i < 7; i++)
+		{
+			if (name == option_list[i])
+			{
+				option = i;
+				break;
+			}
+		}
+		switch (option) {
+			case 0:
+				server->getPorts().push_back(std::stoi(value));
+				break;
+			case 1:
+				if (server->getHost() != "")
+				{
+					delete server;
+					return NULL;
+				}
+				server->setHost(value);
+				break;
+			case 2:
+				if (server->getServerName() != "")
+				{
+					delete server;
+					return NULL;
+				}
+				server->setServerName(value);
+				break;
+			case 3:
+				if (server->getBodySize())
+				{
+					delete server;
+					return NULL;
+				}
+				server->setBodySize(std::stoi(value));
+				break;
+			case 4:
+				if (server->getRoot() != "")
+				{
+					delete server;
+					return NULL;
+				}
+				server->setRoot(value);
+				break;
+			case 5:
+				if (server->getIndex() != "")
+				{
+					delete server;
+					return NULL;
+				}
+				server->setIndex(value);
+				break;
+			case 6:
+				while (buffer.find('}'))
+				{
+					getline(ifs, buffer);
+					value = value.append(buffer);
+				}
+				server->getLocationlist().push_back(new_location(value));
+				break;
+			default:
+				delete server;
+				return NULL;
+		}
+	}
 }
 
 void Webserv::parseConf()
 {
 	std::ifstream 	infile(_conf);
 	std::string		buffer, server_block, server_name;
-	size_t			brackets = 0;
+	size_t			brackets = 0, default_name = 1;
 
 	while(!infile.eof())
 	{
 		getline(infile, buffer);
 		if (buffer == "server {")
 		{
-			server_block = buffer;
+			server_block = "";
 			brackets++;
 			while (brackets)
 			{
@@ -46,7 +173,11 @@ void Webserv::parseConf()
 					brackets--;
 			}
 			server_name = getServerName(server_block);
+			if (server_name == "webserv_42_")
+				server_name = server_name.append(std::to_string(default_name++));
 			_server_list[server_name] = parseServer(server_block);
+			if (!_server_list[server_name])
+				throw wrongOptionException();
 		}
 	}
 }

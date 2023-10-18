@@ -26,11 +26,11 @@ private:
 	std::string						_conf;
 	std::map<std::string, Server*>	_server_list;
 
-	void		initAddr();
-	void		listenLog() const;
-	bool		newConnection(int&);
-	std::string	buildResponse();
-	void		sendResponse();
+	void							initAddr();
+	void							listenLog() const;
+	bool							newConnection(int&);
+	std::string						buildResponse();
+	void							sendResponse();
 
 public:
 
@@ -39,12 +39,11 @@ public:
 	void	startListen();
 	void	startServer();
 	void	parseConf();
-	std::string getServerName(std::string) const;
-	Server *parseServer(std::string) const;
 
 	class openSocketException : public std::exception { public: virtual const char *what() const throw() { return "ERROR\nCouldn't open socket"; } };
 	class bindException : public std::exception { public: virtual const char *what() const throw() { return "ERROR\nCouldn't bind sockets"; } };
 	class listenException : public std::exception { public: virtual const char *what() const throw() { return "ERROR\nCouldn't start listening"; } };
+	class wrongOptionException : public std::exception { public: virtual const char *what() const throw() { return "ERROR\nWrong option in the configuration file"; } };
 
 };
 
