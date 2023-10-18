@@ -34,10 +34,10 @@ int main(int argc, char **argv)
 	catch (const std::exception &e)
 	{
 		std::cerr << e.what() <<std::endl;
-		return 1;
+		return EXIT_FAILURE;
 	}
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 bool valid_file(std::string file)
