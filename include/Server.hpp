@@ -2,8 +2,9 @@
 # define __SERVER_HPP__
 
 #include <iostream>
-#include <netinet/in.h>
+// #include <netinet/in.h>
 #include <vector>
+#include <map>
 
 struct t_location {
 
@@ -18,13 +19,13 @@ class Server {
 
 private:
 
-	std::string						_host;
-	std::string						_server_name;
-	std::string						_root;
-	std::string						_index;
-	int								_client_max_body_size;
-	std::vector<int>				_ports;
-	std::vector<t_location>			_location_list;
+	std::string									_host;
+	std::string									_server_name;
+	std::string									_root;
+	std::string									_index;
+	int											_client_max_body_size;
+	std::vector<int>							_ports;
+	std::map<std::string, t_location>			_location_list;
 
 public:
 
@@ -37,13 +38,13 @@ public:
 	std::string getIndex() const;
 	int			getBodySize() const;
 	std::vector<int> getPorts() const;
-	std::vector<t_location> getLocationlist() const;
+	std::map<std::string, t_location> getLocationlist() const;
 
-	void	setHost(std::string);
-	void	setServerName(std::string);
-	void	setRoot(std::string);
-	void	setIndex(std::string);
-	void	setBodySize(int);
+	void	setHost(const std::string&);
+	void	setServerName(const std::string&);
+	void	setRoot(const std::string&);
+	void	setIndex(const std::string&);
+	void	setBodySize(const int&);
 
 };
 

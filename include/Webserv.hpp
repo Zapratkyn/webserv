@@ -3,14 +3,17 @@
 
 #include <iostream>
 #include <sstream>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h> // Since the (int)socket is a file descriptor, we need unistd.h to close it when we are done
+// #include <sys/socket.h>
+// #include <netinet/in.h>
+// #include <arpa/inet.h>
+// #include <unistd.h> // Since the (int)socket is a file descriptor, we need unistd.h to close it when we are done
 #include <map>
 #include <fstream>
 #include <string>
 #include "Server.hpp"
+#include "utils/webserv_utils.hpp"
+
+#define DIGITS "0123456789"
 
 class Webserv {
 
@@ -20,7 +23,7 @@ private:
 	int								_socket;
 	int								_new_socket;
 	int 							_port;
-	struct sockaddr_in 				_socketAddr;
+	// struct sockaddr_in 				_socketAddr;
 	unsigned int					_socketAddrLen;
 	std::string						_serverMessage;
 	std::string						_conf;
