@@ -23,13 +23,13 @@ int main(int argc, char **argv)
 		conf_file = argv[1];
 	}
 
-	Webserv server(conf_file);
+	Webserv webServer(conf_file);
 
 	try
 	{
-		server.parseConf();
-		server.startServer();
-		server.startListen();
+		webServer.parseConf();
+		// server.startServer();
+		// server.startListen();
 	}
 	catch (const std::exception &e)
 	{

@@ -13,40 +13,38 @@
 #include "Server.hpp"
 #include "utils/webserv_utils.hpp"
 
-#define DIGITS "0123456789"
-
 class Webserv {
 
 private:
 
-	std::string 					_ip_address;
-	int								_socket;
-	int								_new_socket;
-	int 							_port;
+	// std::string 					_ip_address;
+	// int								_socket;
+	// int								_new_socket;
+	// int 							_port;
 	// struct sockaddr_in 				_socketAddr;
-	unsigned int					_socketAddrLen;
-	std::string						_serverMessage;
+	// unsigned int					_socketAddrLen;
+	// std::string						_serverMessage;
 	std::string						_conf;
 	std::map<std::string, Server*>	_server_list;
 
-	void							initAddr();
-	void							listenLog() const;
-	bool							newConnection(int&);
-	std::string						buildResponse();
-	void							sendResponse();
+	// void							initAddr();
+	// void							listenLog() const;
+	// bool							newConnection(int&);
+	// std::string						buildResponse();
+	// void							sendResponse();
 
 public:
 
 	Webserv(std::string);
 	~Webserv();
-	void	startListen();
-	void	startServer();
+	// void	startListen();
+	// void	startServer();
 	void	parseConf();
 
 	class openSocketException : public std::exception { public: virtual const char *what() const throw() { return "ERROR\nCouldn't open socket"; } };
 	class bindException : public std::exception { public: virtual const char *what() const throw() { return "ERROR\nCouldn't bind sockets"; } };
 	class listenException : public std::exception { public: virtual const char *what() const throw() { return "ERROR\nCouldn't start listening"; } };
-	class wrongOptionException : public std::exception { public: virtual const char *what() const throw() { return "ERROR\nWrong option in the configuration file"; } };
+	class wrongOptionException : public std::exception { public: virtual const char *what() const throw() { return "ERROR\nConfiguration error"; } };
 
 };
 

@@ -2,9 +2,13 @@
 # define __SERVER_HPP__
 
 #include <iostream>
+#include <fstream>
 // #include <netinet/in.h>
 #include <vector>
 #include <map>
+#include "../include/utils/server_utils.hpp"
+
+#define DIGITS "0123456789"
 
 struct t_location {
 
@@ -28,6 +32,8 @@ private:
 	std::vector<int>							_ports;
 	std::map<std::string, t_location>			_location_list;
 
+	bool Server::parseOption(int, std::string &, std::ifstream &);
+
 public:
 
 	Server();
@@ -46,6 +52,8 @@ public:
 	void	setRoot(const std::string&);
 	void	setIndex(const std::string&);
 	void	setBodySize(const int&);
+
+	bool	parseServer(std::string);
 
 };
 

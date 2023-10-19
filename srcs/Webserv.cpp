@@ -1,6 +1,7 @@
 #include "../include/Webserv.hpp"
 
 using namespace webserv_utils;
+// using namespace server_utils;
 
 Webserv::Webserv(std::string conf_file) : _conf(conf_file)
 {
@@ -13,209 +14,178 @@ Webserv::~Webserv()
 	return;
 }
 
-std::string getServerName(std::string server_block)
-{
-	std::ifstream 	ifs(server_block);
-	std::string 	buffer, result;
-	int				pos = 0;
+// t_location new_location(std::string &location_name, std::string &location_block)
+// {
+// 	t_location loc;
+// 	int option, pos;
+// 	std::ifstream ifs(location_block);
+// 	std::string method, buffer, name, value, option_list[3] = {"root", "index", "allow_methods"};
 
-	while (!ifs.eof())
-	{
-		getline(ifs, buffer);
-		pos = buffer.find("server_name");
-		if (pos != buffer.npos)
-		{
-			pos += 11;
-			while (buffer[pos] == ' ' || buffer[pos] == '\t')
-				pos++;
-			if (buffer[pos] != buffer.npos)
-			{
-				result = buffer.substr(pos);
-				pos = result.size() - 1;
-				while (result[pos] == ' ' || result[pos] == '\t' || result[pos] == ';' || result[pos] == '}')
-				{
-					result.pop_back();
-					pos--;
-				}
-				return (result);
-			}
-		}
-	}
-	return "webserv_42_";
-}
+// 	loc.location = location_name;
+// 	loc.root = "";
+// 	loc.index == "";
+// 	loc.valid = false;
 
-t_location new_location(std::string &location_name, std::string &location_block)
-{
-	t_location loc;
-	int option, pos;
-	std::ifstream ifs(location_block);
-	std::string method, buffer, name, value, option_list[3] = {"root", "index", "allow_methods"};
+// 	while (!ifs.eof())
+// 	{
+// 		getline(ifs, buffer);
+// 		name = getOptionName(buffer);
+// 		value = getOptionValue(buffer);
+// 		for (int i = 0; i <= 3; i++)
+// 		{
+// 			option = i;
+// 			if (name == option_list[i])
+// 				break;
+// 		}
+// 		switch (option) {
+// 			case 0:
+// 				if (loc.root != "")
+// 					return loc;
+// 				loc.root = value;
+// 				break;
+// 			case 1:
+// 				if (loc.index != "")
+// 					return loc;
+// 				loc.index = value;
+// 				break;
+// 			case 2:
+// 				value.push_back(' ');
+// 				while (value[1])
+// 				{
+// 					pos = value.find_first_of(" \t");
+// 					method = value.substr(0, pos);
+// 					if (!loc.methods.empty())
+// 					{
+// 						for (std::vector<std::string>::iterator it = loc.methods.begin(); it != loc.methods.end(); it++)
+// 						{
+// 							if (*it == method)
+// 								return loc;
+// 						}
+// 						loc.methods.push_back(method);
+// 					}
+// 					value = &value[pos];
+// 				}
+// 				break;
+// 			default:
+// 				return loc;
+// 		}
+// 	}
+// 	loc.valid = true;
+// 	return loc;
+// }
 
-	loc.location = location_name;
-	loc.root = "";
-	loc.index == "";
-	loc.valid = false;
+// bool parseOption(Server *server, int option, std::string &value, std::ifstream &ifs)
+// {
+// 	std::string buffer = "", tmp;
+// 	std::vector<int> port_list = server->getPorts();
+// 	std::map<std::string, t_location> location_list = server->getLocationlist();
+// 	int iValue;
 
-	while (!ifs.eof())
-	{
-		getline(ifs, buffer);
-		name = getOptionName(buffer);
-		value = getOptionValue(buffer);
-		for (int i = 0; i <= 3; i++)
-		{
-			option = i;
-			if (name == option_list[i])
-				break;
-		}
-		switch (option) {
-			case 0:
-				if (loc.root != "")
-					return loc;
-				loc.root = value;
-				break;
-			case 1:
-				if (loc.index != "")
-					return loc;
-				loc.index = value;
-				break;
-			case 2:
-				value.push_back(' ');
-				while (value[1])
-				{
-					pos = value.find_first_of(" \t");
-					method = value.substr(0, pos);
-					if (!loc.methods.empty())
-					{
-						for (std::vector<std::string>::iterator it = loc.methods.begin(); it != loc.methods.end(); it++)
-						{
-							if (*it == method)
-								return loc;
-						}
-						loc.methods.push_back(method);
-					}
-					value = &value[pos];
-				}
-				break;
-			default:
-				return loc;
-		}
-	}
-	loc.valid = true;
-	return loc;
-}
+// 	switch (option) {
+// 		case 0:
+// 			if (value.find_first_not_of(DIGITS) != value.npos)
+// 				return false;
+// 			iValue = std::stoi(value);
+// 			if (!port_list.empty())
+// 			{
+// 				for (std::vector<int>::iterator it = port_list.begin(); it != port_list.end(); it++)
+// 				{
+// 					if (*it == iValue)
+// 						return false;
+// 				}
+// 			}
+// 			server->getPorts().push_back(iValue);
+// 			break;
+// 		case 1:
+// 			if (server->getHost() != "")
+// 				return false;
+// 			server->setHost(value);
+// 			break;
+// 		case 2:
+// 			if (server->getServerName() != "")
+// 				return false;
+// 			server->setServerName(value);
+// 			break;
+// 		case 3:
+// 			if (server->getBodySize())
+// 				return false;
+// 			server->setBodySize(std::stoi(value));
+// 			break;
+// 		case 4:
+// 			if (server->getRoot() != "")
+// 				return false;
+// 			server->setRoot(value);
+// 			break;
+// 		case 5:
+// 			if (server->getIndex() != "")
+// 				return false;
+// 			server->setIndex(value);
+// 			break;
+// 		case 6:
+// 			if (!location_list.empty())
+// 			{
+// 				if (location_list.find(value) != location_list.end())
+// 					return false;
+// 			}
+// 			while (tmp.back() != '}')
+// 			{
+// 				getline(ifs, buffer);
+// 				buffer = trim(buffer);
+// 				tmp.append(buffer);
+// 				if (tmp.back() != '}')
+// 					tmp.append("\n");
+// 			}
+// 			tmp.pop_back();
+// 			server->getLocationlist()[value] = new_location(value, tmp);
+// 			if (!server->getLocationlist()[value].valid)
+// 			{
+// 				delete server;
+// 				return NULL;
+// 			}
+// 			break;
+// 	}
+// 	return true;
+// }
 
-bool parseOption(Server *server, int option, std::string &value, std::ifstream &ifs)
-{
-	std::string buffer = "", tmp;
-	std::vector<int> port_list = server->getPorts();
-	std::map<std::string, t_location> location_list = server->getLocationlist();
-	int iValue;
+// bool parseServer(Server *server, std::string server_block)
+// {
+// 	std::string 	buffer, name, value, option_list[7] = {"listen", "host", "server_name", "client_max_body_size", "root", "index", "location"};
+// 	std::ifstream	ifs(server_block);
+// 	int				pos, option;
 
-	switch (option) {
-		case 0:
-			if (value.find_first_not_of(DIGITS) != value.npos)
-				return false;
-			iValue = std::stoi(value);
-			if (!port_list.empty())
-			{
-				for (std::vector<int>::iterator it = port_list.begin(); it != port_list.end(); it++)
-				{
-					if (*it == iValue)
-						return false;
-				}
-			}
-			server->getPorts().push_back(iValue);
-			break;
-		case 1:
-			if (server->getHost() != "")
-				return false;
-			server->setHost(value);
-			break;
-		case 2:
-			if (server->getServerName() != "")
-				return false;
-			server->setServerName(value);
-			break;
-		case 3:
-			if (server->getBodySize())
-				return false;
-			server->setBodySize(std::stoi(value));
-			break;
-		case 4:
-			if (server->getRoot() != "")
-				return false;
-			server->setRoot(value);
-			break;
-		case 5:
-			if (server->getIndex() != "")
-				return false;
-			server->setIndex(value);
-			break;
-		case 6:
-			if (!location_list.empty())
-			{
-				if (location_list.find(value) != location_list.end())
-					return false;
-			}
-			while (tmp.back() != '}')
-			{
-				getline(ifs, buffer);
-				buffer = trim(buffer);
-				tmp.append(buffer);
-				if (tmp.back() != '}')
-					tmp.append("\n");
-			}
-			tmp.pop_back();
-			server->getLocationlist()[value] = new_location(value, tmp);
-			if (!server->getLocationlist()[value].valid)
-			{
-				delete server;
-				return NULL;
-			}
-			break;
-	}
-	return true;
-}
-
-Server *parseServer(std::string server_block)
-{
-	std::string 	buffer, name, value, option_list[7] = {"listen", "host", "server_name", "client_max_body_size", "root", "index", "location"};
-	std::ifstream	ifs(server_block);
-	int				pos, option;
-	Server			*server = new Server;
-
-	while (!ifs.eof())
-	{
-		getline(ifs, buffer);
-		buffer = trim(buffer);
-		if (!buffer.size())
-			continue;
-		if (buffer.back() != ';' && buffer.back() != '{')
-		{
-			delete server;
-			return NULL;
-		}
-		name = getOptionName(buffer);
-		value = getOptionValue(buffer);
-		for (int i = 0; i <= 7; i++)
-		{
-			option = i;
-			if (name == option_list[i])
-				break;
-		}
-		if (option == 8 || !parseOption(server, option, value, ifs))
-		{
-			delete server;
-			return NULL;
-		}
-	}
-}
+// 	while (!ifs.eof())
+// 	{
+// 		getline(ifs, buffer);
+// 		buffer = trim(buffer);
+// 		if (!buffer.size())
+// 			continue;
+// 		if (buffer.back() != ';' && buffer.back() != '{')
+// 		{
+// 			delete server;
+// 			return NULL;
+// 		}
+// 		name = getOptionName(buffer);
+// 		value = getOptionValue(buffer);
+// 		for (int i = 0; i <= 7; i++)
+// 		{
+// 			option = i;
+// 			if (name == option_list[i])
+// 				break;
+// 		}
+// 		if (option == 8 || !parseOption(server, option, value, ifs))
+// 		{
+// 			delete server;
+// 			return NULL;
+// 		}
+// 	}
+// }
 
 void Webserv::parseConf()
 {
 	std::ifstream 	infile(_conf);
 	std::string		buffer, server_block, server_name;
 	size_t			brackets = 0, default_name = 1;
+	Server			*server;
 
 	while(!infile.eof())
 	{
@@ -227,18 +197,26 @@ void Webserv::parseConf()
 			while (brackets)
 			{
 				getline(infile, buffer);
+				buffer = trim(buffer);
 				server_block.append(buffer);
-				if (buffer.find('{') != buffer.npos)
+				server_block.append("\n");
+				if (buffer.find('{'))
 					brackets++;
-				else if (buffer.find('}') != buffer.npos)
+				else if (buffer.find('}'))
 					brackets--;
 			}
+			while (server_block.back() != '}')
+				server_block.pop_back();
+			server_block.pop_back();
+			while (server_block.back() == ' ' || server_block.back() == '\t' || server_block.back() == '\n')
+				server_block.pop_back();
+			server = new Server;
 			server_name = getServerName(server_block);
 			if (server_name == "webserv_42_")
 				server_name = server_name.append(std::to_string(default_name++));
-			_server_list[server_name] = parseServer(server_block);
-			if (!_server_list[server_name])
+			if (!server->parseServer(server_block))
 				throw wrongOptionException();
+			_server_list[server_name] = server;
 		}
 	}
 }

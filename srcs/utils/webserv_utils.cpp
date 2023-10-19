@@ -20,16 +20,29 @@ std::string trim(std::string str)
     }
     return result;
 }
-std::string getOptionName(std::string str) { return str.substr(0, str.find_first_of(" \t")); }
-std::string getOptionValue(std::string str)
+
+std::string getServerName(std::string server_block)
 {
-    std::string result = "";
+	std::ifstream 	ifs(server_block);
+	std::string 	buffer, result;
+	int				pos = 0;
 
-    result = &str[str.find_first_of(" \t")];
-    result = &result[result.find_first_not_of(" \t")];
-
-    while (result.back() == '{' || result.back() == '/' || result.back() == ';' || result.back() == ' ' || result.back() == '\t')
-        result.pop_back();
-
-    return result;
+	while (!ifs.eof())
+	{
+		getline(ifs, buffer);
+        buffer = &buffer[buffer.find_first_not_of(" \t")];
+        pos = buffer.find_first_of(" \t");
+		if (buffer.substr(0, pos) == "server_name")
+		{
+            buffer = &buffer[pos];
+            buffer = &buffer[buffer.find_first_not_of(" \t")];
+            if (!buffer[0])
+                return "webserv_42_";
+			result = buffer.substr(0);
+			while (result.back() == ' ' || result.back() == '\t' || result.back() == ';' || result.back() == '}')
+				result.pop_back();
+			return (result);
+		}
+	}
+	return "webserv_42_";
 }
