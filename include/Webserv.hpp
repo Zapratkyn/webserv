@@ -35,7 +35,7 @@ private:
 
 public:
 
-	Webserv(std::string);
+	Webserv(const std::string &);
 	~Webserv();
 	// void	startListen();
 	// void	startServer();

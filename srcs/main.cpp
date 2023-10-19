@@ -1,6 +1,6 @@
 #include "../include/Webserv.hpp"
 
-bool valid_file(std::string);
+bool valid_file(const std::string &);
 
 int main(int argc, char **argv)
 {
@@ -40,15 +40,14 @@ int main(int argc, char **argv)
 	return EXIT_SUCCESS;
 }
 
-bool valid_file(std::string file)
+bool valid_file(const std::string &file)
 {
 	if (file.find('.') == file.npos || file.find('.') == 0)
 	{
 		std::cerr << "ERROR\nInvalid configuration file" << std::endl;
 		return false;
 	}
-	std::string substr = file.substr(file.find_last_of('.'), file.size());
-	if (substr != "conf")
+	if (file.substr(file.find_last_of('.'), file.size()) != "conf")
 	{
 		std::cerr << "ERROR\nInvalid configuration file" << std::endl;
 		return false;

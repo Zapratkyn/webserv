@@ -40,7 +40,7 @@ int Server::getBodySize() const { return _client_max_body_size; }
 std::vector<int> Server::getPorts() const { return _ports; }
 std::map<std::string, t_location> Server::getLocationlist() const { return _location_list; }
 
-t_location new_location(std::string &location_name, std::string &location_block)
+t_location new_location(const std::string &location_name, const std::string &location_block)
 {
 	t_location loc;
 	int option, pos;
@@ -90,6 +90,7 @@ t_location new_location(std::string &location_name, std::string &location_block)
 						loc.methods.push_back(method);
 					}
 					value = &value[pos];
+					value = &value[value.find_first_not_of(" \t")];
 				}
 				break;
 			default:
@@ -100,9 +101,9 @@ t_location new_location(std::string &location_name, std::string &location_block)
 	return loc;
 }
 
-bool Server::parseOption(int option, std::string &value, std::ifstream &ifs)
+bool Server::parseOption(const int &option, const std::string &value, std::ifstream &ifs, const std::string &server_name)
 {
-	std::string buffer = "", tmp;
+	std::string buffer, location_block = "";
 	int iValue;
 
 	switch (option) {
@@ -126,12 +127,12 @@ bool Server::parseOption(int option, std::string &value, std::ifstream &ifs)
 			_host = value;
 			break;
 		case 2:
-			if (_server_name != "")
+			if (server_name != "")
 				return false;
-			_server_name = value;
+			_server_name = server_name;
 			break;
 		case 3:
-			if (_client_max_body_size)
+			if (_client_max_body_size || value.find_first_not_of(DIGITS) != value.npos)
 				return false;
 			_client_max_body_size = std::stoi(value);
 			break;
@@ -151,18 +152,18 @@ bool Server::parseOption(int option, std::string &value, std::ifstream &ifs)
 				if (_location_list.find(value) != _location_list.end())
 					return false;
 			}
-			while (tmp.back() != '}')
+			while (location_block.back() != '}')
 			{
 				getline(ifs, buffer);
 				if (buffer[0] == '{')
 					continue;
-				tmp.append(buffer);
-				if (tmp.back() != '}')
-					tmp.append("\n");
+				location_block.append(buffer);
+				if (location_block.back() != '}')
+					location_block.append("\n");
 			}
-			tmp.pop_back();
-			tmp.pop_back();
-			_location_list[value] = new_location(value, tmp);
+			location_block.pop_back();
+			location_block.pop_back();
+			_location_list[value] = new_location(value, location_block);
 			if (!_location_list[value].valid)
 				return false;
 			break;
@@ -170,11 +171,11 @@ bool Server::parseOption(int option, std::string &value, std::ifstream &ifs)
 	return true;
 }
 
-bool Server::parseServer(std::string server_block)
+bool Server::parseServer(const std::string &server_block, const std::string &server_name)
 {
 	std::string 	buffer, name, value, option_list[7] = {"listen", "host", "server_name", "client_max_body_size", "root", "index", "location"};
 	std::ifstream	ifs(server_block);
-	int				pos, option;
+	int				option;
 
 	while (!ifs.eof())
 	{
@@ -191,7 +192,7 @@ bool Server::parseServer(std::string server_block)
 			if (name == option_list[i])
 				break;
 		}
-		if (option == 8 || !parseOption(option, value, ifs))
+		if (option == 7 || !parseOption(option, value, ifs, server_name))
 			return false;
 	}
 	return true;

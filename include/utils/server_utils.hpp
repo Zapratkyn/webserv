@@ -7,8 +7,8 @@
 
 namespace server_utils {
 
-    std::string getOptionName(std::string);
-    std::string getOptionValue(std::string);
+    std::string &getOptionName(const std::string &);
+    std::string &getOptionValue(const std::string &);
 
 };
 

@@ -2,7 +2,7 @@
 
 using namespace webserv_utils;
 
-std::string trim(std::string str)
+std::string &trim(const std::string &str)
 {
     std::string result = "";
     int pos;
@@ -21,10 +21,10 @@ std::string trim(std::string str)
     return result;
 }
 
-std::string getServerName(std::string server_block)
+std::string &getServerName(const std::string &server_block)
 {
 	std::ifstream 	ifs(server_block);
-	std::string 	buffer, result;
+	std::string 	buffer, result, default_name = "webserv_42";
 	int				pos = 0;
 
 	while (!ifs.eof())
@@ -37,12 +37,12 @@ std::string getServerName(std::string server_block)
             buffer = &buffer[pos];
             buffer = &buffer[buffer.find_first_not_of(" \t")];
             if (!buffer[0])
-                return "webserv_42_";
+                return default_name;
 			result = buffer.substr(0);
 			while (result.back() == ' ' || result.back() == '\t' || result.back() == ';' || result.back() == '}')
 				result.pop_back();
 			return (result);
 		}
 	}
-	return "webserv_42_";
+	return default_name;
 }
