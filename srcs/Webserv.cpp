@@ -44,23 +44,71 @@ std::string getServerName(std::string server_block)
 	return "webserv_42_";
 }
 
-t_location new_location(std::string location_block)
+t_location new_location(std::string &location_name, std::string &location_block)
 {
-	t_location result;
+	t_location loc;
+	int option, pos;
 	std::ifstream ifs(location_block);
-	std::string buffer, name, value, option_list[3] = {"root", "index", "allow_methods"};
+	std::string method, buffer, name, value, option_list[3] = {"root", "index", "allow_methods"};
 
+	loc.location = location_name;
+	loc.root = "";
+	loc.index == "";
+	loc.valid = false;
 
 	while (!ifs.eof())
 	{
-
+		getline(ifs, buffer);
+		name = getOptionName(buffer);
+		value = getOptionValue(buffer);
+		for (int i = 0; i <= 3; i++)
+		{
+			option = i;
+			if (name == option_list[i])
+				break;
+		}
+		switch (option) {
+			case 0:
+				if (loc.root != "")
+					return loc;
+				loc.root = value;
+				break;
+			case 1:
+				if (loc.index != "")
+					return loc;
+				loc.index = value;
+				break;
+			case 2:
+				value.push_back(' ');
+				while (value[1])
+				{
+					pos = value.find_first_of(" \t");
+					method = value.substr(0, pos);
+					if (!loc.methods.empty())
+					{
+						for (std::vector<std::string>::iterator it = loc.methods.begin(); it != loc.methods.end(); it++)
+						{
+							if (*it == method)
+								return loc;
+						}
+						loc.methods.push_back(method);
+					}
+					value = &value[pos];
+				}
+				break;
+			default:
+				return loc;
+		}
 	}
+	loc.valid = true;
+	return loc;
 }
 
 bool parseOption(Server *server, int option, std::string &value, std::ifstream &ifs)
 {
-	std::string buffer;
+	std::string buffer = "", tmp;
 	std::vector<int> port_list = server->getPorts();
+	std::map<std::string, t_location> location_list = server->getLocationlist();
 	int iValue;
 
 	switch (option) {
@@ -104,7 +152,26 @@ bool parseOption(Server *server, int option, std::string &value, std::ifstream &
 			server->setIndex(value);
 			break;
 		case 6:
-			
+			if (!location_list.empty())
+			{
+				if (location_list.find(value) != location_list.end())
+					return false;
+			}
+			while (tmp.back() != '}')
+			{
+				getline(ifs, buffer);
+				buffer = trim(buffer);
+				tmp.append(buffer);
+				if (tmp.back() != '}')
+					tmp.append("\n");
+			}
+			tmp.pop_back();
+			server->getLocationlist()[value] = new_location(value, tmp);
+			if (!server->getLocationlist()[value].valid)
+			{
+				delete server;
+				return NULL;
+			}
 			break;
 	}
 	return true;

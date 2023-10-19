@@ -28,7 +28,7 @@ std::string getOptionValue(std::string str)
     result = &str[str.find_first_of(" \t")];
     result = &result[result.find_first_not_of(" \t")];
 
-    while (result.back() == '{' || result.back() == ';' || result.back() == ' ' || result.back() == '\t')
+    while (result.back() == '{' || result.back() == '/' || result.back() == ';' || result.back() == ' ' || result.back() == '\t')
         result.pop_back();
 
     return result;

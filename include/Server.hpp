@@ -12,6 +12,7 @@ struct t_location {
 	std::string					root;
 	std::string					index;
 	std::vector<std::string>	methods;
+	bool						valid;
 
 };
 
