@@ -32,28 +32,28 @@ private:
 	std::vector<int>							_ports;
 	std::map<std::string, t_location>			_location_list;
 
-	bool Server::parseOption(const int &, const std::string &, std::ifstream &, const std::string &);
+	bool 										Server::parseOption(const int &, const std::string &, std::ifstream &, const std::string &);
 
 public:
 
 	Server();
 	~Server();
 
-	std::string	getHost() const;
-	std::string getServerName() const;
-	std::string getRoot() const;
-	std::string getIndex() const;
-	int			getBodySize() const;
-	std::vector<int> getPorts() const;
-	std::map<std::string, t_location> getLocationlist() const;
+	std::string									getHost() const;
+	std::string 								getServerName() const;
+	std::string 								getRoot() const;
+	std::string 								getIndex() const;
+	int											getBodySize() const;
+	std::vector<int> 							getPorts() const;
+	std::map<std::string, t_location> 			getLocationlist() const;
 
-	void	setHost(const std::string&);
-	void	setServerName(const std::string&);
-	void	setRoot(const std::string&);
-	void	setIndex(const std::string&);
-	void	setBodySize(const int&);
+	void										setHost(const std::string&);
+	void										setServerName(const std::string&);
+	void										setRoot(const std::string&);
+	void										setIndex(const std::string&);
+	void										setBodySize(const int&);
 
-	bool	parseServer(const std::string &, const std::string &);
+	bool										parseServer(const std::string &, const std::string &);
 
 };
 

@@ -15,7 +15,7 @@ int main(int argc, char **argv)
 	
 	if (argc == 2)
 	{
-		if (!valid_file(argv[1]))
+		if (!valid_file(argv[1])) // Make sure the configuration file exists and has the correct extension (".conf")
 		{
 			std::cerr << "ERROR\nInvalid configuration file" << std::endl;
 			return EXIT_FAILURE;
@@ -27,7 +27,7 @@ int main(int argc, char **argv)
 
 	try
 	{
-		webServer.parseConf();
+		webServer.parseConf(); // Using the configuration file to fill the Webserv's list of servers
 		// server.startServer();
 		// server.startListen();
 	}

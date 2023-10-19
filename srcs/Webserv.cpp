@@ -6,11 +6,18 @@ Webserv::Webserv(const std::string &conf_file) : _conf(conf_file) { return; }
 
 Webserv::~Webserv() 
 {
+	// Since servers in the server list are dynamically allocated pointers, we delete each server one by one in the destructor at the end of the program
 	for (std::map<std::string, Server*>::iterator it = _server_list.begin(); it != _server_list.end(); it++)
 		delete it->second;
 	return;
 }
 
+/*
+- Isolate every server block in the conf file using the brackets
+- Find the server's name in the block we just isolated and use it to add an entry in the server list
+(if the server has no name or his name is 'webserv_42(_)', we append a number to differienciate them. This way, we can use the same port for several servers)
+- Send the server block to a parsing function, in the server class so we can use its attributes
+*/
 void Webserv::parseConf()
 {
 	std::ifstream 	infile(_conf);
@@ -43,11 +50,17 @@ void Webserv::parseConf()
 				server_block.pop_back();
 			server = new Server;
 			server_name = getServerName(server_block);
+			if (server_name == "webserv_42")
+				server_name.append("_");
 			if (server_name == "webserv_42_")
 				server_name = server_name.append(std::to_string(default_name++));
 			if (!server->parseServer(server_block, server_name))
 			{
-				delete server;
+				/*
+				If an error occurs, the server will not be added to the webserv's list of servers
+				Therefore, we need to delete it here to avoid leaks
+				*/
+				delete server; 
 				throw wrongOptionException();
 			}
 			_server_list[server_name] = server;

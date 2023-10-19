@@ -32,14 +32,23 @@ void Server::setIndex(const std::string &index)
 }
 
 
-std::string	Server::getHost() const { return _host; }
-std::string Server::getServerName() const { return _server_name; }
-std::string Server::getRoot() const { return _root; }
-std::string Server::getIndex() const { return _index; }
-int Server::getBodySize() const { return _client_max_body_size; }
-std::vector<int> Server::getPorts() const { return _ports; }
-std::map<std::string, t_location> Server::getLocationlist() const { return _location_list; }
+std::string							Server::getHost() const { return _host; }
+std::string 						Server::getServerName() const { return _server_name; }
+std::string 						Server::getRoot() const { return _root; }
+std::string 						Server::getIndex() const { return _index; }
+int 								Server::getBodySize() const { return _client_max_body_size; }
+std::vector<int> 					Server::getPorts() const { return _ports; }
+std::map<std::string, t_location> 	Server::getLocationlist() const { return _location_list; }
 
+/*
+In the 3 below functions :
+We use the server_block to parse any option written in it to the server's attributes
+If an option doesn't exist or is in double, we throw an error and stop the program
+If a line doesn't end with a ';' or a bracket, we throw an error and stop the program
+There can be several ports and locations (structures) in a server
+There can be several methods in a location
+Location names are used to make sure a same location is not used more than once
+*/
 t_location new_location(const std::string &location_name, const std::string &location_block)
 {
 	t_location loc;
