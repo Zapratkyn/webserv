@@ -6,8 +6,8 @@
 
 namespace webserv_utils {
 
-    std::string &getServerName(const std::string &);
-    std::string &trim(const std::string &);
+    std::string getServerName(const std::string &);
+    std::string trim(const std::string &);
 
 };
 

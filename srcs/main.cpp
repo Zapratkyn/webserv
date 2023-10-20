@@ -45,8 +45,9 @@ int main(int argc, char **argv)
 bool valid_file(const std::string &file)
 {
 	int pos = file.find_last_of('.');
+	std::string extension = &file[pos];
 
-	if (!pos || (&file[pos] != ".conf" && &file[pos] != ".cnf"))
+	if (!pos || (extension != ".conf" && extension != ".cnf"))
 		return false;
 
 	std::ifstream ifs;

@@ -49,7 +49,7 @@ There can be several ports and locations (structures) in a server
 There can be several methods in a location
 Location names are used to make sure a same location is not used more than once
 */
-t_location &new_location(const std::string &location_name, const std::string &location_block)
+t_location new_location(const std::string &location_name, const std::string &location_block)
 {
 	t_location loc;
 	int option, pos;
@@ -58,7 +58,7 @@ t_location &new_location(const std::string &location_name, const std::string &lo
 
 	loc.location = location_name;
 	loc.root = "";
-	loc.index == "";
+	loc.index = "";
 	loc.valid = false;
 
 	while (!ifs.eof())
