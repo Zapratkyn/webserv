@@ -172,12 +172,16 @@ bool Server::parseOption(const int &option, std::string &value, std::stringstrea
 				if (location_block.back() != '}')
 					location_block.append("\n");
 			}
+			
 			location_block.pop_back();
 			if (location_block.back() == '\n')
 				location_block.pop_back();
-			_location_list[value] = new_location(value, location_block);
-			if (!_location_list[value].valid)
-				return false;
+			if (location_block.size())
+			{
+				_location_list[value] = new_location(value, location_block);
+				if (!_location_list[value].valid)
+					return false;
+			}
 			break;
 	}
 	return true;
