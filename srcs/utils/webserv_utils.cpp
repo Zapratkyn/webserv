@@ -5,7 +5,7 @@ using namespace webserv_utils;
 // A function to delete any white space before and after a line in the configuration file
 std::string &trim(const std::string &str)
 {
-    std::string result = "";
+    std::string result;
     int pos;
 
     if (str.size())
