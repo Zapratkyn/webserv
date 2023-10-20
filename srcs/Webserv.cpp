@@ -20,7 +20,7 @@ Webserv::~Webserv()
 */
 void Webserv::parseConf()
 {
-	std::ifstream 	infile(_conf);
+	std::ifstream 	infile(_conf); // We already know the file exists and is valid from the valid_file function in main.cpp. So we can open it at construction without checking for fail()
 	std::string		buffer, server_block, server_name;
 	size_t			brackets = 0, default_name = 1;
 	Server			*server;

@@ -2,7 +2,12 @@
 
 using namespace server_utils;
 
-std::string &getOptionName(const std::string &str) { return str.substr(0, str.find_first_of(" \t")); }
+std::string &getOptionName(const std::string &str) 
+{ 
+	std::string result = str.substr(0, str.find_first_of(" \t"));
+	
+	return result;
+}
 
 std::string &getOptionValue(const std::string &str)
 {
