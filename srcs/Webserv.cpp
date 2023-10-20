@@ -15,12 +15,17 @@ Webserv::~Webserv()
 /*
 - Isolate every server block in the conf file using the brackets
 - Find the server's name in the block we just isolated and use it to add an entry in the server list
-(if the server has no name or his name is 'webserv_42(_)', we append a number to differienciate them. This way, we can use the same port for several servers)
+(If the server has no name or his name is 'webserv_42(_)', we append a number to differienciate them. 
+This way, we can use the same port for several servers)
 - Send the server block to a parsing function, in the server class so we can use its attributes without getters
 */
 void Webserv::parseConf()
 {
-	std::ifstream 	infile(_conf); // We already know the file exists and is valid from the valid_file function in main.cpp. So we can open it at construction without checking for fail()
+	/*
+	We already know the file exists and is valid from the valid_file function in main.cpp
+	So we can open it at construction without checking for fail()
+	*/
+	std::ifstream 	infile(_conf);
 	std::string		buffer, server_block, server_name;
 	size_t			brackets = 0, default_name = 1;
 	Server			*server;
