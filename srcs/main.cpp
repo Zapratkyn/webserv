@@ -6,19 +6,19 @@ int main(int argc, char **argv)
 {
 	if (argc > 2)
 	{
-		std::cerr << "ERROR\nExpected : ./webserv [conf file]" << std::endl;
+		std::cerr << "ERROR\nExpected : ./webserv [configuration file path/name]" << std::endl;
 		return EXIT_FAILURE;
 	}
 	
-	std::string conf_file = "conf/default.conf";
-	std::string conf_folder = "conf/";
+	std::string conf_file = "./conf/default.conf";
+	std::string conf_folder = "./conf/";
 	
 	if (argc == 2)
 	{
 		conf_file = argv[1];
-		if (conf_file.size() >= 6 && conf_file.substr(0, 5) != conf_folder)
+		if (conf_file.size() >= 8 && conf_file.substr(0, 7) != conf_folder)
 			conf_file = conf_folder.append(conf_file);
-		if (!valid_file(conf_file)) // Make sure the configuration file exists and has the correct extension (".conf")
+		if (!valid_file(conf_file)) // Make sure the configuration file exists and has a correct extension (".conf" / "cnf")
 		{
 			std::cerr << "ERROR\nInvalid configuration file" << std::endl;
 			return EXIT_FAILURE;
@@ -44,10 +44,9 @@ int main(int argc, char **argv)
 
 bool valid_file(const std::string &file)
 {
-	if (!file.find('.') || file.find('.') == 0)
-		return false;
-	
-	if (&file[file.find_last_of('.')] != ".conf")
+	int pos = file.find_last_of('.');
+
+	if (!pos || (&file[pos] != ".conf" && &file[pos] != ".cnf"))
 		return false;
 
 	std::ifstream ifs;

@@ -2,7 +2,7 @@
 
 using namespace server_utils;
 
-Server::Server() : _host(""), _server_name(""), _root(""), _index(""), _client_max_body_size(0) { return; }
+Server::Server() : _host(""), _server_name(""), _root(""), _index(""), _client_max_body_size(-1) { return; }
 Server::~Server() { return; }
 
 void Server::setHost(const std::string &host)
@@ -41,7 +41,7 @@ std::vector<int> 					Server::getPorts() const { return _ports; }
 std::map<std::string, t_location> 	Server::getLocationlist() const { return _location_list; }
 
 /*
-In the 3 below functions :
+In the 3 functions below :
 We use the server_block to parse any option written in it to the server's attributes
 If an option doesn't exist or is in double, we throw an error and stop the program
 If a line doesn't end with a ';' or a bracket, we throw an error and stop the program
@@ -110,7 +110,7 @@ t_location &new_location(const std::string &location_name, const std::string &lo
 	return loc;
 }
 
-bool Server::parseOption(const int &option, const std::string &value, std::stringstream &ifs, const std::string &server_name)
+bool Server::parseOption(const int &option, std::string &value, std::stringstream &ifs, const std::string &server_name)
 {
 	std::string buffer, location_block = "";
 	int iValue;
@@ -141,7 +141,7 @@ bool Server::parseOption(const int &option, const std::string &value, std::strin
 			_server_name = server_name;
 			break;
 		case 3:
-			if (_client_max_body_size || value.find_first_not_of(DIGITS) != value.npos)
+			if (_client_max_body_size >= 0 || value.find_first_not_of(DIGITS) != value.npos)
 				return false;
 			_client_max_body_size = std::stoi(value);
 			break;
@@ -153,6 +153,8 @@ bool Server::parseOption(const int &option, const std::string &value, std::strin
 		case 5:
 			if (_index != "")
 				return false;
+			if (value.back() != '/')
+				value.append("/");
 			_index = value;
 			break;
 		case 6:
@@ -183,13 +185,13 @@ bool Server::parseOption(const int &option, const std::string &value, std::strin
 bool Server::parseServer(const std::string &server_block, const std::string &server_name)
 {
 	std::string 	buffer, name, value, option_list[7] = {"listen", "host", "server_name", "client_max_body_size", "root", "index", "location"};
-	std::stringstream	ifs(server_block);
+	std::stringstream	ifs(server_block); // std::stringstream works the same as a std::ifstream but is constructed from a string instead of a file
 	int				option;
 
 	while (!ifs.eof())
 	{
 		getline(ifs, buffer);
-		if (!buffer.size())
+		if (!buffer.size()) // Skips empty lines
 			continue;
 		if (buffer.back() != ';' && buffer.substr(0, buffer.find_first_of(" \t")) != "location")
 			return false;
@@ -201,7 +203,7 @@ bool Server::parseServer(const std::string &server_block, const std::string &ser
 			if (name == option_list[i])
 				break;
 		}
-		if (option == 7 || !parseOption(option, value, ifs, server_name))
+		if (option == 7 || !parseOption(option, value, ifs, server_name)) // Thanks to the 'option == 7' condition, we don't need a default behavior for the switch statement in the parseOption function
 			return false;
 	}
 	return true;

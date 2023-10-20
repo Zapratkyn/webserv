@@ -16,7 +16,7 @@ Webserv::~Webserv()
 - Isolate every server block in the conf file using the brackets
 - Find the server's name in the block we just isolated and use it to add an entry in the server list
 (if the server has no name or his name is 'webserv_42(_)', we append a number to differienciate them. This way, we can use the same port for several servers)
-- Send the server block to a parsing function, in the server class so we can use its attributes
+- Send the server block to a parsing function, in the server class so we can use its attributes without getters
 */
 void Webserv::parseConf()
 {

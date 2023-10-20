@@ -32,7 +32,7 @@ private:
 	std::vector<int>							_ports;
 	std::map<std::string, t_location>			_location_list;
 
-	bool 										Server::parseOption(const int &, const std::string &, std::stringstream &, const std::string &);
+	bool 										Server::parseOption(const int &, std::string &, std::stringstream &, const std::string &);
 
 public:
 
