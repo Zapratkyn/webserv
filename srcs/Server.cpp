@@ -76,6 +76,8 @@ t_location new_location(const std::string &location_name, const std::string &loc
 			case 0:
 				if (loc.root != "")
 					return loc;
+				if (value.back() != '/')
+					value.append("/");
 				loc.root = value;
 				break;
 			case 1:
@@ -85,10 +87,14 @@ t_location new_location(const std::string &location_name, const std::string &loc
 				break;
 			case 2:
 				value.push_back(' ');
-				while (value[1])
+				while (1)
 				{
 					pos = value.find_first_of(" \t");
 					method = value.substr(0, pos);
+					if (method != "GET" && method != "DELETE" && method != "POST" && method != "HEAD" 
+						&& method != "PUT" && method != "CONNECT" && method != "OPTIONS" && method != "TRACE"
+						&& method != "PATCH")
+						return loc;
 					if (!loc.methods.empty())
 					{
 						for (std::vector<std::string>::iterator it = loc.methods.begin(); it != loc.methods.end(); it++)
@@ -96,9 +102,11 @@ t_location new_location(const std::string &location_name, const std::string &loc
 							if (*it == method)
 								return loc;
 						}
-						loc.methods.push_back(method);
 					}
-					value = &value[pos];
+					loc.methods.push_back(method);
+					value = &value[pos + 1];
+					if (!value.size())
+						break;
 					value = &value[value.find_first_not_of(" \t")];
 				}
 				break;
