@@ -1,6 +1,6 @@
 #include "../include/Webserv.hpp"
 
-bool valid_file(std::string);
+bool valid_file(const std::string &);
 
 int main(int argc, char **argv)
 {
@@ -11,25 +11,27 @@ int main(int argc, char **argv)
 	}
 	
 	std::string conf_file = "conf/default.conf";
-
+	std::string conf_folder = "conf/";
 	
 	if (argc == 2)
 	{
-		if (!valid_file(argv[1]))
+		conf_file = argv[1];
+		if (conf_file.size() >= 6 && conf_file.substr(0, 5) != conf_folder)
+			conf_file = conf_folder.append(conf_file);
+		if (!valid_file(conf_file)) // Make sure the configuration file exists and has the correct extension (".conf")
 		{
 			std::cerr << "ERROR\nInvalid configuration file" << std::endl;
 			return EXIT_FAILURE;
 		}
-		conf_file = argv[1];
 	}
 
-	Webserv server(conf_file);
+	Webserv webServer(conf_file);
 
 	try
 	{
-		server.parseConf();
-		server.startServer();
-		server.startListen();
+		webServer.parseConf(); // Using the configuration file to fill the Webserv's list of servers
+		// server.startServer();
+		// server.startListen();
 	}
 	catch (const std::exception &e)
 	{
@@ -40,21 +42,19 @@ int main(int argc, char **argv)
 	return EXIT_SUCCESS;
 }
 
-bool valid_file(std::string file)
+bool valid_file(const std::string &file)
 {
-	if (file.find('.') == file.npos || file.find('.') == 0)
-	{
-		std::cerr << "ERROR\nInvalid configuration file" << std::endl;
+	if (!file.find('.') || file.find('.') == 0)
 		return false;
-	}
-	std::string substr = file.substr(file.find_last_of('.'), file.size());
-	if (substr != "conf")
-	{
-		std::cerr << "ERROR\nInvalid configuration file" << std::endl;
+	
+	if (&file[file.find_last_of('.')] != ".conf")
 		return false;
-	}
-	if (std::ifstream(file))
-		return true;
-	std::cerr << "ERROR\nThe configuration file does not exist" << std::endl;
-	return false;
+
+	std::ifstream ifs;
+
+	ifs.open(file);
+	if (ifs.fail())
+		return false;
+	ifs.close();
+	return true;
 }
