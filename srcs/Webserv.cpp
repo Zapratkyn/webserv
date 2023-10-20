@@ -38,13 +38,12 @@ void Webserv::parseConf()
 				buffer = trim(buffer);
 				server_block.append(buffer);
 				server_block.append("\n");
-				if (buffer.find('{'))
+				if (buffer.find('{') != buffer.npos)
 					brackets++;
-				else if (buffer.find('}'))
+				else if (buffer.find('}') != buffer.npos)
 					brackets--;
 			}
-			while (server_block.back() != '}')
-				server_block.pop_back();
+			server_block.pop_back();
 			server_block.pop_back();
 			while (server_block.back() == ' ' || server_block.back() == '\t' || server_block.back() == '\n')
 				server_block.pop_back();
@@ -67,6 +66,64 @@ void Webserv::parseConf()
 		}
 	}
 	infile.close();
+}
+
+void Webserv::display_servers()
+{
+	std::string 						value;
+	int									iValue;
+	std::vector<int>					port_list;
+	std::map<std::string, t_location>	location_list;
+	std::vector<std::string>			method_list;
+
+	std::cout << std::endl;
+
+	for (std::map<std::string, Server*>::iterator it = _server_list.begin(); it != _server_list.end(); it++)
+	{
+		std::cout << "### " << it->first << " ###\n" << std::endl;
+		value = it->second->getHost();
+		if (value != "")
+			std::cout << "Host : " << value << std::endl;
+		value = it->second->getIndex();
+		if (value != "")
+			std::cout << "Index : " << value << std::endl;
+		value = it->second->getRoot();
+		if (value != "")
+			std::cout << "Root : " << value << std::endl;
+		iValue = it->second->getBodySize();
+		if (iValue >= 0)
+			std::cout << "Client max bidy size : " << iValue << std::endl;
+		port_list = it->second->getPorts();
+		if (!port_list.empty())
+		{
+			std::cout << "Ports :\n";
+			for (std::vector<int>::iterator it = port_list.begin(); it != port_list.end(); it++)
+				std::cout << "	- " << *it << std::endl;
+		}
+		location_list = it->second->getLocationlist();
+		if (!location_list.empty())
+		{
+			std::cout << "Locations :\n";
+			for (std::map<std::string, t_location>::iterator it = location_list.begin(); it != location_list.end(); it++)
+			{
+				std::cout << "	- " << it->second.location << " :\n";
+				value = it->second.root;
+				if (value != "")
+					std::cout << "		- Root : " << value << std::endl;
+				value = it->second.index;
+				if (value != "")
+					std::cout << "		- Index : " << value << std::endl;
+				method_list = it->second.methods;
+				if (!method_list.empty())
+				{
+					std::cout << "		- Allowed methods :\n";
+					for (std::vector<std::string>::iterator it = method_list.begin(); it != method_list.end(); it++)
+						std::cout << "			- " << *it << std::endl;
+				}
+			}
+		}
+		std::cout << std::endl;
+	}
 }
 
 // void Webserv::startServer()

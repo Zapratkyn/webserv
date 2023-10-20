@@ -136,7 +136,7 @@ bool Server::parseOption(const int &option, std::string &value, std::stringstrea
 			_host = value;
 			break;
 		case 2:
-			if (server_name != "")
+			if (_server_name != "")
 				return false;
 			_server_name = server_name;
 			break;
@@ -148,13 +148,13 @@ bool Server::parseOption(const int &option, std::string &value, std::stringstrea
 		case 4:
 			if (_root != "")
 				return false;
+			if (value.back() != '/')
+				value.append("/");
 			_root = value;
 			break;
 		case 5:
 			if (_index != "")
 				return false;
-			if (value.back() != '/')
-				value.append("/");
 			_index = value;
 			break;
 		case 6:
@@ -185,9 +185,9 @@ bool Server::parseOption(const int &option, std::string &value, std::stringstrea
 
 bool Server::parseServer(const std::string &server_block, const std::string &server_name)
 {
-	std::string 	buffer, name, value, option_list[7] = {"listen", "host", "server_name", "client_max_body_size", "root", "index", "location"};
+	std::string 		buffer, name, value, option_list[7] = {"listen", "host", "server_name", "client_max_body_size", "root", "index", "location"};
 	std::stringstream	ifs(server_block); // std::stringstream works the same as a std::ifstream but is constructed from a string instead of a file
-	int				option;
+	int					option;
 
 	while (!ifs.eof())
 	{

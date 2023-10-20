@@ -41,6 +41,7 @@ public:
 	// void	startListen();
 	// void	startServer();
 	void	parseConf();
+	void	display_servers();
 
 	class openSocketException : public std::exception { public: virtual const char *what() const throw() { return "ERROR\nCouldn't open socket"; } };
 	class bindException : public std::exception { public: virtual const char *what() const throw() { return "ERROR\nCouldn't bind sockets"; } };
