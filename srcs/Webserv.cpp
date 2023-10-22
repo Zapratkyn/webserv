@@ -27,7 +27,7 @@ void Webserv::parseConf()
 	*/
 	std::ifstream 	infile(_conf);
 	std::string		buffer, server_block, server_name;
-	size_t			default_name = 1;
+	int				default_name = 1;
 	Server			*server;
 
 	while(!infile.eof())
@@ -37,11 +37,7 @@ void Webserv::parseConf()
 		{
 			server_block = getServerBlock(infile);
 			server = new Server;
-			server_name = getServerName(server_block);
-			if (server_name == "webserv_42")
-				server_name.append("_");
-			if (server_name == "webserv_42_")
-				server_name = server_name.append(std::to_string(default_name++));
+			server_name = getServerName(server_block, default_name, _server_list);
 			if (!server->parseServer(server_block, server_name))
 			{
 				/*
@@ -57,7 +53,7 @@ void Webserv::parseConf()
 	infile.close();
 }
 
-void Webserv::display_servers()
+void Webserv::displayServers()
 {
 	std::string 						value;
 	int									iValue;

@@ -10,16 +10,6 @@
 
 #define DIGITS "0123456789"
 
-struct t_location {
-
-	std::string					location;
-	std::string					root;
-	std::string					index;
-	std::vector<std::string>	methods;
-	bool						valid;
-
-};
-
 class Server {
 
 private:
@@ -47,11 +37,13 @@ public:
 	std::vector<int> 							getPorts() const;
 	std::map<std::string, t_location> 			getLocationlist() const;
 
-	void										setHost(const std::string&);
-	void										setServerName(const std::string&);
-	void										setRoot(const std::string&);
-	void										setIndex(const std::string&);
-	void										setBodySize(const int&);
+	bool										setHost(const std::string&);
+	bool										setServerName(const std::string&);
+	bool										setRoot(std::string&);
+	bool										setIndex(const std::string&);
+	bool										setBodySize(const std::string&);
+	bool										addPort(const std::string&);
+	bool										addLocation(std::stringstream&, std::string &value);
 
 	bool										parseServer(const std::string &, const std::string &);
 

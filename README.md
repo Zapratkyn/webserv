@@ -2,7 +2,7 @@
 
 Naming convention :
 
-- Variables : snake_case
+- Variables, structures, namespaces : snake_case
 - Functions : camelCase
 
 Tasks:

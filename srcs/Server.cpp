@@ -5,30 +5,78 @@ using namespace server_utils;
 Server::Server() : _host(""), _server_name(""), _root(""), _index(""), _client_max_body_size(-1) { return; }
 Server::~Server() { return; }
 
-void Server::setHost(const std::string &host)
+bool Server::setHost(const std::string &host)
 {
+	if (_host != "")
+		return false;
 	_host = host;
-	return;
+	return true;
 }
-void Server::setServerName(const std::string &name)
+bool Server::setServerName(const std::string &name)
 {
+	if (_server_name != "")
+		return false;
 	_server_name = name;
-	return;
+	return true;
 }
-void Server::setRoot(const std::string &root)
+bool Server::setRoot(std::string &root)
 {
+	if (_root != "")
+		return false;
+	if (root.back() != '/')
+		root.append("/");
 	_root = root;
-	return;
+	return true;
 }
-void Server::setBodySize(const int &size)
+bool Server::setBodySize(const std::string &size)
 {
-	_client_max_body_size = size;
-	return;
+	if (_client_max_body_size >= 0 || size.find_first_not_of(DIGITS) != size.npos)
+		return false;
+	_client_max_body_size = std::stoi(size);
+	return true;
 }
-void Server::setIndex(const std::string &index)
+bool Server::setIndex(const std::string &index)
 {
+	if (_index != "")
+		return false;
 	_index = index;
-	return;
+	return true;
+}
+bool Server::addPort(const std::string &value)
+{
+	int iValue;
+
+	if (value.find_first_not_of(DIGITS) != value.npos)
+		return false;
+	iValue = std::stoi(value);
+	if (!_ports.empty())
+	{
+		for (std::vector<int>::iterator it = _ports.begin(); it != _ports.end(); it++)
+		{
+			if (*it == iValue)
+				return false;
+		}
+	}
+	_ports.push_back(iValue);
+	return true;
+}
+bool Server::addLocation(std::stringstream &ifs, std::string &value)
+{
+	std::string location_block;
+
+	if (!_location_list.empty())
+	{
+		if (_location_list.find(value) != _location_list.end())
+			return false;
+	}
+	location_block = getLocationBlock(ifs);
+	if (location_block.size())
+	{
+		_location_list[value] = newLocation(value, location_block);
+		if (!_location_list[value].valid)
+			return false;
+	}
+	return true;
 }
 
 
@@ -41,7 +89,7 @@ std::vector<int> 					Server::getPorts() const { return _ports; }
 std::map<std::string, t_location> 	Server::getLocationlist() const { return _location_list; }
 
 /*
-In the 3 functions below :
+In the 2 functions below :
 We use the server_block to parse any option written in it to the server's attributes
 If an option doesn't exist or is in double, we throw an error and stop the program
 If a line doesn't end with a ';' or a bracket, we throw an error and stop the program
@@ -49,147 +97,36 @@ There can be several ports and locations (structures) in a server
 There can be several methods in a location
 Location names are used to make sure a same location is not used more than once
 */
-t_location new_location(const std::string &location_name, const std::string &location_block)
-{
-	t_location loc;
-	int option, pos;
-	std::stringstream ifs(location_block);
-	std::string method, buffer, name, value, option_list[3] = {"root", "index", "allow_methods"};
-
-	loc.location = location_name;
-	loc.root = "";
-	loc.index = "";
-	loc.valid = false;
-
-	while (!ifs.eof())
-	{
-		getline(ifs, buffer);
-		name = getOptionName(buffer);
-		value = getOptionValue(buffer);
-		for (int i = 0; i <= 3; i++)
-		{
-			option = i;
-			if (name == option_list[i])
-				break;
-		}
-		switch (option) {
-			case 0:
-				if (loc.root != "")
-					return loc;
-				if (value.back() != '/')
-					value.append("/");
-				loc.root = value;
-				break;
-			case 1:
-				if (loc.index != "")
-					return loc;
-				loc.index = value;
-				break;
-			case 2:
-				value.push_back(' ');
-				while (1)
-				{
-					pos = value.find_first_of(" \t");
-					method = value.substr(0, pos);
-					if (method != "GET" && method != "DELETE" && method != "POST" && method != "HEAD" 
-						&& method != "PUT" && method != "CONNECT" && method != "OPTIONS" && method != "TRACE"
-						&& method != "PATCH")
-						return loc;
-					if (!loc.methods.empty())
-					{
-						for (std::vector<std::string>::iterator it = loc.methods.begin(); it != loc.methods.end(); it++)
-						{
-							if (*it == method)
-								return loc;
-						}
-					}
-					loc.methods.push_back(method);
-					value = &value[pos + 1];
-					if (!value.size())
-						break;
-					value = &value[value.find_first_not_of(" \t")];
-				}
-				break;
-			default:
-				return loc;
-		}
-	}
-	loc.valid = true;
-	return loc;
-}
-
 bool Server::parseOption(const int &option, std::string &value, std::stringstream &ifs, const std::string &server_name)
 {
-	std::string buffer, location_block = "";
-	int iValue;
-
 	switch (option) {
 		case 0:
-			if (value.find_first_not_of(DIGITS) != value.npos)
+			if (!addPort(value))
 				return false;
-			iValue = std::stoi(value);
-			if (!_ports.empty())
-			{
-				for (std::vector<int>::iterator it = _ports.begin(); it != _ports.end(); it++)
-				{
-					if (*it == iValue)
-						return false;
-				}
-			}
-			_ports.push_back(iValue);
 			break;
 		case 1:
-			if (_host != "")
+			if (!setHost(value))
 				return false;
-			_host = value;
 			break;
 		case 2:
-			if (_server_name != "")
+			if (!setServerName(server_name))
 				return false;
-			_server_name = server_name;
 			break;
 		case 3:
-			if (_client_max_body_size >= 0 || value.find_first_not_of(DIGITS) != value.npos)
+			if (!setBodySize(value))
 				return false;
-			_client_max_body_size = std::stoi(value);
 			break;
 		case 4:
-			if (_root != "")
+			if (!setRoot(value))
 				return false;
-			if (value.back() != '/')
-				value.append("/");
-			_root = value;
 			break;
 		case 5:
-			if (_index != "")
+			if (!setIndex(value))
 				return false;
-			_index = value;
 			break;
 		case 6:
-			if (!_location_list.empty())
-			{
-				if (_location_list.find(value) != _location_list.end())
-					return false;
-			}
-			while (location_block.back() != '}')
-			{
-				getline(ifs, buffer);
-				if (buffer[0] == '{')
-					continue;
-				location_block.append(buffer);
-				if (location_block.back() != '}')
-					location_block.append("\n");
-			}
-			
-			location_block.pop_back();
-			if (location_block.back() == '\n')
-				location_block.pop_back();
-			if (location_block.size())
-			{
-				_location_list[value] = new_location(value, location_block);
-				if (!_location_list[value].valid)
-					return false;
-			}
+			if (!addLocation(ifs, value))
+				return false;
 			break;
 	}
 	return true;
@@ -216,7 +153,11 @@ bool Server::parseServer(const std::string &server_block, const std::string &ser
 			if (name == option_list[i])
 				break;
 		}
-		if (option == 7 || !parseOption(option, value, ifs, server_name)) // Thanks to the 'option == 7' condition, we don't need a default behavior for the switch statement in the parseOption function
+		/*
+		Thanks to the 'option == 7' condition, we don't need a default 
+		behavior for the switch statement in the parseOption function
+		*/
+		if (option == 7 || !parseOption(option, value, ifs, server_name))
 			return false;
 	}
 	return true;

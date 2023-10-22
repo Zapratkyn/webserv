@@ -16,10 +16,10 @@ namespace webserv_utils {
 	    return result;
 	}
 
-	std::string getServerName(const std::string &server_block)
+	std::string getServerName(const std::string &server_block, int &default_name_index, std::map<std::string, Server*> &server_list)
 	{
 		std::stringstream 	ifs(server_block);
-		std::string 		buffer, name, result, default_name = "webserv_42";
+		std::string 		buffer, name, result, default_name = "webserv_42_";
 
 		while (!ifs.eof())
 		{
@@ -29,14 +29,27 @@ namespace webserv_utils {
 			{
 	            buffer = &buffer[buffer.find_first_of(" \t")];
 	            buffer = &buffer[buffer.find_first_not_of(" \t")];
-	            if (!buffer[0])
+	            if (!buffer[0] || buffer.substr(0, 11) == "webserv_42;" || buffer.substr(0, 12) == "webserv_42_;")
+				{
+					default_name.append(std::to_string(default_name_index++));
 	                return default_name;
+				}
 				result = buffer.substr(0);
 				while (result.back() == ' ' || result.back() == '\t' || result.back() == ';' || result.back() == '}')
 					result.pop_back();
+				// If the new server's name is already set for another server, it will be called webserv_42_[default_name_index] instead
+				for (std::map<std::string, Server*>::iterator it = server_list.begin(); it != server_list.end(); it++)
+				{
+					if (it->second->getServerName() == result)
+					{
+						default_name.append(std::to_string(default_name_index++));
+	               		return default_name;
+					}
+				}
 				return (result);
 			}
 		}
+		default_name.append(std::to_string(default_name_index++));
 		return default_name;
 	}
 
