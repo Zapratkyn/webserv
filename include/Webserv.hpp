@@ -5,7 +5,6 @@
 // #include <netinet/in.h>
 // #include <arpa/inet.h>
 // #include <unistd.h>
-#include "Server.hpp"
 #include "utils/webserv_utils.hpp"
 
 class Webserv {
