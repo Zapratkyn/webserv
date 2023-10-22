@@ -11,12 +11,12 @@ int main(int argc, char **argv)
 	}
 	
 	std::string conf_file = "./conf/default.conf";
-	std::string conf_folder = "./conf/";
+	std::string conf_folder = "conf/";
 	
 	if (argc == 2)
 	{
 		conf_file = argv[1];
-		if (conf_file.size() >= 8 && conf_file.substr(0, 7) != conf_folder)
+		if (conf_file.size() >= 6 && conf_file.substr(0, 5) != conf_folder)
 			conf_file = conf_folder.append(conf_file);
 		if (!valid_file(conf_file)) // Make sure the configuration file exists and has a correct extension (".conf" / "cnf")
 		{
@@ -30,7 +30,7 @@ int main(int argc, char **argv)
 	try
 	{
 		webServer.parseConf(); // Using the configuration file to fill the Webserv's list of servers
-		webServer.display_servers();
+		// webServer.displayServers();
 		// server.startServer();
 		// server.startListen();
 	}
