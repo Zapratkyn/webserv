@@ -1,10 +1,7 @@
 #ifndef __SERVER_HPP__
 # define __SERVER_HPP__
 
-#include <iostream>
-#include <sstream>
 // #include <netinet/in.h>
-#include <vector>
 #include <map>
 #include "utils/server_utils.hpp"
 
