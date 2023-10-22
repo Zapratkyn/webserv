@@ -135,7 +135,7 @@ namespace server_utils {
 				std::cerr << option << " " << value << ": duplicate" << std::endl;
 				break;
 			case 1:
-				std::cerr << value << ": missing ';'" << std::endl;
+				std::cerr << option << " " << value << ": missing ';'" << std::endl;
 				break;
 			case 2:
 				std::cerr << option << " " << value << ": Not a number" << std::endl;

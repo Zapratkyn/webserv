@@ -167,16 +167,16 @@ bool Server::parseServer(const std::string &server_block, const std::string &ser
 		getline(ifs, buffer);
 		if (!buffer.size()) // Skips empty lines
 			continue;
+		name = getOptionName(buffer);
+		value = getOptionValue(buffer);
 		if (buffer.back() != ';')
 		{
 			if (buffer.substr(0, buffer.find_first_of(" \t")) != "location")
 			{
-				ft_error(1, buffer, "");
+				ft_error(1, value, name);
 				return false;
 			}
 		}
-		name = getOptionName(buffer);
-		value = getOptionValue(buffer);
 		for (int i = 0; i <= 7; i++)
 		{
 			option = i;
