@@ -77,7 +77,7 @@ void Webserv::displayServers()
 			std::cout << "Root : " << value << std::endl;
 		iValue = it->second->getBodySize();
 		if (iValue >= 0)
-			std::cout << "Client max bidy size : " << iValue << std::endl;
+			std::cout << "Client max body size : " << iValue << std::endl;
 		port_list = it->second->getPorts();
 		if (!port_list.empty())
 		{
