@@ -41,7 +41,7 @@ bool Server::setBodySize(const std::string &size)
 {
 	if (_client_max_body_size >= 0 || size.find_first_not_of(DIGITS) != size.npos)
 	{
-		ft_error(0, size, "client_max_body_size");
+		ft_error(2, size, "client_max_body_size");
 		return false;
 	}
 	_client_max_body_size = std::stoi(size);
