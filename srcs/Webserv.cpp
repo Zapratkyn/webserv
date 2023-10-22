@@ -83,7 +83,7 @@ void Webserv::displayServers()
 		{
 			std::cout << "Ports :\n";
 			for (std::vector<int>::iterator it = port_list.begin(); it != port_list.end(); it++)
-				std::cout << "	- " << *it << std::endl;
+				std::cout << "  - " << *it << std::endl;
 		}
 		location_list = it->second->getLocationlist();
 		if (!location_list.empty())
@@ -91,19 +91,19 @@ void Webserv::displayServers()
 			std::cout << "Locations :\n";
 			for (std::map<std::string, t_location>::iterator it = location_list.begin(); it != location_list.end(); it++)
 			{
-				std::cout << "	- " << it->second.location << " :\n";
+				std::cout << "  - " << it->second.location << " :\n";
 				value = it->second.root;
 				if (value != "")
-					std::cout << "		- Root : " << value << std::endl;
+					std::cout << "    - Root : " << value << std::endl;
 				value = it->second.index;
 				if (value != "")
-					std::cout << "		- Index : " << value << std::endl;
+					std::cout << "    - Index : " << value << std::endl;
 				method_list = it->second.methods;
 				if (!method_list.empty())
 				{
-					std::cout << "		- Allowed methods :\n";
+					std::cout << "    - Allowed methods :\n";
 					for (std::vector<std::string>::iterator it = method_list.begin(); it != method_list.end(); it++)
-						std::cout << "			- " << *it << std::endl;
+						std::cout << "       - " << *it << std::endl;
 				}
 			}
 		}
