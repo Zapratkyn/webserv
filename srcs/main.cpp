@@ -25,14 +25,14 @@ int main(int argc, char **argv)
 		}
 	}
 
-	Webserv webServer(conf_file);
+	Webserv webserver(conf_file);
 
 	try
 	{
-		webServer.parseConf(); // Using the configuration file to fill the Webserv's list of servers
-		// webServer.displayServers();
-		// server.startServer();
-		// server.startListen();
+		webserver.parseConf(); // Using the configuration file to fill the Webserv's list of servers
+		// webserver.displayServers();
+		// webserver.startServer();
+		// webserver.startListen();
 	}
 	catch (const std::exception &e)
 	{
