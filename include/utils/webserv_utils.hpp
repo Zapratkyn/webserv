@@ -4,11 +4,13 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <fstream>
 
 namespace webserv_utils {
 
     std::string getServerName(const std::string &);
     std::string trim(const std::string &);
+    std::string getServerBlock(std::ifstream &);
 
 };
 

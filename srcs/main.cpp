@@ -30,7 +30,7 @@ int main(int argc, char **argv)
 	try
 	{
 		webServer.parseConf(); // Using the configuration file to fill the Webserv's list of servers
-		// webServer.display_servers();
+		webServer.display_servers();
 		// server.startServer();
 		// server.startListen();
 	}

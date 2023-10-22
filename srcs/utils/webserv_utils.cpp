@@ -40,4 +40,27 @@ namespace webserv_utils {
 		return default_name;
 	}
 
+	std::string getServerBlock(std::ifstream &ifs)
+	{
+		int brackets = 1;
+		std::string buffer, server_block = "";
+
+		while (brackets)
+		{
+			getline(ifs, buffer);
+			buffer = trim(buffer);
+			server_block.append(buffer);
+			server_block.append("\n");
+			if (buffer.find('{') != buffer.npos)
+				brackets++;
+			else if (buffer.find('}') != buffer.npos)
+				brackets--;
+		}
+		server_block.pop_back();
+		server_block.pop_back();
+		while (server_block.back() == ' ' || server_block.back() == '\t' || server_block.back() == '\n')
+			server_block.pop_back();
+		return server_block;
+	}
+
 };

@@ -27,7 +27,7 @@ void Webserv::parseConf()
 	*/
 	std::ifstream 	infile(_conf);
 	std::string		buffer, server_block, server_name;
-	size_t			brackets = 0, default_name = 1;
+	size_t			default_name = 1;
 	Server			*server;
 
 	while(!infile.eof())
@@ -35,23 +35,7 @@ void Webserv::parseConf()
 		getline(infile, buffer);
 		if (buffer == "server {")
 		{
-			server_block = "";
-			brackets++;
-			while (brackets)
-			{
-				getline(infile, buffer);
-				buffer = trim(buffer);
-				server_block.append(buffer);
-				server_block.append("\n");
-				if (buffer.find('{') != buffer.npos)
-					brackets++;
-				else if (buffer.find('}') != buffer.npos)
-					brackets--;
-			}
-			server_block.pop_back();
-			server_block.pop_back();
-			while (server_block.back() == ' ' || server_block.back() == '\t' || server_block.back() == '\n')
-				server_block.pop_back();
+			server_block = getServerBlock(infile);
 			server = new Server;
 			server_name = getServerName(server_block);
 			if (server_name == "webserv_42")
