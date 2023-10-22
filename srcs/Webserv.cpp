@@ -45,7 +45,7 @@ void Webserv::parseConf()
 				Therefore, we need to delete it here to avoid leaks
 				*/
 				delete server; 
-				throw wrongOptionException();
+				throw confFailureException();
 			}
 			_server_list[server_name] = server;
 		}
