@@ -46,7 +46,7 @@ public:
 	class openSocketException : public std::exception { public: virtual const char *what() const throw() { return "ERROR\nCouldn't open socket"; } };
 	class bindException : public std::exception { public: virtual const char *what() const throw() { return "ERROR\nCouldn't bind sockets"; } };
 	class listenException : public std::exception { public: virtual const char *what() const throw() { return "ERROR\nCouldn't start listening"; } };
-	class wrongOptionException : public std::exception { public: virtual const char *what() const throw() { return "ERROR\nConfiguration error"; } };
+	class wrongOptionException : public std::exception { public: virtual const char *what() const throw() { return "Configuration failure. Program stopped."; } };
 
 };
 

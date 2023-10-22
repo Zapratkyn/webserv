@@ -55,6 +55,11 @@ namespace server_utils {
 		while (!ifs.eof())
 		{
 			getline(ifs, buffer);
+			if (buffer.back() != ';')
+			{
+				ft_error(1, buffer, buffer);
+				return loc;
+			}
 			name = getOptionName(buffer);
 			value = getOptionValue(buffer);
 			for (int i = 0; i <= 3; i++)
@@ -66,14 +71,20 @@ namespace server_utils {
 			switch (option) {
 				case 0:
 					if (loc.root != "")
+					{
+						ft_error(0, value, "loc.root");
 						return loc;
+					}
 					if (value.back() != '/')
 						value.append("/");
 					loc.root = value;
 					break;
 				case 1:
 					if (loc.index != "")
+					{
+						ft_error(0, value, "loc.index");
 						return loc;
+					}
 					loc.index = value;
 					break;
 				case 2:
@@ -85,13 +96,19 @@ namespace server_utils {
 						if (method != "GET" && method != "DELETE" && method != "POST" && method != "HEAD" 
 							&& method != "PUT" && method != "CONNECT" && method != "OPTIONS" && method != "TRACE"
 							&& method != "PATCH")
-							return loc;
+							{
+								ft_error(3, method, "");
+								return loc;
+							}
 						if (!loc.methods.empty())
 						{
 							for (std::vector<std::string>::iterator it = loc.methods.begin(); it != loc.methods.end(); it++)
 							{
 								if (*it == method)
+								{
+									ft_error(0, value, "loc.allow_method");
 									return loc;
+								}
 							}
 						}
 						loc.methods.push_back(method);
@@ -102,11 +119,34 @@ namespace server_utils {
 					}
 					break;
 				default:
+					ft_error(4, name, "");
 					return loc;
 			}
 		}
 		loc.valid = true;
 		return loc;
+	}
+
+	void	ft_error(int type, std::string value, std::string option)
+	{
+		std::cerr << "ERROR\n";
+		switch (type) {
+			case 0:
+				std::cerr << option << " " << value << ": duplicate" << std::endl;
+				break;
+			case 1:
+				std::cerr << value << ": missing ';'" << std::endl;
+				break;
+			case 2:
+				std::cerr << option << " " << value << ": Not a number" << std::endl;
+				break;
+			case 3:
+				std::cerr << value << ": invalid method" << std::endl;
+				break;
+			case 4:
+				std::cerr << value << ": invalid option" << std::endl;
+				break;
+		}
 	}
 
 };

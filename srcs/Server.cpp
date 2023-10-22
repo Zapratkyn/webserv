@@ -8,21 +8,30 @@ Server::~Server() { return; }
 bool Server::setHost(const std::string &host)
 {
 	if (_host != "")
+	{
+		ft_error(0, host, "host");
 		return false;
+	}
 	_host = host;
 	return true;
 }
 bool Server::setServerName(const std::string &name)
 {
 	if (_server_name != "")
+	{
+		ft_error(0, name, "server_name");
 		return false;
+	}
 	_server_name = name;
 	return true;
 }
 bool Server::setRoot(std::string &root)
 {
 	if (_root != "")
+	{
+		ft_error(0, root, "root");
 		return false;
+	}
 	if (root.back() != '/')
 		root.append("/");
 	_root = root;
@@ -31,14 +40,20 @@ bool Server::setRoot(std::string &root)
 bool Server::setBodySize(const std::string &size)
 {
 	if (_client_max_body_size >= 0 || size.find_first_not_of(DIGITS) != size.npos)
+	{
+		ft_error(0, size, "client_max_body_size");
 		return false;
+	}
 	_client_max_body_size = std::stoi(size);
 	return true;
 }
 bool Server::setIndex(const std::string &index)
 {
 	if (_index != "")
+	{
+		ft_error(0, index, "index");
 		return false;
+	}
 	_index = index;
 	return true;
 }
@@ -47,14 +62,20 @@ bool Server::addPort(const std::string &value)
 	int iValue;
 
 	if (value.find_first_not_of(DIGITS) != value.npos)
+	{
+		ft_error(2, value, "port");
 		return false;
+	}
 	iValue = std::stoi(value);
 	if (!_ports.empty())
 	{
 		for (std::vector<int>::iterator it = _ports.begin(); it != _ports.end(); it++)
 		{
 			if (*it == iValue)
+			{
+				ft_error(0, value, "port");
 				return false;
+			}
 		}
 	}
 	_ports.push_back(iValue);
@@ -67,7 +88,10 @@ bool Server::addLocation(std::stringstream &ifs, std::string &value)
 	if (!_location_list.empty())
 	{
 		if (_location_list.find(value) != _location_list.end())
+		{
+			ft_error(0, value, "location");
 			return false;
+		}
 	}
 	location_block = getLocationBlock(ifs);
 	if (location_block.size())
@@ -143,8 +167,14 @@ bool Server::parseServer(const std::string &server_block, const std::string &ser
 		getline(ifs, buffer);
 		if (!buffer.size()) // Skips empty lines
 			continue;
-		if (buffer.back() != ';' && buffer.substr(0, buffer.find_first_of(" \t")) != "location")
-			return false;
+		if (buffer.back() != ';')
+		{
+			if (buffer.substr(0, buffer.find_first_of(" \t")) != "location")
+			{
+				ft_error(1, buffer, "");
+				return false;
+			}
+		}
 		name = getOptionName(buffer);
 		value = getOptionValue(buffer);
 		for (int i = 0; i <= 7; i++)
@@ -157,7 +187,12 @@ bool Server::parseServer(const std::string &server_block, const std::string &ser
 		Thanks to the 'option == 7' condition, we don't need a default 
 		behavior for the switch statement in the parseOption function
 		*/
-		if (option == 7 || !parseOption(option, value, ifs, server_name))
+		if (option == 7)
+		{
+			ft_error(4, name, "");
+			return false;
+		}
+		if (!parseOption(option, value, ifs, server_name))
 			return false;
 	}
 	return true;

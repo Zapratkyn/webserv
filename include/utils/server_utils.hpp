@@ -22,6 +22,7 @@ namespace server_utils {
     std::string getOptionValue(const std::string &);
     std::string getLocationBlock(std::stringstream &);
     t_location  newLocation(const std::string &, const std::string &);
+    void        ft_error(int, std::string, std::string);
 
 };
 
