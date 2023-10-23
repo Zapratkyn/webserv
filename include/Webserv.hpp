@@ -1,7 +1,7 @@
 #ifndef __WEBSERV_HPP__
 # define __WEBSERV_HPP__
 
-// #include <arpa/inet.h>
+#include <arpa/inet.h>
 // #include <unistd.h>
 #include "utils/webserv_utils.hpp"
 
@@ -12,20 +12,16 @@ class Webserv {
 
 private:
 
-	// std::string 					_ip_address;
 	int								_socket;
-	fd_set							_socket_list;
-	// int							_new_socket;
-	// int 							_port;
+	fd_set							_readfds;
+	fd_set							_writefds;
+	std::vector<int>				_socket_list;
+	int								_new_socket;
 	struct sockaddr_in 				_socketAddr;
 	unsigned int					_socketAddrLen;
-	// std::string					_serverMessage;
+	struct timeval					_timeval;
 
-	// void							initAddr();
-	// void							listenLog() const;
-	// bool							newConnection(int&);
-	// std::string					buildResponse();
-	// void							sendResponse();
+	bool							newConnection();
 
 	std::string						_conf;
 	std::map<std::string, Server*>	_server_list;
@@ -34,7 +30,7 @@ public:
 
 	Webserv(const std::string &);
 	~Webserv();
-	// void	startListen();
+	void	startListen();
 	void	startServer();
 	void	parseConf();
 	void	displayServers();;

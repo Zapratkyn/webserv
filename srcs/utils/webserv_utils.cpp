@@ -107,4 +107,10 @@ namespace webserv_utils {
 		socketAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	}
 
+	void initTimeval(struct timeval &tv)
+	{
+		tv.tv_sec = 5;
+		tv.tv_usec = 0;
+	}
+
 };

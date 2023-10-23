@@ -116,7 +116,9 @@ void Webserv::startServer()
 	std::vector<int> port_list;
 
 	initSockaddr(_socketAddr);
-	FD_ZERO(&_socket_list);
+	initTimeval(_timeval);
+	FD_ZERO(&_readfds);
+	FD_ZERO(&_writefds);
 
 	for (std::map<std::string, Server*>::iterator server_it = _server_list.begin(); server_it != _server_list.end(); server_it++)
 	{
@@ -126,10 +128,13 @@ void Webserv::startServer()
 			_socket = socket(AF_INET, SOCK_STREAM, 0);
 			if (_socket < 0)
 				throw openSocketException();
-			if (FD_ISSET(_socket, &_socket_list))
+			if (FD_ISSET(_socket, &_readfds))
 				throw duplicateSocketException();
 			
-			FD_SET(_socket, &_socket_list);
+			FD_SET(_socket, &_readfds);
+			FD_SET(_socket, &_writefds);
+			_socket_list.push_back(_socket);
+			server_it->second->addSocket(_socket);
 			
 			_socketAddr.sin_port = *port_it;
 			if (bind(_socket, (sockaddr *)&_socketAddr, _socketAddrLen) < 0)
@@ -138,21 +143,26 @@ void Webserv::startServer()
 	}
 }
 
-// void Webserv::startServer()
-// {
-// 	/*Creating a socket, a communication entry point. 
-// 	AF_INET for TCP/IP protocol. AF stands for Address Family (in this case, IPv4)
-// 	SOCK_STREAM is the type of communication > Safe binary stream
-// 	0 is the default protocol*/
-// 	_socket = socket(AF_INET, SOCK_STREAM, 0); 
-// 	if (_socket < 0)
-// 		throw openSocketException();
-	
-// 	initAddr(); // Since the _socketAddr is a data structure, it needs to be set for incoming uses
+void Webserv::startListen()
+{
+	for (std::vector<int>::iterator it = _socket_list.begin(); it != _socket_list.end(); it++)
+	{
+		if (listen(*it, 10) < 0)
+			throw listenException();
+	}
 
-// 	if (bind(_socket, (sockaddr *)&_socketAddr, _socketAddrLen) < 0) // Binding the socket to the address
-// 		throw bindException();
-// }
+	int max_fds = _socket_list.size() + 3;
+
+	while (true)
+	{
+		std::cout << "Waiting for new connection...\n\n" << std::endl;
+		select(max_fds, &_readfds, &_writefds, NULL, &_timeval);
+		if (!newConnection())
+			std::cerr << "Server failed to accept incoming connection from ADDRESS: " << 
+			inet_ntoa(_socketAddr.sin_addr) << "; PORT: " << 
+			ntohs(_socketAddr.sin_port) << std::endl;
+	}
+}
 
 // void Webserv::startListen()
 // {
@@ -186,13 +196,13 @@ void Webserv::startServer()
 // 	}
 // }
 
-// bool Webserv::newConnection(int &new_socket)
-// {
-// 	new_socket = accept(_socket, (sockaddr *)&_socketAddr, &_socketAddrLen); // _socket is the listening socket, never changes. _socketAddr is teh struct used for each new connection
-// 	if (new_socket < 0)
-// 		return false;
-// 	return true;
-// }
+bool Webserv::newConnection()
+{
+	_new_socket = accept(_socket, (sockaddr *)&_socketAddr, &_socketAddrLen); // _socket is the listening socket, never changes. _socketAddr is teh struct used for each new connection
+	if (_new_socket < 0)
+		return false;
+	return true;
+}
 
 // void Webserv::sendResponse()
 // {

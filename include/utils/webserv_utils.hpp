@@ -18,6 +18,7 @@ namespace webserv_utils {
     std::string getServerBlock(std::ifstream &);
     void        initSockaddr(struct sockaddr_in &);
     std::string ft_pop_back(std::string);
+    void        initTimeval(struct timeval &);
 
 };
 

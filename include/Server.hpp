@@ -17,6 +17,7 @@ private:
 	std::string									_index;
 	int											_client_max_body_size;
 	std::vector<int>							_ports;
+	std::vector<int>							_sockets;
 	std::map<std::string, t_location>			_location_list;
 
 	bool 										parseOption(const int &, std::string &, std::stringstream &, const std::string &, std::vector<int> &);
@@ -41,6 +42,7 @@ public:
 	bool										setBodySize(const std::string&);
 	bool										addPort(const std::string&, std::vector<int>&);
 	bool										addLocation(std::stringstream&, std::string &value);
+	void										addSocket(int&);
 
 	bool										parseServer(const std::string &, const std::string &, std::vector<int> &);
 

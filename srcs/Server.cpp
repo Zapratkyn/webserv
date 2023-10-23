@@ -103,6 +103,10 @@ bool Server::addLocation(std::stringstream &ifs, std::string &value)
 	}
 	return true;
 }
+void Server::addSocket(int &socket)
+{
+	_sockets.push_back(socket);
+}
 
 
 std::string							Server::getHost() const { return _host; }
