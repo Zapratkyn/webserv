@@ -113,4 +113,18 @@ namespace webserv_utils {
 		tv.tv_usec = 0;
 	}
 
+	void ft_error(int type, struct sockaddr_in sockaddr)
+	{
+		switch (type) {
+			case 0:
+				std::cout << inet_ntoa(sockaddr.sin_addr) << ": Connection timeout" << std::endl;
+				break;
+			case 1:
+				std::cerr << "Server failed to accept incoming connection from ADDRESS: " << 
+				inet_ntoa(sockaddr.sin_addr) << "; PORT: " << 
+				ntohs(sockaddr.sin_port) << std::endl;
+				break;
+		}
+	}
+
 };

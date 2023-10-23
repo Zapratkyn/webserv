@@ -133,10 +133,14 @@ void Webserv::startServer()
 			
 			FD_SET(_socket, &_readfds);
 			FD_SET(_socket, &_writefds);
+			/*
+			Since we cannot iterate on a fd_set, 
+			we keep track of all the open sockets so we can close them all later
+			*/
 			_socket_list.push_back(_socket);
 			server_it->second->addSocket(_socket);
 			
-			_socketAddr.sin_port = *port_it;
+			_socketAddr.sin_port = htons(*port_it);
 			if (bind(_socket, (sockaddr *)&_socketAddr, _socketAddrLen) < 0)
 				throw bindException();
 		}
@@ -151,17 +155,66 @@ void Webserv::startListen()
 			throw listenException();
 	}
 
+	listenLog();
+
+	/*
+	Select() needs the biggest fd + 1 from all the fd_sets
+	In our case, readfds and writefds contain the same fd's
+	Since fd 1 and 2 are already taken (STD_IN and STD_OUT), our list begins at 3
+	Therefore, max_fds = total_number_of_sockets + STD_IN + STD_OUT + 1
+	*/
 	int max_fds = _socket_list.size() + 3;
 
 	while (true)
 	{
 		std::cout << "Waiting for new connection...\n\n" << std::endl;
-		select(max_fds, &_readfds, &_writefds, NULL, &_timeval);
+		_socket = select(max_fds, &_readfds, &_writefds, NULL, &_timeval); // Incorrect !!!
+		if (!_socket)
+		{
+			ft_error(0, _socketAddr);
+			continue;
+		}
 		if (!newConnection())
-			std::cerr << "Server failed to accept incoming connection from ADDRESS: " << 
-			inet_ntoa(_socketAddr.sin_addr) << "; PORT: " << 
-			ntohs(_socketAddr.sin_port) << std::endl;
+		{
+			ft_error(1, _socketAddr);
+			continue;
+		}
+		close(_new_socket);
+		/*
+		We need to find a way to stop the program properly
+		If we press CTRL-C, we kill it and leaks happen
+		Maybe have a web page with a dedicated button...
+		(Like close_server.html, with a button sending a specific message in the client_body)
+		*/
 	}
+	for (std::vector<int>::iterator it = _socket_list.begin(); it != _socket_list.end(); it++)
+		close(*it);
+}
+
+bool Webserv::newConnection()
+{
+	_new_socket = accept(_socket, (sockaddr *)&_socketAddr, &_socketAddrLen);
+	if (_new_socket < 0)
+		return false;
+	return true;
+}
+
+void Webserv::listenLog()
+{
+	std::ostringstream 	ss;
+	std::vector<int>	port_list;
+   	ss << "### Webserv started ###\n\n"
+	<< "\n***\n\nListening on ADDRESS: " 
+    << inet_ntoa(_socketAddr.sin_addr)  // inet_ntoa converts the Internet Host address to an IPv4 address (xxx.xxx.xxx.xxx)
+    << "\n\nPORTS:\n\n";
+	for (std::map<std::string, Server*>::iterator server_it = _server_list.begin(); server_it != _server_list.end(); server_it++)
+	{
+		port_list = server_it->second->getPorts();
+		for (std::vector<int>::iterator port_it = port_list.begin(); port_it != port_list.end(); port_it++)
+			ss << " - " << *port_it << "\n";
+	}
+    ss << "\n***\n\n";
+	std::cout << ss.str() << std::endl;
 }
 
 // void Webserv::startListen()
@@ -196,14 +249,6 @@ void Webserv::startListen()
 // 	}
 // }
 
-bool Webserv::newConnection()
-{
-	_new_socket = accept(_socket, (sockaddr *)&_socketAddr, &_socketAddrLen); // _socket is the listening socket, never changes. _socketAddr is teh struct used for each new connection
-	if (_new_socket < 0)
-		return false;
-	return true;
-}
-
 // void Webserv::sendResponse()
 // {
 //     unsigned long bytesSent;
@@ -224,20 +269,4 @@ bool Webserv::newConnection()
 //        << htmlFile;
 
 // 	return ss.str();
-// }
-
-// void Webserv::initAddr()
-// {
-// 	_socketAddr.sin_family = AF_INET; // The socket's address family
-// 	_socketAddr.sin_port = htons(_port); // Copies the port number. htons ensures the bytes order is respected (stands for Host to Network Short)
-// 	_socketAddr.sin_addr.s_addr = htonl(INADDR_ANY); // INADDR_ANY = "0.0.0.0"
-// }
-// void Webserv::listenLog() const
-// {
-// 	std::ostringstream ss;
-//    	ss << "\n*** Listening on ADDRESS: " 
-//     << inet_ntoa(_socketAddr.sin_addr)  // inet_ntoa converts the Internet Host address to an IPv4 address (xxx.xxx.xxx.xxx)
-//     << " PORT: " << ntohs(_socketAddr.sin_port)  // Copies the port number. ntohs ensures the bytes order is respected (stands for Network to Host Short)
-//     << " ***\n\n";
-// 	std::cout << ss.str() << std::endl;
 // }

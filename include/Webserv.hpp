@@ -1,8 +1,7 @@
 #ifndef __WEBSERV_HPP__
 # define __WEBSERV_HPP__
 
-#include <arpa/inet.h>
-// #include <unistd.h>
+#include <unistd.h>
 #include "utils/webserv_utils.hpp"
 
 # define EXIT_SUCCESS 0
@@ -33,7 +32,8 @@ public:
 	void	startListen();
 	void	startServer();
 	void	parseConf();
-	void	displayServers();;
+	void	displayServers();
+	void	listenLog();
 
 	class openSocketException : public std::exception { public: virtual const char *what() const throw() { return "ERROR\nCouldn't open socket"; } };
 	class duplicateSocketException : public std::exception { public: virtual const char *what() const throw() { return "ERROR\nSocket already exists"; } };

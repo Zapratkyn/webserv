@@ -9,6 +9,7 @@
 #include <sys/socket.h>
 #include <sys/select.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include "../Server.hpp"
 
 namespace webserv_utils {
@@ -19,6 +20,7 @@ namespace webserv_utils {
     void        initSockaddr(struct sockaddr_in &);
     std::string ft_pop_back(std::string);
     void        initTimeval(struct timeval &);
+    void        ft_error(int, struct sockaddr_in);
 
 };
 
