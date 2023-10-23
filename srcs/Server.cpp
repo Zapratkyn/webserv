@@ -195,5 +195,7 @@ bool Server::parseServer(const std::string &server_block, const std::string &ser
 		if (!parseOption(option, value, ifs, server_name))
 			return false;
 	}
+	if (_ports.empty())
+		_ports.push_back(8080);
 	return true;
 }

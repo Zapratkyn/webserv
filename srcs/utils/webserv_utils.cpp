@@ -76,4 +76,10 @@ namespace webserv_utils {
 		return server_block;
 	}
 
+	// void initSockaddr(struct sockaddr_in &sockaddr)
+	// {
+	// 	socketAddr.sin_family = AF_INET;
+	// 	socketAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+	// }
+
 };
