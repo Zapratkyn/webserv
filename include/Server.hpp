@@ -19,7 +19,7 @@ private:
 	std::vector<int>							_ports;
 	std::map<std::string, t_location>			_location_list;
 
-	bool 										parseOption(const int &, std::string &, std::stringstream &, const std::string &);
+	bool 										parseOption(const int &, std::string &, std::stringstream &, const std::string &, std::vector<int> &);
 
 public:
 
@@ -39,10 +39,10 @@ public:
 	bool										setRoot(std::string&);
 	bool										setIndex(const std::string&);
 	bool										setBodySize(const std::string&);
-	bool										addPort(const std::string&);
+	bool										addPort(const std::string&, std::vector<int>&);
 	bool										addLocation(std::stringstream&, std::string &value);
 
-	bool										parseServer(const std::string &, const std::string &);
+	bool										parseServer(const std::string &, const std::string &, std::vector<int> &);
 
 };
 

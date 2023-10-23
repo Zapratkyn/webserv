@@ -57,7 +57,7 @@ bool Server::setIndex(const std::string &index)
 	_index = index;
 	return true;
 }
-bool Server::addPort(const std::string &value)
+bool Server::addPort(const std::string &value, std::vector<int> &port_list)
 {
 	int iValue;
 
@@ -67,9 +67,9 @@ bool Server::addPort(const std::string &value)
 		return false;
 	}
 	iValue = ft_stoi(value);
-	if (!_ports.empty())
+	if (!port_list.empty())
 	{
-		for (std::vector<int>::iterator it = _ports.begin(); it != _ports.end(); it++)
+		for (std::vector<int>::iterator it = port_list.begin(); it != port_list.end(); it++)
 		{
 			if (*it == iValue)
 			{
@@ -79,6 +79,7 @@ bool Server::addPort(const std::string &value)
 		}
 	}
 	_ports.push_back(iValue);
+	port_list.push_back(iValue);
 	return true;
 }
 bool Server::addLocation(std::stringstream &ifs, std::string &value)
@@ -121,11 +122,11 @@ There can be several ports and locations (structures) in a server
 There can be several methods in a location
 Location names are used to make sure a same location is not used more than once
 */
-bool Server::parseOption(const int &option, std::string &value, std::stringstream &ifs, const std::string &server_name)
+bool Server::parseOption(const int &option, std::string &value, std::stringstream &ifs, const std::string &server_name, std::vector<int> &port_list)
 {
 	switch (option) {
 		case 0:
-			if (!addPort(value))
+			if (!addPort(value, port_list))
 				return false;
 			break;
 		case 1:
@@ -156,12 +157,12 @@ bool Server::parseOption(const int &option, std::string &value, std::stringstrea
 	return true;
 }
 
-bool Server::parseServer(const std::string &server_block, const std::string &server_name)
+bool Server::parseServer(const std::string &server_block, const std::string &server_name, std::vector<int> &port_list)
 {
 	std::string 		buffer, name, value, option_list[7] = {"listen", "host", "server_name", "client_max_body_size", "root", "index", "location"};
 	std::stringstream	ifs(server_block); // std::stringstream works the same as a std::ifstream but is constructed from a string instead of a file
 	int					option;
-
+	
 	while (!ifs.eof())
 	{
 		getline(ifs, buffer);
@@ -192,10 +193,13 @@ bool Server::parseServer(const std::string &server_block, const std::string &ser
 			ft_error(4, name, "");
 			return false;
 		}
-		if (!parseOption(option, value, ifs, server_name))
+		if (!parseOption(option, value, ifs, server_name, port_list))
 			return false;
 	}
 	if (_ports.empty())
-		_ports.push_back(8080);
+	{
+		std::cerr << server_name << " needs at least one port" << std::endl;
+		return false;
+	}
 	return true;
 }

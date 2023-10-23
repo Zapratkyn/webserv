@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 	{
 		webserver.parseConf(); // Using the configuration file to fill the Webserv's list of servers
 		// webserver.displayServers();
-		// webserver.startServer();
+		webserver.startServer();
 		// webserver.startListen();
 	}
 	catch (const std::exception &e)

@@ -37,11 +37,11 @@ public:
 	// void	startListen();
 	void	startServer();
 	void	parseConf();
-	void	displayServers();
+	void	displayServers();;
 
 	class openSocketException : public std::exception { public: virtual const char *what() const throw() { return "ERROR\nCouldn't open socket"; } };
 	class duplicateSocketException : public std::exception { public: virtual const char *what() const throw() { return "ERROR\nSocket already exists"; } };
-	class bindException : public std::exception { public: virtual const char *what() const throw() { return "ERROR\nCouldn't bind sockets"; } };
+	class bindException : public std::exception { public: virtual const char *what() const throw() { return "ERROR\nCouldn't bind socket"; } };
 	class listenException : public std::exception { public: virtual const char *what() const throw() { return "ERROR\nCouldn't start listening"; } };
 	class confFailureException : public std::exception { public: virtual const char *what() const throw() { return "Configuration failure. Program stopped."; } };
 
