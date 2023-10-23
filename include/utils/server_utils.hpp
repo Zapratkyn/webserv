@@ -23,6 +23,8 @@ namespace server_utils {
     std::string getLocationBlock(std::stringstream &);
     t_location  newLocation(const std::string &, const std::string &);
     void        ft_error(int, std::string, std::string);
+    std::string ft_pop_back(std::string);
+    int         ft_stoi(std::string);
 
 };
 

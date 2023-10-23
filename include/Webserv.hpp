@@ -1,10 +1,12 @@
 #ifndef __WEBSERV_HPP__
 # define __WEBSERV_HPP__
 
-// #include <netinet/in.h>
 // #include <arpa/inet.h>
 // #include <unistd.h>
 #include "utils/webserv_utils.hpp"
+
+# define EXIT_SUCCESS 0
+# define EXIT_FAILURE 1
 
 class Webserv {
 
@@ -12,10 +14,10 @@ private:
 
 	// std::string 					_ip_address;
 	int								_socket;
-	// fd_set							_socket_list;
+	fd_set							_socket_list;
 	// int							_new_socket;
 	// int 							_port;
-	// struct sockaddr_in 				_socketAddr;
+	struct sockaddr_in 				_socketAddr;
 	unsigned int					_socketAddrLen;
 	// std::string					_serverMessage;
 

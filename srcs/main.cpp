@@ -50,7 +50,7 @@ bool valid_file(const std::string &file)
 
 	std::ifstream ifs;
 
-	ifs.open(file);
+	ifs.open(file.c_str());
 	if (ifs.fail())
 		return false;
 	ifs.close();

@@ -2,6 +2,27 @@
 
 namespace server_utils {
 
+	std::string ft_pop_back(std::string str)
+	{
+    	std::string result = "";
+    	int pos = str.size() - 1;
+
+    	for (int i = 0; i < pos; i++)
+        	result += str[i];
+
+    	return result;
+	}
+
+	int ft_stoi(std::string str)
+	{
+		int result = 0;
+
+		for (size_t i = 0; i < str.size(); i++)
+			result = result * 10 + str[i] - '0';
+
+		return result;
+	}
+	
 	std::string getOptionName(const std::string &str) 
 	{ 
 		std::string result = str.substr(0, str.find_first_of(" \t"));
@@ -15,8 +36,8 @@ namespace server_utils {
 
 	    result = &result[result.find_first_not_of(" \t")];
 
-	    while (result.back() == '{' || result.back() == ';' || result.back() == ' ' || result.back() == '\t')
-	        result.pop_back();
+	    while (result[result.size() - 1] == '{' || result[result.size() - 1] == ';' || result[result.size() - 1] == ' ' || result[result.size() - 1] == '\t')
+	        result = ft_pop_back(result);
 
 	    return result;
 	}
@@ -25,18 +46,18 @@ namespace server_utils {
 	{
 		std::string location_block, buffer;
 
-		while (location_block.back() != '}')
+		while (location_block[location_block.size() - 1] != '}')
 		{
 			getline(ifs, buffer);
 			if (buffer[0] == '{')
 				continue;
 			location_block.append(buffer);
-			if (location_block.back() != '}')
+			if (location_block[location_block.size() - 1] != '}')
 				location_block.append("\n");
 		}
-		location_block.pop_back();
-		if (location_block.back() == '\n')
-			location_block.pop_back();
+		location_block = ft_pop_back(location_block);
+		if (location_block[location_block.size() - 1] == '\n')
+			location_block = ft_pop_back(location_block);
 		return location_block;
 	}
 
@@ -55,7 +76,7 @@ namespace server_utils {
 		while (!ifs.eof())
 		{
 			getline(ifs, buffer);
-			if (buffer.back() != ';')
+			if (buffer[buffer.size() - 1] != ';')
 			{
 				ft_error(1, buffer, buffer);
 				return loc;
@@ -75,7 +96,7 @@ namespace server_utils {
 						ft_error(0, value, "loc.root");
 						return loc;
 					}
-					if (value.back() != '/')
+					if (value[value.size() - 1] != '/')
 						value.append("/");
 					loc.root = value;
 					break;

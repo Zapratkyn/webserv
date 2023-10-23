@@ -2,6 +2,31 @@
 
 namespace webserv_utils {
 
+	std::string ft_pop_back(std::string str)
+	{
+    	std::string result = "";
+    	int pos = str.size() - 1;
+
+    	for (int i = 0; i < pos; i++)
+        	result += str[i];
+
+    	return result;
+	}
+
+	std::string ft_to_string(int nb)
+	{
+    	std::string result = "", ch;
+
+		while (nb > 0)
+		{
+			ch = nb % 10 + '0';
+			ch += result;
+        	result = ch;
+			nb /= 10;
+		}
+    	return ch;
+	}
+
 // A function to delete any white space before and after a line in the configuration file
 	std::string trim(const std::string &str)
 	{
@@ -10,8 +35,8 @@ namespace webserv_utils {
 	    if (str.size())
 	    {
 	        result = &str[str.find_first_not_of(" \t")];
-	        while (result.back() == ' ' || result.back() == '\t')
-	            result.pop_back();
+	        while (result[result.size() - 1] == ' ' || result[result.size() - 1] == '\t')
+	            result = ft_pop_back(result);
 	    }
 	    return result;
 	}
@@ -31,25 +56,25 @@ namespace webserv_utils {
 	            buffer = &buffer[buffer.find_first_not_of(" \t")];
 	            if (!buffer[0] || buffer.substr(0, 11) == "webserv_42;" || buffer.substr(0, 12) == "webserv_42_;")
 				{
-					default_name.append(std::to_string(default_name_index++));
+					default_name.append(ft_to_string(default_name_index++));
 	                return default_name;
 				}
 				result = buffer.substr(0);
-				while (result.back() == ' ' || result.back() == '\t' || result.back() == ';' || result.back() == '}')
-					result.pop_back();
+				while (result[result.size() - 1] == ' ' || result[result.size() - 1] == '\t' || result[result.size() - 1] == ';' || result[result.size() - 1] == '}')
+					result = ft_pop_back(result);
 				// If the new server's name is already set for another server, it will be called webserv_42_[default_name_index] instead
 				for (std::map<std::string, Server*>::iterator it = server_list.begin(); it != server_list.end(); it++)
 				{
 					if (it->second->getServerName() == result)
 					{
-						default_name.append(std::to_string(default_name_index++));
+						default_name.append(ft_to_string(default_name_index++));
 	               		return default_name;
 					}
 				}
 				return (result);
 			}
 		}
-		default_name.append(std::to_string(default_name_index++));
+		default_name.append(ft_to_string(default_name_index++));
 		return default_name;
 	}
 
@@ -69,17 +94,17 @@ namespace webserv_utils {
 			else if (buffer.find('}') != buffer.npos)
 				brackets--;
 		}
-		server_block.pop_back();
-		server_block.pop_back();
-		while (server_block.back() == ' ' || server_block.back() == '\t' || server_block.back() == '\n')
-			server_block.pop_back();
+		server_block = ft_pop_back(server_block);
+		server_block = ft_pop_back(server_block);
+		while (server_block[server_block.size() - 1] == ' ' || server_block[server_block.size() - 1] == '\t' || server_block[server_block.size() - 1] == '\n')
+			server_block = ft_pop_back(server_block);
 		return server_block;
 	}
 
-	// void initSockaddr(struct sockaddr_in &sockaddr)
-	// {
-	// 	socketAddr.sin_family = AF_INET;
-	// 	socketAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	// }
+	void initSockaddr(struct sockaddr_in &socketAddr)
+	{
+		socketAddr.sin_family = AF_INET;
+		socketAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+	}
 
 };

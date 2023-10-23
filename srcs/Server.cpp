@@ -32,7 +32,7 @@ bool Server::setRoot(std::string &root)
 		ft_error(0, root, "root");
 		return false;
 	}
-	if (root.back() != '/')
+	if (root[root.size() - 1] != '/')
 		root.append("/");
 	_root = root;
 	return true;
@@ -44,7 +44,7 @@ bool Server::setBodySize(const std::string &size)
 		ft_error(2, size, "client_max_body_size");
 		return false;
 	}
-	_client_max_body_size = std::stoi(size);
+	_client_max_body_size = ft_stoi(size);
 	return true;
 }
 bool Server::setIndex(const std::string &index)
@@ -66,7 +66,7 @@ bool Server::addPort(const std::string &value)
 		ft_error(2, value, "port");
 		return false;
 	}
-	iValue = std::stoi(value);
+	iValue = ft_stoi(value);
 	if (!_ports.empty())
 	{
 		for (std::vector<int>::iterator it = _ports.begin(); it != _ports.end(); it++)
@@ -169,7 +169,7 @@ bool Server::parseServer(const std::string &server_block, const std::string &ser
 			continue;
 		name = getOptionName(buffer);
 		value = getOptionValue(buffer);
-		if (buffer.back() != ';')
+		if (buffer[buffer.size() - 1] != ';')
 		{
 			if (buffer.substr(0, buffer.find_first_of(" \t")) != "location")
 			{

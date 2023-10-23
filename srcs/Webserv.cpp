@@ -2,7 +2,7 @@
 
 using namespace webserv_utils;
 
-Webserv::Webserv(const std::string &conf_file) : _conf(conf_file)/*, _socketAddrLen(sizeof(_socketAddr))*/ { return; }
+Webserv::Webserv(const std::string &conf_file) : _socketAddrLen(sizeof(_socketAddr)), _conf(conf_file) { return; }
 
 Webserv::~Webserv() 
 {
@@ -25,7 +25,7 @@ void Webserv::parseConf()
 	We already know the file exists and is valid from the valid_file function in main.cpp
 	So we can open it at construction without checking for fail()
 	*/
-	std::ifstream 	infile(_conf);
+	std::ifstream 	infile(_conf.c_str());
 	std::string		buffer, server_block, server_name;
 	int				default_name = 1;
 	Server			*server;
@@ -111,31 +111,31 @@ void Webserv::displayServers()
 	}
 }
 
-// void Webserv::startServer()
-// {
-// 	std::vector<int> port_list;
+void Webserv::startServer()
+{
+	std::vector<int> port_list;
 
-// 	initSockaddr(_socketAddr);
+	initSockaddr(_socketAddr);
 
-// 	for (std::map<std::string, Server*>::iterator server_it = _server_list.begin(); server_it != _server_list.end(); server_it++)
-// 	{
-// 		port_list = server_it->second->_ports;
-// 		for (std::vector<int>::iterator port_it = port_list.begin(); port_it != port_list.end(); port_it++)
-// 		{
-// 			_socket = socket(AF_INET, SOCK_STREAM, 0);
-// 			if (_socket < 0)
-// 				throw openSocketException();
-// 			if (FD_ISSET(_socket, &_socket_list))
-// 				throw duplicateSocketException();
+	for (std::map<std::string, Server*>::iterator server_it = _server_list.begin(); server_it != _server_list.end(); server_it++)
+	{
+		port_list = server_it->second->getPorts();
+		for (std::vector<int>::iterator port_it = port_list.begin(); port_it != port_list.end(); port_it++)
+		{
+			_socket = socket(AF_INET, SOCK_STREAM, 0);
+			if (_socket < 0)
+				throw openSocketException();
+			if (FD_ISSET(_socket, &_socket_list))
+				throw duplicateSocketException();
 			
-// 			FD_SET(_socket, &_socket_list);
+			FD_SET(_socket, &_socket_list);
 			
-// 			_sockAddr.sin_port = *port_it;
-// 			if (bind(_socket, (sockaddr *)&_socketAddr, _socketAddrLen) < 0)
-// 				throw bindException();
-// 		}
-// 	}
-// }
+			_socketAddr.sin_port = *port_it;
+			if (bind(_socket, (sockaddr *)&_socketAddr, _socketAddrLen) < 0)
+				throw bindException();
+		}
+	}
+}
 
 // void Webserv::startServer()
 // {
