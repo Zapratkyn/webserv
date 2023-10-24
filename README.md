@@ -1,5 +1,9 @@
 # webserv
 
+Naming convention :
+
+- Variables, structures, namespaces : snake_case
+- Functions : camelCase
 
 Tasks:
 
