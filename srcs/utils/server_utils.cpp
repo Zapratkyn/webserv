@@ -16,8 +16,9 @@ namespace server_utils {
 	int ft_stoi(std::string str)
 	{
 		int result = 0;
+		int size = str.size();
 
-		for (size_t i = 0; i < str.size(); i++)
+		for (int i = 0; i < size; i++)
 			result = result * 10 + str[i] - '0';
 
 		return result;

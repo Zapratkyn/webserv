@@ -104,26 +104,121 @@ namespace webserv_utils {
 	void initSockaddr(struct sockaddr_in &socketAddr)
 	{
 		socketAddr.sin_family = AF_INET;
-		socketAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+		socketAddr.sin_addr.s_addr = inet_addr("0.0.0.0");
 	}
 
-	void initTimeval(struct timeval &tv)
-	{
-		tv.tv_sec = 5;
-		tv.tv_usec = 0;
-	}
+	// void initTimeval(struct timeval &tv)
+	// {
+	// 	tv.tv_sec = 5;
+	// 	tv.tv_usec = 0;
+	// }
 
 	void ft_error(int type, struct sockaddr_in sockaddr)
 	{
 		switch (type) {
 			case 0:
-				std::cout << inet_ntoa(sockaddr.sin_addr) << ": Connection timeout" << std::endl;
-				break;
-			case 1:
 				std::cerr << "Server failed to accept incoming connection from ADDRESS: " << 
-				inet_ntoa(sockaddr.sin_addr) << "; PORT: " << 
-				ntohs(sockaddr.sin_port) << std::endl;
+				inet_ntoa(sockaddr.sin_addr) << std::endl;
 				break;
+		}
+	}
+
+	void listenLog(struct sockaddr_in &socketAddr, std::map<std::string, Server*> &server_list)
+	{
+		std::ostringstream 	ss;
+		std::vector<int>	port_list;
+
+	   	ss << "\n\n### Webserv started ###\n\n"
+		<< "\n***\n\nListening on ADDRESS: " 
+	    << inet_ntoa(socketAddr.sin_addr) // inet_ntoa converts the Internet Host address to an IPv4 address (xxx.xxx.xxx.xxx)
+	    << " (localhost)\n\nPORTS:\n\n";
+		for (std::map<std::string, Server*>::iterator server_it = server_list.begin(); server_it != server_list.end(); server_it++)
+		{
+			port_list = server_it->second->getPorts();
+			for (std::vector<int>::iterator port_it = port_list.begin(); port_it != port_list.end(); port_it++)
+				ss << " - " << *port_it << "\n";
+		}
+	    ss << "\n***\n\n";
+		std::cout << ss.str() << std::endl;
+	}
+
+	std::string getServer(std::map<std::string, Server*> &server_list, int &socket)
+	{
+		std::vector<int> socket_list;
+		std::string result = "";
+
+		for (std::map<std::string, Server*>::iterator server_it = server_list.begin(); server_it != server_list.end(); server_it++)
+		{
+			socket_list = server_it->second->getSockets();
+			for (std::vector<int>::iterator socket_it = socket_list.begin(); socket_it != socket_list.end(); socket_it++)
+			{
+				if (*socket_it == socket)
+				{
+					result = server_it->second->getServerName();
+					break;
+				}
+			}
+			if (result != "")
+				break;
+		}
+		return result;
+	}
+
+	void displayServers(std::map<std::string, Server*> &server_list)
+	{
+		std::string 						value;
+		int									iValue;
+		std::vector<int>					port_list;
+		std::map<std::string, t_location>	location_list;
+		std::vector<std::string>			method_list;
+
+		std::cout << std::endl;
+
+		for (std::map<std::string, Server*>::iterator it = server_list.begin(); it != server_list.end(); it++)
+		{
+			std::cout << "### " << it->first << " ###\n" << std::endl;
+			value = it->second->getHost();
+			if (value != "")
+				std::cout << "Host : " << value << std::endl;
+			value = it->second->getIndex();
+			if (value != "")
+				std::cout << "Index : " << value << std::endl;
+			value = it->second->getRoot();
+			if (value != "")
+				std::cout << "Root : " << value << std::endl;
+			iValue = it->second->getBodySize();
+			if (iValue >= 0)
+				std::cout << "Client max body size : " << iValue << std::endl;
+			port_list = it->second->getPorts();
+			if (!port_list.empty())
+			{
+				std::cout << "Ports :\n";
+				for (std::vector<int>::iterator it = port_list.begin(); it != port_list.end(); it++)
+					std::cout << "  - " << *it << std::endl;
+			}
+			location_list = it->second->getLocationlist();
+			if (!location_list.empty())
+			{
+				std::cout << "Locations :\n";
+				for (std::map<std::string, t_location>::iterator it = location_list.begin(); it != location_list.end(); it++)
+				{
+					std::cout << "  - " << it->second.location << " :\n";
+					value = it->second.root;
+					if (value != "")
+						std::cout << "    - Root : " << value << std::endl;
+					value = it->second.index;
+					if (value != "")
+						std::cout << "    - Index : " << value << std::endl;
+					method_list = it->second.methods;
+					if (!method_list.empty())
+					{
+						std::cout << "    - Allowed methods :\n";
+						for (std::vector<std::string>::iterator it = method_list.begin(); it != method_list.end(); it++)
+							std::cout << "       - " << *it << std::endl;
+					}
+				}
+			}
+			std::cout << std::endl;
 		}
 	}
 

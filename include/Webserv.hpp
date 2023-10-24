@@ -2,6 +2,8 @@
 # define __WEBSERV_HPP__
 
 #include <unistd.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
 #include "utils/webserv_utils.hpp"
 
 # define EXIT_SUCCESS 0
@@ -13,14 +15,13 @@ private:
 
 	int								_socket;
 	fd_set							_readfds;
-	fd_set							_writefds;
 	std::vector<int>				_socket_list;
 	int								_new_socket;
 	struct sockaddr_in 				_socketAddr;
 	unsigned int					_socketAddrLen;
-	struct timeval					_timeval;
+	// struct timeval					_tv;
 
-	bool							newConnection();
+	int								newConnection(int);
 
 	std::string						_conf;
 	std::map<std::string, Server*>	_server_list;
@@ -32,8 +33,6 @@ public:
 	void	startListen();
 	void	startServer();
 	void	parseConf();
-	void	displayServers();
-	void	listenLog();
 
 	class openSocketException : public std::exception { public: virtual const char *what() const throw() { return "ERROR\nCouldn't open socket"; } };
 	class duplicateSocketException : public std::exception { public: virtual const char *what() const throw() { return "ERROR\nSocket already exists"; } };

@@ -34,6 +34,7 @@ public:
 	int											getBodySize() const;
 	std::vector<int> 							getPorts() const;
 	std::map<std::string, t_location> 			getLocationlist() const;
+	std::vector<int>							getSockets() const;
 
 	bool										setHost(const std::string&);
 	bool										setServerName(const std::string&);

@@ -106,6 +106,7 @@ bool Server::addLocation(std::stringstream &ifs, std::string &value)
 void Server::addSocket(int &socket)
 {
 	_sockets.push_back(socket);
+	return;
 }
 
 
@@ -116,6 +117,7 @@ std::string 						Server::getIndex() const { return _index; }
 int 								Server::getBodySize() const { return _client_max_body_size; }
 std::vector<int> 					Server::getPorts() const { return _ports; }
 std::map<std::string, t_location> 	Server::getLocationlist() const { return _location_list; }
+std::vector<int>					Server::getSockets() const { return _sockets; }
 
 /*
 In the 2 functions below :

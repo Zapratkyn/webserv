@@ -51,64 +51,7 @@ void Webserv::parseConf()
 		}
 	}
 	infile.close();
-}
-
-void Webserv::displayServers()
-{
-	std::string 						value;
-	int									iValue;
-	std::vector<int>					port_list;
-	std::map<std::string, t_location>	location_list;
-	std::vector<std::string>			method_list;
-
-	std::cout << std::endl;
-
-	for (std::map<std::string, Server*>::iterator it = _server_list.begin(); it != _server_list.end(); it++)
-	{
-		std::cout << "### " << it->first << " ###\n" << std::endl;
-		value = it->second->getHost();
-		if (value != "")
-			std::cout << "Host : " << value << std::endl;
-		value = it->second->getIndex();
-		if (value != "")
-			std::cout << "Index : " << value << std::endl;
-		value = it->second->getRoot();
-		if (value != "")
-			std::cout << "Root : " << value << std::endl;
-		iValue = it->second->getBodySize();
-		if (iValue >= 0)
-			std::cout << "Client max body size : " << iValue << std::endl;
-		port_list = it->second->getPorts();
-		if (!port_list.empty())
-		{
-			std::cout << "Ports :\n";
-			for (std::vector<int>::iterator it = port_list.begin(); it != port_list.end(); it++)
-				std::cout << "  - " << *it << std::endl;
-		}
-		location_list = it->second->getLocationlist();
-		if (!location_list.empty())
-		{
-			std::cout << "Locations :\n";
-			for (std::map<std::string, t_location>::iterator it = location_list.begin(); it != location_list.end(); it++)
-			{
-				std::cout << "  - " << it->second.location << " :\n";
-				value = it->second.root;
-				if (value != "")
-					std::cout << "    - Root : " << value << std::endl;
-				value = it->second.index;
-				if (value != "")
-					std::cout << "    - Index : " << value << std::endl;
-				method_list = it->second.methods;
-				if (!method_list.empty())
-				{
-					std::cout << "    - Allowed methods :\n";
-					for (std::vector<std::string>::iterator it = method_list.begin(); it != method_list.end(); it++)
-						std::cout << "       - " << *it << std::endl;
-				}
-			}
-		}
-		std::cout << std::endl;
-	}
+	displayServers(_server_list);
 }
 
 void Webserv::startServer()
@@ -116,9 +59,8 @@ void Webserv::startServer()
 	std::vector<int> port_list;
 
 	initSockaddr(_socketAddr);
-	initTimeval(_timeval);
+	// initTimeval(_tv);
 	FD_ZERO(&_readfds);
-	FD_ZERO(&_writefds);
 
 	for (std::map<std::string, Server*>::iterator server_it = _server_list.begin(); server_it != _server_list.end(); server_it++)
 	{
@@ -131,8 +73,9 @@ void Webserv::startServer()
 			if (FD_ISSET(_socket, &_readfds))
 				throw duplicateSocketException();
 			
+			fcntl(_socket, O_NONBLOCK);
+			ioctl(_socket, FIONBIO);
 			FD_SET(_socket, &_readfds);
-			FD_SET(_socket, &_writefds);
 			/*
 			Since we cannot iterate on a fd_set, 
 			we keep track of all the open sockets so we can close them all later
@@ -140,7 +83,10 @@ void Webserv::startServer()
 			_socket_list.push_back(_socket);
 			server_it->second->addSocket(_socket);
 			
+			// std::cout << htons(*port_it);
+
 			_socketAddr.sin_port = htons(*port_it);
+			// _socketAddr.sin_port = *port_it;
 			if (bind(_socket, (sockaddr *)&_socketAddr, _socketAddrLen) < 0)
 				throw bindException();
 		}
@@ -155,30 +101,33 @@ void Webserv::startListen()
 			throw listenException();
 	}
 
-	listenLog();
+	listenLog(_socketAddr, _server_list);
 
 	/*
 	Select() needs the biggest fd + 1 from all the fd_sets
-	In our case, readfds and writefds contain the same fd's
-	Since fd 1 and 2 are already taken (STD_IN and STD_OUT), our list begins at 3
-	Therefore, max_fds = total_number_of_sockets + STD_IN + STD_OUT + 1
+	Since fd 0, 1 and 2 are already taken (STD_IN and STD_OUT and STD_ERR), our list begins at 3
+	Therefore, max_fds = total_number_of_sockets + STD_IN + STD_OUT + STD_ERR
 	*/
 	int max_fds = _socket_list.size() + 3;
+	std::string server;
 
 	while (true)
 	{
 		std::cout << "Waiting for new connection...\n\n" << std::endl;
-		_socket = select(max_fds, &_readfds, &_writefds, NULL, 0); // Incorrect !!!
-		if (!_socket)
+		if (select(max_fds, &_readfds, NULL, NULL, NULL) < 0)
+		{
+			std::cerr << "Select error" << std::endl;
+			continue;
+		}
+		_new_socket = newConnection(max_fds);
+		if (_new_socket < 0)
 		{
 			ft_error(0, _socketAddr);
 			continue;
 		}
-		if (!newConnection())
-		{
-			ft_error(1, _socketAddr);
-			continue;
-		}
+		server = getServer(_server_list, _socket);
+		std::cout << server << std::endl;
+		// handle_request(server);
 		close(_new_socket);
 		/*
 		We need to find a way to stop the program properly
@@ -191,30 +140,21 @@ void Webserv::startListen()
 		close(*it);
 }
 
-bool Webserv::newConnection()
+int Webserv::newConnection(int max_fds)
 {
-	_new_socket = accept(_socket, (sockaddr *)&_socketAddr, &_socketAddrLen);
-	if (_new_socket < 0)
-		return false;
-	return true;
-}
+	int new_socket = 0;
 
-void Webserv::listenLog()
-{
-	std::ostringstream 	ss;
-	std::vector<int>	port_list;
-   	ss << "### Webserv started ###\n\n"
-	<< "\n***\n\nListening on ADDRESS: " 
-    << inet_ntoa(_socketAddr.sin_addr)  // inet_ntoa converts the Internet Host address to an IPv4 address (xxx.xxx.xxx.xxx)
-    << "\n\nPORTS:\n\n";
-	for (std::map<std::string, Server*>::iterator server_it = _server_list.begin(); server_it != _server_list.end(); server_it++)
+	for (int i = 3; i < max_fds; i++)
 	{
-		port_list = server_it->second->getPorts();
-		for (std::vector<int>::iterator port_it = port_list.begin(); port_it != port_list.end(); port_it++)
-			ss << " - " << *port_it << "\n";
+		_socket = i;
+		if (FD_ISSET(_socket, &_readfds))
+		{
+			new_socket = accept(_socket, (sockaddr *)&_socketAddr, &_socketAddrLen);
+			if (new_socket != EAGAIN && new_socket != EWOULDBLOCK)
+				break;
+		}
 	}
-    ss << "\n***\n\n";
-	std::cout << ss.str() << std::endl;
+	return new_socket;
 }
 
 // void Webserv::startListen()
