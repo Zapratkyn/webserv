@@ -1,7 +1,6 @@
 #ifndef __SERVER_HPP__
 # define __SERVER_HPP__
 
-// #include <netinet/in.h>
 #include <map>
 #include "utils/server_utils.hpp"
 
