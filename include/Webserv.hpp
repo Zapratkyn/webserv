@@ -2,8 +2,6 @@
 # define __WEBSERV_HPP__
 
 #include <unistd.h>
-#include <fcntl.h>
-#include <sys/ioctl.h>
 #include "utils/webserv_utils.hpp"
 
 # define EXIT_SUCCESS 0

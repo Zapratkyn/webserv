@@ -73,8 +73,6 @@ void Webserv::startServer()
 			if (FD_ISSET(_socket, &_readfds))
 				throw duplicateSocketException();
 			
-			fcntl(_socket, O_NONBLOCK);
-			ioctl(_socket, FIONBIO);
 			FD_SET(_socket, &_readfds);
 			/*
 			Since we cannot iterate on a fd_set, 
