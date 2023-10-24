@@ -1,6 +1,6 @@
 #include "../include/Webserv.hpp"
 
-bool valid_file(const std::string &);
+bool valid_file(const std::string &); // I like to keep the main() function on top
 
 int main(int argc, char **argv)
 {
@@ -27,8 +27,8 @@ int main(int argc, char **argv)
 	try
 	{
 		webserver.parseConf(); // Using the configuration file to fill the Webserv's list of servers
-		webserver.startServer();
-		webserver.startListen();
+		webserver.startServer(); // Create the listening sockets
+		webserver.startListen(); // Actual main loop
 	}
 	catch (const std::exception &e)
 	{

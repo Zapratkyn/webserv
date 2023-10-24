@@ -192,7 +192,7 @@ bool Server::parseServer(const std::string &server_block, const std::string &ser
 		}
 		/*
 		Thanks to the 'option == 7' condition, we don't need a default 
-		behavior for the switch statement in the parseOption function
+		behavior for the switch statement in the parseOption() function
 		*/
 		if (option == 7)
 		{
@@ -207,5 +207,7 @@ bool Server::parseServer(const std::string &server_block, const std::string &ser
 		std::cerr << server_name << " needs at least one port" << std::endl;
 		return false;
 	}
+	if (_client_max_body_size == -1)
+		_client_max_body_size = 60000; // The PDF states we need to limit the client_max_body_size
 	return true;
 }

@@ -2,6 +2,10 @@
 
 namespace webserv_utils {
 
+	/*
+	Because of the -std=c++98 flag, we can't use pop_back() and std::to_string()
+	So I coded them here
+	*/
 	std::string ft_pop_back(std::string str)
 	{
     	std::string result = "";
@@ -27,7 +31,7 @@ namespace webserv_utils {
     	return ch;
 	}
 
-// A function to delete any white space before and after a line in the configuration file
+	// A function to delete any white space before and after a line in the configuration file
 	std::string trim(const std::string &str)
 	{
 	    std::string result;
@@ -104,7 +108,7 @@ namespace webserv_utils {
 	void initSockaddr(struct sockaddr_in &socketAddr)
 	{
 		socketAddr.sin_family = AF_INET;
-		socketAddr.sin_addr.s_addr = inet_addr("0.0.0.0");
+		socketAddr.sin_addr.s_addr = inet_addr("0.0.0.0"); // Allows any address to reach the server
 	}
 
 	// void initTimeval(struct timeval &tv)
@@ -113,10 +117,14 @@ namespace webserv_utils {
 	// 	tv.tv_usec = 0;
 	// }
 
+	// Namespaces allow us to use the same function name in different contexts
 	void ft_error(int type, struct sockaddr_in sockaddr)
 	{
 		switch (type) {
 			case 0:
+				std::cerr << "Select error" << std::endl;
+				break;
+			case 1:
 				std::cerr << "Server failed to accept incoming connection from ADDRESS: " << 
 				inet_ntoa(sockaddr.sin_addr) << std::endl;
 				break;

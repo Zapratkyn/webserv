@@ -2,6 +2,10 @@
 
 namespace server_utils {
 
+	/*
+	Because of the -std=c++98 flag, we can't use pop_back() and std::stoi()
+	So I coded them here
+	*/
 	std::string ft_pop_back(std::string str)
 	{
     	std::string result = "";
@@ -149,6 +153,7 @@ namespace server_utils {
 		return loc;
 	}
 
+	// Namespaces allow us to use the same function name in different contexts
 	void	ft_error(int type, std::string value, std::string option)
 	{
 		std::cerr << "ERROR\n";

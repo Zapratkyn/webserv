@@ -62,6 +62,14 @@ void Webserv::startServer()
 	// initTimeval(_tv);
 	FD_ZERO(&_readfds);
 
+
+	/*
+	Each port in the conf file is used to make an individual listening socket
+	We browse the whole list, create a socket for each port
+	We add the socket to the readfds set (for select()), to its server's socket_list (for getServer()) \
+	and to the global socket_list (to close everything at the end)
+	Bind() gives a "name" to each socket
+	*/
 	for (std::map<std::string, Server*>::iterator server_it = _server_list.begin(); server_it != _server_list.end(); server_it++)
 	{
 		port_list = server_it->second->getPorts();
@@ -80,11 +88,8 @@ void Webserv::startServer()
 			*/
 			_socket_list.push_back(_socket);
 			server_it->second->addSocket(_socket);
-			
-			// std::cout << htons(*port_it);
 
 			_socketAddr.sin_port = htons(*port_it);
-			// _socketAddr.sin_port = *port_it;
 			if (bind(_socket, (sockaddr *)&_socketAddr, _socketAddrLen) < 0)
 				throw bindException();
 		}
@@ -99,7 +104,7 @@ void Webserv::startListen()
 			throw listenException();
 	}
 
-	listenLog(_socketAddr, _server_list);
+	listenLog(_socketAddr, _server_list); // Displays all the open ports to the user
 
 	/*
 	Select() needs the biggest fd + 1 from all the fd_sets
@@ -112,18 +117,18 @@ void Webserv::startListen()
 	while (true)
 	{
 		std::cout << "Waiting for new connection...\n\n" << std::endl;
-		if (select(max_fds, &_readfds, NULL, NULL, NULL) < 0)
+		if (select(max_fds, &_readfds, NULL, NULL, NULL) < 0) // Blocks until a new request is received
 		{
-			std::cerr << "Select error" << std::endl;
+			ft_error(0, _socketAddr);
 			continue;
 		}
 		_new_socket = newConnection(max_fds);
 		if (_new_socket < 0)
 		{
-			ft_error(0, _socketAddr);
+			ft_error(1, _socketAddr);
 			continue;
 		}
-		server = getServer(_server_list, _socket);
+		server = getServer(_server_list, _socket); // Identify which server the user tries to reach
 		std::cout << server << std::endl;
 		// handle_request(server);
 		close(_new_socket);
@@ -132,6 +137,9 @@ void Webserv::startListen()
 		If we press CTRL-C, we kill it and leaks happen
 		Maybe have a web page with a dedicated button...
 		(Like close_server.html, with a button sending a specific message in the client_body)
+
+		>> if (the_stop_button_is_pressed_somewhere)
+			break;
 		*/
 	}
 	for (std::vector<int>::iterator it = _socket_list.begin(); it != _socket_list.end(); it++)
