@@ -151,7 +151,7 @@ void Webserv::startListen()
 {
 	for (std::vector<int>::iterator it = _socket_list.begin(); it != _socket_list.end(); it++)
 	{
-		if (listen(*it, 10) < 0)
+		if (listen(*it, 1000) < 0)
 			throw listenException();
 	}
 
@@ -168,7 +168,7 @@ void Webserv::startListen()
 	while (true)
 	{
 		std::cout << "Waiting for new connection...\n\n" << std::endl;
-		_socket = select(max_fds, &_readfds, &_writefds, NULL, &_timeval); // Incorrect !!!
+		_socket = select(max_fds, &_readfds, &_writefds, NULL, 0); // Incorrect !!!
 		if (!_socket)
 		{
 			ft_error(0, _socketAddr);
