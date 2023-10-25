@@ -60,7 +60,6 @@ void Webserv::startServer()
 
 	initSockaddr(_socketAddr);
 	// initTimeval(_tv);
-	FD_ZERO(&_readfds);
 
 
 	/*
@@ -81,7 +80,6 @@ void Webserv::startServer()
 			if (FD_ISSET(_socket, &_readfds))
 				throw duplicateSocketException();
 			
-			FD_SET(_socket, &_readfds);
 			/*
 			Since we cannot iterate on a fd_set, 
 			we keep track of all the open sockets so we can close them all later
@@ -92,18 +90,15 @@ void Webserv::startServer()
 			_socketAddr.sin_port = htons(*port_it);
 			if (bind(_socket, (sockaddr *)&_socketAddr, _socketAddrLen) < 0)
 				throw bindException();
+
+			if (listen(_socket, 1000) < 0)
+				throw listenException();
 		}
 	}
 }
 
 void Webserv::startListen()
 {
-	for (std::vector<int>::iterator it = _socket_list.begin(); it != _socket_list.end(); it++)
-	{
-		if (listen(*it, 1000) < 0)
-			throw listenException();
-	}
-
 	listenLog(_socketAddr, _server_list); // Displays all the open ports to the user
 
 	/*
@@ -116,6 +111,9 @@ void Webserv::startListen()
 
 	while (true)
 	{
+		FD_ZERO(&_readfds);
+		for (std::vector<int>::iterator it = _socket_list.begin(); it != _socket_list.end(); it++)
+			FD_SET(*it, &_readfds);
 		std::cout << "Waiting for new connection...\n" << std::endl;
 		if (select(max_fds, &_readfds, NULL, NULL, NULL) < 0) // Blocks until a new request is received
 		{
