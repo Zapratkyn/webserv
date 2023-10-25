@@ -118,20 +118,14 @@ namespace webserv_utils {
 	// }
 
 	// Namespaces allow us to use the same function name in different contexts
-	void ft_error(int type, struct sockaddr_in sockaddr)
+	void ft_error(int type)
 	{
 		switch (type) {
 			case 0:
 				std::cerr << "Select error" << std::endl;
 				break;
 			case 1:
-				std::cerr << "Server failed to accept incoming connection from ADDRESS: " << inet_ntoa(sockaddr.sin_addr) << std::endl;
-				break;
-			case 2:
-				std::cerr << "Error while reading request from ADDRESS" << inet_ntoa(sockaddr.sin_addr) << "\n" << std::endl;
-				break;
-			case 3:
-				std::cerr << "Client (" << inet_ntoa(sockaddr.sin_addr) << ")'s body size too big" << std::endl;
+				std::cerr << "Server failed to accept incoming connection from ADDRESS: ";
 				break;
 		}
 	}

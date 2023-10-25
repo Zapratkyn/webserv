@@ -21,7 +21,7 @@ namespace webserv_utils {
     void        initSockaddr(struct sockaddr_in &);
     std::string ft_pop_back(std::string);
     // void        initTimeval(struct timeval &);
-    void        ft_error(int, struct sockaddr_in);
+    void        ft_error(int);
 	void		listenLog(struct sockaddr_in&, std::map<std::string, Server*>&);
 	std::string	getServer(std::map<std::string, Server*>&, int&);
 	void		displayServers(std::map<std::string, Server*>&);

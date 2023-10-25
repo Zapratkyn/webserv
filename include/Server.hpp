@@ -19,11 +19,11 @@ private:
 	std::vector<int>							_ports;
 	std::vector<int>							_sockets;
 	std::map<std::string, t_location>			_location_list;
-	std::string									_request_header;
-	std::string									_request_body;
 
 	bool 										parseOption(const int &, std::string &, std::stringstream &, const std::string &, std::vector<int> &);
-	bool										getRequest(int);
+	void										getRequest(int, std::string &, std::string &);
+	void										setRequest(t_request &, std::string &, std::string &);
+	std::string									buildResponse();
 
 public:
 
@@ -52,7 +52,9 @@ public:
 	void										handle_request(int);
 
 	class readRequestException : public std::exception { public: virtual const char *what() const throw() { return "Error while reading request"; } };
-	class requestBodyTooBigException : public std::exception { public: virtual const char *what() const throw() { return "Error while reading request"; } };
+	class requestBodyTooBigException : public std::exception { public: virtual const char *what() const throw() { return "Client's request' body too big"; } };
+	class invalidMethodException : public std::exception { public: virtual const char *what() const throw() { return "Invalid method"; } };
+	class forbiddenMethodException : public std::exception { public: virtual const char *what() const throw() { return "Forbidden method"; } };
 
 
 };

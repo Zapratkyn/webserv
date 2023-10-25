@@ -176,4 +176,23 @@ namespace server_utils {
 		}
 	}
 
+	bool validMethod(std::string &method)
+	{
+		if (method != "GET" && method != "DELETE" && method != "POST" && method != "HEAD" 
+			&& method != "PUT" && method != "CONNECT" && method != "OPTIONS" && method != "TRACE"
+			&& method != "PATCH")
+			return false;
+		return true;
+	}
+
+	bool allowedMethod(std::string &method, std::vector<std::string> &list)
+	{
+		for (std::vector<std::string>::iterator it = list.begin(); it != list.end(); it++)
+		{
+			if (*it == method)
+				return true;
+		}
+		return false;
+	}
+
 };

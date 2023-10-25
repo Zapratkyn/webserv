@@ -16,11 +16,12 @@ struct t_location {
 
 };
 
-// struct t_request {
+struct t_request {
 
-// 	std::string					method;
+	std::string					method;
+	std::string					location;
 
-// };
+};
 
 namespace server_utils {
 
@@ -31,6 +32,8 @@ namespace server_utils {
     void        ft_error(int, std::string, std::string);
     std::string ft_pop_back(std::string);
     int         ft_stoi(std::string);
+	bool		validMethod(std::string &);
+	bool		allowedMethod(std::string &, std::vector<std::string> &);
 
 };
 

@@ -2,7 +2,7 @@
 
 using namespace server_utils;
 
-Server::Server() : _host(""), _server_name(""), _root(""), _index(""), _client_max_body_size(-1), _request_header(""), _request_body("") { return; }
+Server::Server() : _host(""), _server_name(""), _root(""), _index(""), _client_max_body_size(-1) { return; }
 Server::~Server() { return; }
 
 bool Server::setHost(const std::string &host)
@@ -214,9 +214,18 @@ bool Server::parseServer(const std::string &server_block, const std::string &ser
 
 void	Server::handle_request(int socket)
 {
+	std::string request_header, request_body;
+	t_request	request;
+	std::string message;
+
 	try
 	{
-		getRequest(socket);
+		getRequest(socket, request_header, request_body);
+		setRequest(request, request_header, request_body);
+		// Uncomment to display the method (if valid) and the location found in the request
+		// std::cout << request.method << "\n" << request.location << "\n" << std::endl;
+		message = buildResponse();
+		write(socket, message.c_str(), message.size());
 	}
 	catch (const std::exception &e)
 	{
@@ -225,7 +234,7 @@ void	Server::handle_request(int socket)
 	}
 }
 
-bool Server::getRequest(int socket)
+void Server::getRequest(int socket, std::string &request_header, std::string &request_body)
 {
 	int bytesReceived;
 	char buffer[100000] = {0};
@@ -237,27 +246,75 @@ bool Server::getRequest(int socket)
 	std::string oBuffer(buffer);
 	std::stringstream ifs(oBuffer);
 
-	_request_header = "";
-	_request_body = "";
-
 	while (!ifs.eof() && oBuffer.size())
 	{
 		getline(ifs, oBuffer);
 		if (oBuffer.size() != 0)
 		{
-			_request_header.append(oBuffer);
-			_request_header.append("\n");
+			request_header.append(oBuffer);
+			request_header.append("\n");
 		}
 	}
 	while (!ifs.eof())
 	{
 		getline(ifs, oBuffer);
-		_request_body.append(oBuffer);
-		_request_body.append("\n");
+		request_body.append(oBuffer);
+		request_body.append("\n");
 	}
-	if (_request_body.size() > (size_t)_client_max_body_size)
+	if (request_body.size() > (size_t)_client_max_body_size)
 		throw requestBodyTooBigException();
 	// Uncomment to display request_header + request_body (if any)
-	std::cout << _request_header << "\n" << _request_body << std::endl;
-	return true;
+	// std::cout << request_header << "\n" << request_body << std::endl;
+}
+
+void Server::setRequest(t_request &request, std::string &request_header, std::string &request_body)
+{
+	std::stringstream 	r_h(request_header);
+	std::string			buffer;
+	int					line = 0;
+
+	while (!r_h.eof())
+	{
+		getline(r_h, buffer);
+		line++;
+		if (line == 1)
+		{
+			request.method = buffer.substr(0, buffer.find_first_of(" \t"));
+			if (!validMethod(request.method))
+				throw invalidMethodException();
+		}
+		if (line == 1 || buffer.substr(0, buffer.find_first_of(" \t")) == "Referer:")
+		{
+			buffer = &buffer[buffer.find_first_of(" \t")];
+			buffer = &buffer[buffer.find_first_not_of(" \t")];
+			if (line == 1 && buffer.substr(0, buffer.find_first_of(" \t")) != "/favicon.ico")
+				request.location = buffer.substr(0, buffer.find_first_of(" \t"));
+			else
+				request.location = buffer.substr(0);
+		}
+	}
+	
+	if (request.location.substr(0, 7) == "http://")
+	{
+		request.location = &request.location[request.location.find_first_of(":") + 1];
+		request.location = &request.location[request.location.find_first_of(":") + 1];
+		request.location = &request.location[request.location.find_first_not_of(DIGITS)];
+	}
+
+	if (!allowedMethod(request.method, _location_list[request.location].methods))
+		throw forbiddenMethodException();
+
+	(void)request_body;
+}
+
+std::string Server::buildResponse()
+{
+	std::string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> HOME </h1><p> Hello from ";
+	htmlFile.append(_server_name);
+	htmlFile.append("</p></body></html>");
+    std::ostringstream ss;
+    ss << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " << htmlFile.size() << "\n\n"
+       << htmlFile;
+
+	return ss.str();
 }

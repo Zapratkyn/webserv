@@ -17,10 +17,9 @@ private:
 	struct sockaddr_in 				_socketAddr;
 	unsigned int					_socketAddrLen;
 	// struct timeval					_tv;
+	std::string						_last_client;
 
 	int								newConnection(int);
-	bool							getRequest(size_t);
-	std::string						buildResponse(std::string&);
 
 	std::string						_conf;
 	std::map<std::string, Server*>	_server_list;
