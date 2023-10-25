@@ -108,7 +108,7 @@ namespace webserv_utils {
 	void initSockaddr(struct sockaddr_in &socketAddr)
 	{
 		socketAddr.sin_family = AF_INET;
-		socketAddr.sin_addr.s_addr = inet_addr("0.0.0.0"); // Allows any address to reach the server
+		socketAddr.sin_addr.s_addr = inet_addr("127.0.0.1"); // Allows any address to reach the server
 	}
 
 	// void initTimeval(struct timeval &tv)

@@ -20,6 +20,7 @@ private:
 	// struct timeval					_tv;
 
 	int								newConnection(int);
+	std::string						buildResponse(std::string&);
 
 	std::string						_conf;
 	std::map<std::string, Server*>	_server_list;

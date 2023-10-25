@@ -112,11 +112,11 @@ void Webserv::startListen()
 	Therefore, max_fds = total_number_of_sockets + STD_IN + STD_OUT + STD_ERR
 	*/
 	int max_fds = _socket_list.size() + 3;
-	std::string server;
+	std::string server, message;
 
 	while (true)
 	{
-		std::cout << "Waiting for new connection...\n\n" << std::endl;
+		std::cout << "Waiting for new connection...\n" << std::endl;
 		if (select(max_fds, &_readfds, NULL, NULL, NULL) < 0) // Blocks until a new request is received
 		{
 			ft_error(0, _socketAddr);
@@ -129,7 +129,9 @@ void Webserv::startListen()
 			continue;
 		}
 		server = getServer(_server_list, _socket); // Identify which server the user tries to reach
-		std::cout << server << std::endl;
+		message = buildResponse(server);
+		write(_new_socket, message.c_str(), message.size());
+		std::cout << "Response sent to " << inet_ntoa(_socketAddr.sin_addr) << " !\n" << std::endl;
 		// handle_request(server);
 		close(_new_socket);
 		/*
@@ -160,6 +162,7 @@ int Webserv::newConnection(int max_fds)
 				break;
 		}
 	}
+	std::cout << "New request received from " << inet_ntoa(_socketAddr.sin_addr) << " !\n" << std::endl;
 	return new_socket;
 }
 
@@ -207,12 +210,14 @@ int Webserv::newConnection(int max_fds)
 //         std::cerr << "Error sending response to client" << std::endl;
 // }
 
-// std::string Webserv::buildResponse()
-// {
-// 	std::string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> HOME </h1><p> Hello from your Server :) </p></body></html>";
-//     std::ostringstream ss;
-//     ss << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " << htmlFile.size() << "\n\n"
-//        << htmlFile;
+std::string Webserv::buildResponse(std::string &server)
+{
+	std::string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> HOME </h1><p> Hello from ";
+	htmlFile.append(server);
+	htmlFile.append("</p></body></html>");
+    std::ostringstream ss;
+    ss << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " << htmlFile.size() << "\n\n"
+       << htmlFile;
 
-// 	return ss.str();
-// }
+	return ss.str();
+}
