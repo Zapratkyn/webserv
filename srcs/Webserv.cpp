@@ -108,12 +108,13 @@ void Webserv::startListen()
 	int max_fds = _socket_list.size() + 3;
 	std::string server;
 
+	std::cout << "Ready. Waiting for new connections...\n" << std::endl;
+
 	while (true)
 	{
 		FD_ZERO(&_readfds);
 		for (std::vector<int>::iterator it = _socket_list.begin(); it != _socket_list.end(); it++)
 			FD_SET(*it, &_readfds);
-		std::cout << "Waiting for a new connection...\n" << std::endl;
 		if (select(max_fds, &_readfds, NULL, NULL, NULL) < 0) // Blocks until a new request is received
 		{
 			ft_error(0);
@@ -123,8 +124,7 @@ void Webserv::startListen()
 		if (_new_socket > 0)
 		{
 			server = getServer(_server_list, _socket); // Identify which server the user tries to reach
-			_server_list[server]->handle_request(_new_socket);
-			std::cout << "Response sent to " << inet_ntoa(_socketAddr.sin_addr) << " !\n" << std::endl;
+			_server_list[server]->handleRequest(_new_socket, _socketAddr);
 			close(_new_socket);
 			/*
 			We need to find a way to stop the program properly
@@ -165,9 +165,9 @@ int Webserv::newConnection(int max_fds)
 		ft_error(1);
 		std::cerr << inet_ntoa(_socketAddr.sin_addr) << std::endl;
 	}
-	if (_last_client == inet_ntoa(_socketAddr.sin_addr))
+	if (_previous_client.find(inet_ntoa(_socketAddr.sin_addr)) != _previous_client.end() && std::time(NULL) == _previous_client[inet_ntoa(_socketAddr.sin_addr)])
 		return 0;
-	_last_client = inet_ntoa(_socketAddr.sin_addr);
+	_previous_client[inet_ntoa(_socketAddr.sin_addr)] = std::time(NULL);
 	std::cout << "New request received from " << inet_ntoa(_socketAddr.sin_addr) << " !\n" << std::endl;
 	return new_socket;
 }

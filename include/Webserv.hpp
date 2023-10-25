@@ -1,6 +1,7 @@
 #ifndef __WEBSERV_HPP__
 # define __WEBSERV_HPP__
 
+#include <ctime>
 #include "utils/webserv_utils.hpp"
 
 # define EXIT_SUCCESS 0
@@ -10,14 +11,14 @@ class Webserv {
 
 private:
 
-	int								_socket;
-	fd_set							_readfds;
-	std::vector<int>				_socket_list;
-	int								_new_socket;
-	struct sockaddr_in 				_socketAddr;
-	unsigned int					_socketAddrLen;
+	int									_socket;
+	fd_set								_readfds;
+	std::vector<int>					_socket_list;
+	int									_new_socket;
+	struct sockaddr_in 					_socketAddr;
+	unsigned int						_socketAddrLen;
 	// struct timeval					_tv;
-	std::string						_last_client;
+	std::map<std::string, std::time_t>	_previous_client;
 
 	int								newConnection(int);
 

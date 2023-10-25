@@ -71,7 +71,7 @@ namespace server_utils {
 		t_location loc;
 		int option, pos;
 		std::stringstream ifs(location_block);
-		std::string method, buffer, name, value, option_list[3] = {"root", "index", "allow_methods"};
+		std::string method, buffer, name, value, slash = "/", option_list[3] = {"root", "index", "allow_methods"};
 
 		loc.location = location_name;
 		loc.root = "";
@@ -101,6 +101,8 @@ namespace server_utils {
 						ft_error(0, value, "loc.root");
 						return loc;
 					}
+					if (value[0] != '/')
+						value = slash.append(value);
 					if (value[value.size() - 1] != '/')
 						value.append("/");
 					loc.root = value;

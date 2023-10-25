@@ -1,8 +1,9 @@
 #ifndef __SERVER_HPP__
 # define __SERVER_HPP__
 
-#include <map>
 #include <unistd.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include "utils/server_utils.hpp"
 
 #define DIGITS "0123456789"
@@ -21,6 +22,7 @@ private:
 	std::map<std::string, t_location>			_location_list;
 
 	bool 										parseOption(const int &, std::string &, std::stringstream &, const std::string &, std::vector<int> &);
+	void										addDefaultLocation();
 	void										getRequest(int, std::string &, std::string &);
 	void										setRequest(t_request &, std::string &, std::string &);
 	std::string									buildResponse();
@@ -49,7 +51,7 @@ public:
 	void										addSocket(int&);
 
 	bool										parseServer(const std::string &, const std::string &, std::vector<int> &);
-	void										handle_request(int);
+	void										handleRequest(int, struct sockaddr_in &);
 
 	class readRequestException : public std::exception { public: virtual const char *what() const throw() { return "Error while reading request"; } };
 	class requestBodyTooBigException : public std::exception { public: virtual const char *what() const throw() { return "Client's request' body too big"; } };

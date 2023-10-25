@@ -27,11 +27,15 @@ bool Server::setServerName(const std::string &name)
 }
 bool Server::setRoot(std::string &root)
 {
+	std::string slash = "/";
+
 	if (_root != "")
 	{
 		ft_error(0, root, "root");
 		return false;
 	}
+	if (root[0] != '/')
+		root = slash.append(root);
 	if (root[root.size() - 1] != '/')
 		root.append("/");
 	_root = root;
@@ -107,6 +111,23 @@ void Server::addSocket(int &socket)
 {
 	_sockets.push_back(socket);
 	return;
+}
+void Server::addDefaultLocation()
+{
+	t_location default_location;
+
+	if (_index != "")
+		default_location.index = _index;
+	else
+		default_location.index = "index.html";
+	if (_root != "")
+		default_location.root = _root;
+	else
+		default_location.root = "/www/";
+	default_location.location = "/";
+	default_location.methods.push_back("GET");
+	
+	_location_list["/"] = default_location;
 }
 
 
@@ -209,15 +230,17 @@ bool Server::parseServer(const std::string &server_block, const std::string &ser
 	}
 	if (_client_max_body_size == -1)
 		_client_max_body_size = 60000; // The PDF states we need to limit the client_max_body_size
+	if (_location_list.find("/") == _location_list.end())
+		addDefaultLocation();
 	return true;
 }
 
-void	Server::handle_request(int socket)
+void	Server::handleRequest(int socket, struct sockaddr_in &sockaddr)
 {
 	std::string request_header, request_body;
 	t_request	request;
 	std::string message;
-
+	
 	try
 	{
 		getRequest(socket, request_header, request_body);
@@ -226,11 +249,12 @@ void	Server::handle_request(int socket)
 		// std::cout << request.method << "\n" << request.location << "\n" << std::endl;
 		message = buildResponse();
 		write(socket, message.c_str(), message.size());
+		std::cout << "Response sent to " << inet_ntoa(sockaddr.sin_addr) << " !\n" << std::endl;
 	}
 	catch (const std::exception &e)
 	{
 		std::cerr << _server_name << ": "
-		<< e.what() << std::endl;
+		<< e.what() << "\n" << std::endl;
 	}
 }
 
