@@ -2,7 +2,7 @@
 
 using namespace server_utils;
 
-Server::Server() : _host(""), _server_name(""), _root(""), _index(""), _client_max_body_size(-1) { return; }
+Server::Server() : _host(""), _server_name(""), _root(""), _index(""), _client_max_body_size(-1), _request_header(""), _request_body("") { return; }
 Server::~Server() { return; }
 
 bool Server::setHost(const std::string &host)
@@ -212,9 +212,52 @@ bool Server::parseServer(const std::string &server_block, const std::string &ser
 	return true;
 }
 
-void	Server::handle_request(const std::string &request_header, const std::string &request_body, int socket)
+void	Server::handle_request(int socket)
 {
-	(void)request_header;
-	(void)request_body;
-	(void)socket;
+	try
+	{
+		getRequest(socket);
+	}
+	catch (const std::exception &e)
+	{
+		std::cerr << _server_name << ": "
+		<< e.what() << std::endl;
+	}
+}
+
+bool Server::getRequest(int socket)
+{
+	int bytesReceived;
+	char buffer[100000] = {0};
+
+	bytesReceived = read(socket, buffer, 100000);
+	if (bytesReceived < 0)
+		throw readRequestException();
+
+	std::string oBuffer(buffer);
+	std::stringstream ifs(oBuffer);
+
+	_request_header = "";
+	_request_body = "";
+
+	while (!ifs.eof() && oBuffer.size())
+	{
+		getline(ifs, oBuffer);
+		if (oBuffer.size() != 0)
+		{
+			_request_header.append(oBuffer);
+			_request_header.append("\n");
+		}
+	}
+	while (!ifs.eof())
+	{
+		getline(ifs, oBuffer);
+		_request_body.append(oBuffer);
+		_request_body.append("\n");
+	}
+	if (_request_body.size() > (size_t)_client_max_body_size)
+		throw requestBodyTooBigException();
+	// Uncomment to display request_header + request_body (if any)
+	std::cout << _request_header << "\n" << _request_body << std::endl;
+	return true;
 }

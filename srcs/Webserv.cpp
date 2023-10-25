@@ -118,37 +118,26 @@ void Webserv::startListen()
 		if (select(max_fds, &_readfds, NULL, NULL, NULL) < 0) // Blocks until a new request is received
 		{
 			ft_error(0, _socketAddr);
-			usleep(10000); // To delete once the response handling is OK. Prevents multi requests from the same client
 			continue;
 		}
 		_new_socket = newConnection(max_fds);
 		if (_new_socket > 0)
 		{
 			server = getServer(_server_list, _socket); // Identify which server the user tries to reach
-			if (getRequest(_server_list[server]->getBodySize())) // Separate request's header and body (if any)
-			{
-				message = buildResponse(server);
-				write(_new_socket, message.c_str(), message.size());
-				std::cout << "Response sent to " << inet_ntoa(_socketAddr.sin_addr) << " !\n" << std::endl;
-				// try
-				// {
-				// 	_server_list[server]->handle_request(_request_header, _request_body, _new_socket);
-				// }
-				// catch(const std::exception& e)
-				// {
-				// 	std::cerr << e.what() << '\n';
-				// }
-				close(_new_socket);
-				/*
-				We need to find a way to stop the program properly
-				If we press CTRL-C, we kill it and leaks happen
-				Maybe have a web page with a dedicated button...
-				(Like close_server.html, with a button sending a specific message in the client_body)
+			_server_list[server]->handle_request(_new_socket);
+			message = buildResponse(server);
+			write(_new_socket, message.c_str(), message.size());
+			std::cout << "Response sent to " << inet_ntoa(_socketAddr.sin_addr) << " !\n" << std::endl;
+			close(_new_socket);
+			/*
+			We need to find a way to stop the program properly
+			If we press CTRL-C, we kill it and leaks happen
+			Maybe have a web page with a dedicated button...
+			(Like close_server.html, with a button sending a specific message in the client_body)
 
-				>> if (the_stop_button_is_pressed_somewhere)
-					break;
-				*/
-			}
+			>> if (the_stop_button_is_pressed_somewhere)
+				break;
+			*/
 		}
 	}
 }
@@ -178,48 +167,6 @@ int Webserv::newConnection(int max_fds)
 		ft_error(1, _socketAddr);
 	std::cout << "New request received from " << inet_ntoa(_socketAddr.sin_addr) << " !\n" << std::endl;
 	return new_socket;
-}
-
-bool Webserv::getRequest(size_t bodySize)
-{
-	int bytesReceived;
-	char buffer[100000] = {0};
-
-	bytesReceived = read(_new_socket, buffer, 100000);
-	if (bytesReceived < 0)
-	{
-		ft_error(2, _socketAddr);
-		return false;
-	}
-
-	std::string oBuffer(buffer);
-	std::stringstream ifs(oBuffer);
-
-	_request_header = "";
-	_request_body = "";
-
-	while (!ifs.eof() && oBuffer.size())
-	{
-		getline(ifs, oBuffer);
-		// Uncomment to display the request header
-		// std::cout << oBuffer << std::endl;
-		if (oBuffer.size())
-			_request_header.append(oBuffer);
-	}
-	while (!ifs.eof())
-	{
-		getline(ifs, oBuffer);
-		// Uncomment to display the request body (if any)
-		// std::cout << oBuffer << std::endl;
-		_request_body.append(oBuffer);
-	}
-	if (_request_body.size() > bodySize)
-	{
-		ft_error(3, _socketAddr);
-		return false;
-	}
-	// std::cout << _request_header << "\n" << _request_body << std::endl;
-	return true;
 }
 
 std::string Webserv::buildResponse(std::string &server)

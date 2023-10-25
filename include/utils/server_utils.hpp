@@ -16,6 +16,12 @@ struct t_location {
 
 };
 
+// struct t_request {
+
+// 	std::string					method;
+
+// };
+
 namespace server_utils {
 
     std::string getOptionName(const std::string &);

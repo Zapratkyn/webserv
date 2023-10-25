@@ -14,8 +14,10 @@ Tasks:
 
 Notes about request handling :
 
-Depending on the browser, the header will not be structured exactly the same
+The request is kinda random.
 
-Firefox and Safari ask for a specific location in the first line (GET [location] HTTP/1.1)
+Sometimes you'll get the location on the first line
 
-Chrome and Brave ask for a specific location later, in a line called 'Referer' (Referer: http://localhost:[port][location])
+Sometimes you'll get it later on a line called 'Referer'
+
+We need to check both every time

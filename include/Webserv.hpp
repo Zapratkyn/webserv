@@ -24,8 +24,6 @@ private:
 
 	std::string						_conf;
 	std::map<std::string, Server*>	_server_list;
-	std::string						_request_header;
-	std::string						_request_body;
 
 public:
 
