@@ -125,8 +125,13 @@ namespace webserv_utils {
 				std::cerr << "Select error" << std::endl;
 				break;
 			case 1:
-				std::cerr << "Server failed to accept incoming connection from ADDRESS: " << 
-				inet_ntoa(sockaddr.sin_addr) << std::endl;
+				std::cerr << "Server failed to accept incoming connection from ADDRESS: " << inet_ntoa(sockaddr.sin_addr) << std::endl;
+				break;
+			case 2:
+				std::cerr << "Error while reading request from ADDRESS" << inet_ntoa(sockaddr.sin_addr) << "\n" << std::endl;
+				break;
+			case 3:
+				std::cerr << "Client (" << inet_ntoa(sockaddr.sin_addr) << ")'s body size too big" << std::endl;
 				break;
 		}
 	}
@@ -228,19 +233,6 @@ namespace webserv_utils {
 			}
 			std::cout << std::endl;
 		}
-	}
-
-	void displayRequest(int socket)
-	{
-		int bytesReceived;
-		char buffer[640001] = {0};
-
-		bytesReceived = read(socket, buffer, 64001);
-		if (bytesReceived > 64000)
-			std::cerr << "Client's body size to big" << std::endl;
-		else if (bytesReceived < 0)
-			std::cerr << "Error while reading request";
-		write(1, buffer, bytesReceived);
 	}
 
 };

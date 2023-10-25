@@ -19,10 +19,13 @@ private:
 	// struct timeval					_tv;
 
 	int								newConnection(int);
+	bool							getRequest(size_t);
 	std::string						buildResponse(std::string&);
 
 	std::string						_conf;
 	std::map<std::string, Server*>	_server_list;
+	std::string						_request_header;
+	std::string						_request_body;
 
 public:
 
@@ -33,7 +36,6 @@ public:
 	void	parseConf();
 
 	class openSocketException : public std::exception { public: virtual const char *what() const throw() { return "ERROR\nCouldn't open socket"; } };
-	class duplicateSocketException : public std::exception { public: virtual const char *what() const throw() { return "ERROR\nSocket already exists"; } };
 	class bindException : public std::exception { public: virtual const char *what() const throw() { return "ERROR\nCouldn't bind socket"; } };
 	class listenException : public std::exception { public: virtual const char *what() const throw() { return "ERROR\nCouldn't start listening"; } };
 	class confFailureException : public std::exception { public: virtual const char *what() const throw() { return "Configuration failure. Program stopped."; } };

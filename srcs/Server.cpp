@@ -211,3 +211,10 @@ bool Server::parseServer(const std::string &server_block, const std::string &ser
 		_client_max_body_size = 60000; // The PDF states we need to limit the client_max_body_size
 	return true;
 }
+
+void	Server::handle_request(const std::string &request_header, const std::string &request_body, int socket)
+{
+	(void)request_header;
+	(void)request_body;
+	(void)socket;
+}

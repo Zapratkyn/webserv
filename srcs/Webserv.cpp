@@ -9,6 +9,10 @@ Webserv::~Webserv()
 	// Since servers in the server list are dynamically allocated pointers, we delete each server one by one in the destructor at the end of the program
 	for (std::map<std::string, Server*>::iterator it = _server_list.begin(); it != _server_list.end(); it++)
 		delete it->second;
+	// I thought about having servers as variables instead of pointers, to get rid of the need of deleting them but...
+	// We need to close all the sockets opened by the socket() function
+	for (std::vector<int>::iterator it = _socket_list.begin(); it != _socket_list.end(); it++)
+		close(*it);
 	return;
 }
 
@@ -51,6 +55,7 @@ void Webserv::parseConf()
 		}
 	}
 	infile.close();
+	// Uncomment to display parsed servers
 	// displayServers(_server_list);
 }
 
@@ -77,13 +82,7 @@ void Webserv::startServer()
 			_socket = socket(AF_INET, SOCK_STREAM, 0);
 			if (_socket < 0)
 				throw openSocketException();
-			if (FD_ISSET(_socket, &_readfds))
-				throw duplicateSocketException();
 			
-			/*
-			Since we cannot iterate on a fd_set, 
-			we keep track of all the open sockets so we can close them all later
-			*/
 			_socket_list.push_back(_socket);
 			server_it->second->addSocket(_socket);
 
@@ -115,41 +114,54 @@ void Webserv::startListen()
 		FD_ZERO(&_readfds);
 		for (std::vector<int>::iterator it = _socket_list.begin(); it != _socket_list.end(); it++)
 			FD_SET(*it, &_readfds);
-		std::cout << "Waiting for new connection...\n" << std::endl;
+		std::cout << "Waiting for a new connection...\n" << std::endl;
 		if (select(max_fds, &_readfds, NULL, NULL, NULL) < 0) // Blocks until a new request is received
 		{
 			ft_error(0, _socketAddr);
+			usleep(10000); // To delete once the response handling is OK. Prevents multi requests from the same client
 			continue;
 		}
 		_new_socket = newConnection(max_fds);
-		if (_new_socket < 0)
+		if (_new_socket > 0)
 		{
-			ft_error(1, _socketAddr);
-			continue;
-		}
-		server = getServer(_server_list, _socket); // Identify which server the user tries to reach
-		displayRequest(_new_socket);
-		message = buildResponse(server);
-		write(_new_socket, message.c_str(), message.size());
-		std::cout << "Response sent to " << inet_ntoa(_socketAddr.sin_addr) << " !\n" << std::endl;
-		// handle_request(server);
-		close(_new_socket);
-		/*
-		We need to find a way to stop the program properly
-		If we press CTRL-C, we kill it and leaks happen
-		Maybe have a web page with a dedicated button...
-		(Like close_server.html, with a button sending a specific message in the client_body)
+			server = getServer(_server_list, _socket); // Identify which server the user tries to reach
+			if (getRequest(_server_list[server]->getBodySize())) // Separate request's header and body (if any)
+			{
+				message = buildResponse(server);
+				write(_new_socket, message.c_str(), message.size());
+				std::cout << "Response sent to " << inet_ntoa(_socketAddr.sin_addr) << " !\n" << std::endl;
+				// try
+				// {
+				// 	_server_list[server]->handle_request(_request_header, _request_body, _new_socket);
+				// }
+				// catch(const std::exception& e)
+				// {
+				// 	std::cerr << e.what() << '\n';
+				// }
+				close(_new_socket);
+				/*
+				We need to find a way to stop the program properly
+				If we press CTRL-C, we kill it and leaks happen
+				Maybe have a web page with a dedicated button...
+				(Like close_server.html, with a button sending a specific message in the client_body)
 
-		>> if (the_stop_button_is_pressed_somewhere)
-			break;
-		*/
+				>> if (the_stop_button_is_pressed_somewhere)
+					break;
+				*/
+			}
+		}
 	}
-	for (std::vector<int>::iterator it = _socket_list.begin(); it != _socket_list.end(); it++)
-		close(*it);
 }
 
 int Webserv::newConnection(int max_fds)
 {
+	/*
+	At some point, we will probably need to stack requests
+	To do that, we can :
+	- Use the _readfds fd_set to add/remove incoming/handled requests
+	or
+	- Use threads to let webserv handle several requests at a time
+	*/
 	int new_socket = 0;
 
 	for (int i = 3; i < max_fds; i++)
@@ -162,53 +174,53 @@ int Webserv::newConnection(int max_fds)
 				break;
 		}
 	}
+	if (_new_socket < 0)
+		ft_error(1, _socketAddr);
 	std::cout << "New request received from " << inet_ntoa(_socketAddr.sin_addr) << " !\n" << std::endl;
 	return new_socket;
 }
 
-// void Webserv::startListen()
-// {
-// 	if (listen(_socket, 10) < 0) // Start listening on the socket, with a maximum of 10 connections at a time
-// 		throw listenException();
-	
-// 	listenLog(); // Display informations about the listening socket
+bool Webserv::getRequest(size_t bodySize)
+{
+	int bytesReceived;
+	char buffer[100000] = {0};
 
-// 	int bytesReceived;
+	bytesReceived = read(_new_socket, buffer, 100000);
+	if (bytesReceived < 0)
+	{
+		ft_error(2, _socketAddr);
+		return false;
+	}
 
-// 	while (true)
-// 	{
-// 		std::cout << "Waiting for new connection...\n\n" << std::endl;
-// 		if (!newConnection(_new_socket))
-// 			std::cerr << "Server failed to accept incoming connection from ADDRESS: " << 
-// 			inet_ntoa(_socketAddr.sin_addr) << "; PORT: " << 
-// 			ntohs(_socketAddr.sin_port) << std::endl;
-// 		else
-// 		{
-// 			char buffer[30720] = {0};
-//            	bytesReceived = read(_new_socket, buffer, 30720); // since we are using AF_INET, the requests will be streams we can read()
-//             if (bytesReceived < 0)
-// 				std::cerr << "Failed to read bytes from client socket connection" << std::endl;
-// 			else
-// 			{
-// 				std::cout << "Request received from the client\n" << std::endl;
-// 				sendResponse();
-// 			}
-// 			close(_new_socket);
-// 		}
-// 	}
-// }
+	std::string oBuffer(buffer);
+	std::stringstream ifs(oBuffer);
 
-// void Webserv::sendResponse()
-// {
-//     unsigned long bytesSent;
+	_request_header = "";
+	_request_body = "";
 
-//     bytesSent = write(_new_socket, _serverMessage.c_str(), _serverMessage.size());
-
-//     if (bytesSent == _serverMessage.size())
-//         std::cout << "------ Server Response sent to client ------\n" << std::endl;
-//     else
-//         std::cerr << "Error sending response to client" << std::endl;
-// }
+	while (!ifs.eof() && oBuffer.size())
+	{
+		getline(ifs, oBuffer);
+		// Uncomment to display the request header
+		// std::cout << oBuffer << std::endl;
+		if (oBuffer.size())
+			_request_header.append(oBuffer);
+	}
+	while (!ifs.eof())
+	{
+		getline(ifs, oBuffer);
+		// Uncomment to display the request body (if any)
+		// std::cout << oBuffer << std::endl;
+		_request_body.append(oBuffer);
+	}
+	if (_request_body.size() > bodySize)
+	{
+		ft_error(3, _socketAddr);
+		return false;
+	}
+	// std::cout << _request_header << "\n" << _request_body << std::endl;
+	return true;
+}
 
 std::string Webserv::buildResponse(std::string &server)
 {

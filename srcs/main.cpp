@@ -1,6 +1,6 @@
 #include "../include/Webserv.hpp"
 
-bool valid_file(const std::string &); // I like to keep the main() function on top
+bool valid_file(const std::string &); // I like to keep the main() function on top :)
 
 int main(int argc, char **argv)
 {

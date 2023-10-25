@@ -25,7 +25,6 @@ namespace webserv_utils {
 	void		listenLog(struct sockaddr_in&, std::map<std::string, Server*>&);
 	std::string	getServer(std::map<std::string, Server*>&, int&);
 	void		displayServers(std::map<std::string, Server*>&);
-	void		displayRequest(int);
 
 };
 
