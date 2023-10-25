@@ -230,4 +230,17 @@ namespace webserv_utils {
 		}
 	}
 
+	void displayRequest(int socket)
+	{
+		int bytesReceived;
+		char buffer[640001] = {0};
+
+		bytesReceived = read(socket, buffer, 64001);
+		if (bytesReceived > 64000)
+			std::cerr << "Client's body size to big" << std::endl;
+		else if (bytesReceived < 0)
+			std::cerr << "Error while reading request";
+		write(1, buffer, bytesReceived);
+	}
+
 };

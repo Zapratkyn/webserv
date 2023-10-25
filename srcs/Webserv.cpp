@@ -51,7 +51,7 @@ void Webserv::parseConf()
 		}
 	}
 	infile.close();
-	displayServers(_server_list);
+	// displayServers(_server_list);
 }
 
 void Webserv::startServer()
@@ -107,7 +107,8 @@ void Webserv::startListen()
 	Therefore, max_fds = total_number_of_sockets + STD_IN + STD_OUT + STD_ERR
 	*/
 	int max_fds = _socket_list.size() + 3;
-	std::string server, message;
+	std::string server;
+	std::string message;
 
 	while (true)
 	{
@@ -127,6 +128,7 @@ void Webserv::startListen()
 			continue;
 		}
 		server = getServer(_server_list, _socket); // Identify which server the user tries to reach
+		displayRequest(_new_socket);
 		message = buildResponse(server);
 		write(_new_socket, message.c_str(), message.size());
 		std::cout << "Response sent to " << inet_ntoa(_socketAddr.sin_addr) << " !\n" << std::endl;

@@ -10,6 +10,7 @@
 #include <sys/select.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <unistd.h>
 #include "../Server.hpp"
 
 namespace webserv_utils {
@@ -24,6 +25,7 @@ namespace webserv_utils {
 	void		listenLog(struct sockaddr_in&, std::map<std::string, Server*>&);
 	std::string	getServer(std::map<std::string, Server*>&, int&);
 	void		displayServers(std::map<std::string, Server*>&);
+	void		displayRequest(int);
 
 };
 
