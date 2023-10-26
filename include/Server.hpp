@@ -4,6 +4,9 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <sys/types.h>
+#include <dirent.h>
+#include <fstream>
 #include "utils/server_utils.hpp"
 
 #define DIGITS "0123456789"
@@ -20,12 +23,14 @@ private:
 	std::vector<int>							_ports;
 	std::vector<int>							_sockets;
 	std::map<std::string, t_location>			_location_list;
+	std::vector<std::string>					_url_list;
 
 	bool 										parseOption(const int &, std::string &, std::stringstream &, const std::string &, std::vector<int> &);
 	void										addDefaultLocation();
 	void										getRequest(int, std::string &, std::string &);
 	void										setRequest(t_request &, std::string &, std::string &);
-	std::string									buildResponse();
+	void										sendUrl(t_request &, int);
+	// std::string									buildResponse();
 
 public:
 
@@ -50,7 +55,7 @@ public:
 	bool										addLocation(std::stringstream&, std::string &value);
 	void										addSocket(int&);
 
-	bool										parseServer(const std::string &, const std::string &, std::vector<int> &);
+	bool										parseServer(const std::string &, const std::string &, std::vector<int> &, std::vector<std::string> &);
 	void										handleRequest(int, struct sockaddr_in &);
 
 	class readRequestException : public std::exception { public: virtual const char *what() const throw() { return "Error while reading request"; } };

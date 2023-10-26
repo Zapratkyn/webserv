@@ -184,7 +184,7 @@ bool Server::parseOption(const int &option, std::string &value, std::stringstrea
 	return true;
 }
 
-bool Server::parseServer(const std::string &server_block, const std::string &server_name, std::vector<int> &port_list)
+bool Server::parseServer(const std::string &server_block, const std::string &server_name, std::vector<int> &port_list, std::vector<std::string> &url_list)
 {
 	std::string 		buffer, name, value, option_list[7] = {"listen", "host", "server_name", "client_max_body_size", "root", "index", "location"};
 	std::stringstream	ifs(server_block); // std::stringstream works the same as a std::ifstream but is constructed from a string instead of a file
@@ -232,6 +232,7 @@ bool Server::parseServer(const std::string &server_block, const std::string &ser
 		_client_max_body_size = 60000; // The PDF states we need to limit the client_max_body_size
 	if (_location_list.find("/") == _location_list.end())
 		addDefaultLocation();
+	_url_list = url_list;
 	return true;
 }
 
@@ -240,15 +241,19 @@ void	Server::handleRequest(int socket, struct sockaddr_in &sockaddr)
 	std::string request_header, request_body;
 	t_request	request;
 	std::string message;
-	
+
 	try
 	{
 		getRequest(socket, request_header, request_body);
 		setRequest(request, request_header, request_body);
 		// Uncomment to display the method (if valid) and the location found in the request
 		// std::cout << request.method << "\n" << request.location << "\n" << std::endl;
-		message = buildResponse();
-		write(socket, message.c_str(), message.size());
+		// message = buildResponse();
+		// write(socket, message.c_str(), message.size());
+		if (request.is_url)
+			sendUrl(request, socket);
+		// else
+		// 	direct(request, socket);
 		std::cout << "Response sent to " << inet_ntoa(sockaddr.sin_addr) << " !\n" << std::endl;
 	}
 	catch (const std::exception &e)
@@ -294,8 +299,11 @@ void Server::getRequest(int socket, std::string &request_header, std::string &re
 void Server::setRequest(t_request &request, std::string &request_header, std::string &request_body)
 {
 	std::stringstream 	r_h(request_header);
-	std::string			buffer;
+	std::string			buffer, dot = ".";
 	int					line = 0;
+
+	request.url = "./www/errors/404.html";
+	request.is_url = false;
 
 	while (!r_h.eof())
 	{
@@ -325,20 +333,55 @@ void Server::setRequest(t_request &request, std::string &request_header, std::st
 		request.location = &request.location[request.location.find_first_not_of(DIGITS)];
 	}
 
+	std::string extension = &request.location[request.location.find_last_of(".")];
+
+	if (extension == ".html" || extension == ".htm" || extension == ".php")
+	{
+		request.is_url = true;
+		request.location = dot.append(request.location);
+		for (std::vector<std::string>::iterator it = _url_list.begin(); it != _url_list.end(); it++)
+		{
+			if (*it == request.location)
+				request.url = *it;
+		}
+		return;
+	}
+
 	if (!allowedMethod(request.method, _location_list[request.location].methods))
 		throw forbiddenMethodException();
 
 	(void)request_body;
 }
 
-std::string Server::buildResponse()
+void Server::sendUrl(t_request &request, int socket)
 {
-	std::string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> HOME </h1><p> Hello from ";
-	htmlFile.append(_server_name);
-	htmlFile.append("</p></body></html>");
-    std::ostringstream ss;
-    ss << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " << htmlFile.size() << "\n\n"
-       << htmlFile;
+	std::ifstream 	ifs(request.url.c_str());
+	std::string		html = "", buffer;
+	std::string 	result = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: ";
 
-	return ss.str();
+	while (!ifs.eof())
+	{
+		getline(ifs, buffer);
+		html.append(buffer);
+		html.append("\n");
+	}
+	result.append(ft_to_string(html.size()));
+	result.append("\n\n");
+	result.append(html);
+
+	// std::cout << result << std::endl;
+
+	write(socket, result.c_str(), result.size());
 }
+
+// std::string Server::buildResponse()
+// {
+// 	std::string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> HOME </h1><p> Hello from ";
+// 	htmlFile.append(_server_name);
+// 	htmlFile.append("</p></body></html>");
+//     std::ostringstream ss;
+//     ss << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " << htmlFile.size() << "\n\n"
+//        << htmlFile;
+
+// 	return ss.str();
+// }

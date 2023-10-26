@@ -2,7 +2,14 @@
 
 using namespace webserv_utils;
 
-Webserv::Webserv(const std::string &conf_file) : _socketAddrLen(sizeof(_socketAddr)), _conf(conf_file) { return; }
+Webserv::Webserv(const std::string &conf_file) : _socketAddrLen(sizeof(_socketAddr)), _conf(conf_file) 
+{
+	parseUrl("./www/", _url_list);
+	// Uncomment to display the list of url's
+	// for (std::vector<std::string>::iterator it = _url_list.begin(); it != _url_list.end(); it++)
+	// 	std::cout << *it << std::endl;
+	return; 
+}
 
 Webserv::~Webserv() 
 {
@@ -42,7 +49,7 @@ void Webserv::parseConf()
 			server_block = getServerBlock(infile);
 			server = new Server;
 			server_name = getServerName(server_block, default_name, _server_list);
-			if (!server->parseServer(server_block, server_name, port_list))
+			if (!server->parseServer(server_block, server_name, port_list, _url_list))
 			{
 				/*
 				If an error occurs, the server will not be added to the webserv's list of servers

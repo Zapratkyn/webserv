@@ -229,4 +229,37 @@ namespace webserv_utils {
 		}
 	}
 
+	void parseUrl(std::string folder, std::vector<std::string> &url_list)
+	{
+		DIR *dir = opendir(folder.c_str());
+	    struct dirent *file;
+	    std::string file_name, extension, sub_folder, folder_cpy = folder;
+	
+	    file = readdir(dir);
+	
+	    while (file)
+	    {
+			file_name = file->d_name;
+	        if (file_name == "." || file_name == "..")
+			{
+	            file = readdir(dir);
+	            continue; 
+	        }
+	        extension = &file_name[file_name.find_last_of(".")];
+	        if (extension != ".html" && extension != ".htm" && extension != ".php")
+	        {
+	            sub_folder = folder.append(file_name);
+				sub_folder.append("/");
+	            parseUrl(sub_folder, url_list);
+	        }
+			else
+			{
+				file_name = folder_cpy.append(file_name);
+				url_list.push_back(file_name);
+			}
+	        file = readdir(dir);
+		}
+		closedir(dir);
+	}
+
 };

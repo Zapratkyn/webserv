@@ -21,6 +21,8 @@ struct t_request {
 
 	std::string					method;
 	std::string					location;
+	std::string					url;
+	bool						is_url;
 
 };
 
@@ -33,6 +35,7 @@ namespace server_utils {
     void        ft_error(int, std::string, std::string);
     std::string ft_pop_back(std::string);
     int         ft_stoi(std::string);
+	std::string ft_to_string(int);
 	bool		validMethod(std::string &);
 	bool		allowedMethod(std::string &, std::vector<std::string> &);
 
