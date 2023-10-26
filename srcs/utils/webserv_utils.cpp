@@ -3,7 +3,7 @@
 namespace webserv_utils {
 
 	/*
-	Because of the -std=c++98 flag, we can't use pop_back() and std::to_string()
+	Because of the -std=c++98 flag, we can't use pop_back(), std::stoi() and std::to_string()
 	So I coded them here
 	*/
 	std::string ft_pop_back(std::string str)
@@ -45,6 +45,17 @@ namespace webserv_utils {
 	    return result;
 	}
 
+    int ft_stoi(std::string str)
+	{
+		int result = 0;
+		int size = str.size();
+
+		for (int i = 0; i < size; i++)
+			result = result * 10 + str[i] - '0';
+
+		return result;
+	}
+	
 	std::string getServerName(const std::string &server_block, int &default_name_index, std::map<std::string, Server*> &server_list)
 	{
 		std::stringstream 	ifs(server_block);

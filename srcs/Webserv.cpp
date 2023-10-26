@@ -154,6 +154,8 @@ int Webserv::newConnection(int max_fds)
 	- Use the _readfds fd_set to add/remove incoming/handled requests
 	or
 	- Use threads to let webserv handle several requests at a time
+
+	Or both...
 	*/
 	int new_socket = 0;
 

@@ -1,10 +1,9 @@
 #ifndef __SERVER_UTILS_HPP__
 # define __SERVER_UTILS_HPP__
 
-#include <iostream>
-#include <string>
 #include <sstream>
 #include <vector>
+#include <iostream>
 #include <map>
 
 struct t_location {
@@ -33,11 +32,15 @@ namespace server_utils {
     std::string getLocationBlock(std::stringstream &);
     t_location  newLocation(const std::string &, const std::string &);
     void        ft_error(int, std::string, std::string);
+	bool		validMethod(std::string &);
+	bool		allowedMethod(std::string &, std::vector<std::string> &);
+
+
+	// libft
     std::string ft_pop_back(std::string);
     int         ft_stoi(std::string);
 	std::string ft_to_string(int);
-	bool		validMethod(std::string &);
-	bool		allowedMethod(std::string &, std::vector<std::string> &);
+    std::string trim(const std::string &);
 
 };
 
