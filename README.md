@@ -21,3 +21,32 @@ Sometimes you'll get the location on the first line
 Sometimes you'll get it later on a line called 'Referer'
 
 We need to check both every time
+
+=============
+
+Current state of the branch :
+
+- The Webserv class parses the path to all the files in the www folder and its subfolders
+
+- Then it parses all the servers, using the options in the configuration file and giving each server a unique name
+
+- Each port is used to set a socket
+
+- The main loop starts and waits for new connections
+
+- We use the std::time() function to limit connections to 1 connection/sec/client
+
+- The request is sent to the corresponding server
+
+- The server splits the request into header and body
+
+- The server uses the header to identify the requested location and method
+
+- If the location is a url (ending with .html/.htm/.php), the server checks the url list and sends either the corresponding page or the 404 page
+
+- In any other case, the server sends a sample "Hello from the server" page
+
+- Back to the main loop
+
+NB : I'm thinking of a way of stopping the webserv without using CTRL-C and thus avoiding leaks
+NB2 : I'm not sure about the allowed methods for the locations. Either I won't let the user look for direct url or I'll update any page linked to a location if methods other than GET are specified in the location block.

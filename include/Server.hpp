@@ -31,7 +31,7 @@ private:
 	void										getRequest(int, std::string &, std::string &);
 	void										setRequest(t_request &, std::string &, std::string &);
 	void										sendUrl(t_request &, int);
-	// std::string									buildResponse();
+	std::string									buildResponse();
 
 public:
 

@@ -248,10 +248,13 @@ void	Server::handleRequest(int socket, struct sockaddr_in &sockaddr)
 		setRequest(request, request_header, request_body);
 		// Uncomment to display the method (if valid) and the location found in the request
 		// std::cout << request.method << "\n" << request.location << "\n" << std::endl;
-		// message = buildResponse();
-		// write(socket, message.c_str(), message.size());
 		if (request.is_url)
 			sendUrl(request, socket);
+		else
+		{
+			message = buildResponse();
+			write(socket, message.c_str(), message.size());
+		}
 		// else
 		// 	direct(request, socket);
 		std::cout << "Response sent to " << inet_ntoa(sockaddr.sin_addr) << " !\n" << std::endl;
@@ -347,8 +350,8 @@ void Server::setRequest(t_request &request, std::string &request_header, std::st
 		return;
 	}
 
-	if (!allowedMethod(request.method, _location_list[request.location].methods))
-		throw forbiddenMethodException();
+	// if (!allowedMethod(request.method, _location_list[request.location].methods))
+	// 	throw forbiddenMethodException();
 
 	(void)request_body;
 }
@@ -374,14 +377,14 @@ void Server::sendUrl(t_request &request, int socket)
 	write(socket, result.c_str(), result.size());
 }
 
-// std::string Server::buildResponse()
-// {
-// 	std::string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> HOME </h1><p> Hello from ";
-// 	htmlFile.append(_server_name);
-// 	htmlFile.append("</p></body></html>");
-//     std::ostringstream ss;
-//     ss << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " << htmlFile.size() << "\n\n"
-//        << htmlFile;
+std::string Server::buildResponse()
+{
+	std::string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> HOME </h1><p> Hello from ";
+	htmlFile.append(_server_name);
+	htmlFile.append("</p></body></html>");
+    std::ostringstream ss;
+    ss << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " << htmlFile.size() << "\n\n"
+       << htmlFile;
 
-// 	return ss.str();
-// }
+	return ss.str();
+}
