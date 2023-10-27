@@ -21,7 +21,7 @@ private:
 	std::map<std::string, std::time_t>	_previous_client;
 	std::vector<std::string>			_url_list;
 
-	int								newConnection(int);
+	int									newConnection(int);
 
 	std::string							_conf;
 	std::map<std::string, Server*>		_server_list;

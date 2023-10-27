@@ -380,6 +380,9 @@ void Server::sendUrl(t_request &request, int socket)
 	result.append("\n\n");
 	result.append(html);
 
+	result.insert(result.find("</title>"), _server_name);
+
+	// Uncomment to display the HTML code of the sent page
 	// std::cout << result << std::endl;
 
 	write(socket, result.c_str(), result.size());
