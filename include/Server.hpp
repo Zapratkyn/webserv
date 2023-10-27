@@ -1,7 +1,6 @@
 #ifndef __SERVER_HPP__
 # define __SERVER_HPP__
 
-#include <unistd.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/types.h>
@@ -29,7 +28,7 @@ private:
 	bool 										parseOption(const int &, std::string &, std::stringstream &, const std::string &, std::vector<int> &);
 	void										addDefaultLocation();
 	void										getRequest(int, std::string &, std::string &);
-	void										setRequest(t_request &, std::string &, std::string &);
+	void										setRequest(t_request &, std::string &, std::string &, bool &);
 	void										sendUrl(t_request &, int);
 	std::string									buildResponse();
 
@@ -57,7 +56,7 @@ public:
 	void										addSocket(int&);
 
 	bool										parseServer(const std::string &, const std::string &, std::vector<int> &, std::vector<std::string> &);
-	void										handleRequest(int, struct sockaddr_in &);
+	void										handleRequest(int, struct sockaddr_in &, bool &);
 
 	class readRequestException : public std::exception { public: virtual const char *what() const throw() { return "Error while reading request"; } };
 	class requestBodyTooBigException : public std::exception { public: virtual const char *what() const throw() { return "Client's request' body too big"; } };

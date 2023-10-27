@@ -5,6 +5,7 @@
 #include <vector>
 #include <iostream>
 #include <map>
+#include <unistd.h>
 
 struct t_location {
 
@@ -34,6 +35,7 @@ namespace server_utils {
     void        ft_error(int, std::string, std::string);
 	bool		validMethod(std::string &);
 	bool		allowedMethod(std::string &, std::vector<std::string> &);
+	void		killMessage(int);
 
 
 	// libft

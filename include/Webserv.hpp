@@ -23,8 +23,9 @@ private:
 
 	int								newConnection(int);
 
-	std::string						_conf;
-	std::map<std::string, Server*>	_server_list;
+	std::string							_conf;
+	std::map<std::string, Server*>		_server_list;
+	bool								_kill;
 
 public:
 

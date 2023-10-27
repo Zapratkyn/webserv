@@ -225,4 +225,16 @@ namespace server_utils {
 		return false;
 	}
 
+	void killMessage(int socket)
+	{
+		std::string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> WEBSERV SHUT DOWN </h1><p>Good bye !</p></body></html>";
+    	std::string result = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: ";
+
+		result.append(ft_to_string(htmlFile.size()));
+		result.append("\n\n");
+		result.append(htmlFile);
+
+		write(socket, result.c_str(), result.size());
+	}
+
 };

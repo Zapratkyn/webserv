@@ -48,5 +48,6 @@ Current state of the branch :
 
 - Back to the main loop
 
-NB : I'm thinking of a way of stopping the webserv without using CTRL-C and thus avoiding leaks
+- Searching for localhost:[any_set_port]/kill properly stops the server, frees what needs to be freed, displays a message in the terminal and show a relevant page to the user in the browser
+
 NB2 : I'm not sure about the allowed methods for the locations. Either I won't let the user look for direct url or I'll update any page linked to a location if methods other than GET are specified in the location block.

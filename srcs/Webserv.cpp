@@ -2,7 +2,7 @@
 
 using namespace webserv_utils;
 
-Webserv::Webserv(const std::string &conf_file) : _socketAddrLen(sizeof(_socketAddr)), _conf(conf_file) 
+Webserv::Webserv(const std::string &conf_file) : _socketAddrLen(sizeof(_socketAddr)), _conf(conf_file), _kill(false)
 {
 	parseUrl("./www/", _url_list);
 	// Uncomment to display the list of url's
@@ -55,7 +55,7 @@ void Webserv::parseConf()
 				If an error occurs, the server will not be added to the webserv's list of servers
 				Therefore, we need to delete it here to avoid leaks
 				*/
-				delete server; 
+				delete server;
 				throw confFailureException();
 			}
 			_server_list[server_name] = server;
@@ -131,17 +131,10 @@ void Webserv::startListen()
 		if (_new_socket > 0)
 		{
 			server = getServer(_server_list, _socket); // Identify which server the user tries to reach
-			_server_list[server]->handleRequest(_new_socket, _socketAddr);
+			_server_list[server]->handleRequest(_new_socket, _socketAddr, _kill);
 			close(_new_socket);
-			/*
-			We need to find a way to stop the program properly
-			If we press CTRL-C, we kill it and leaks happen
-			Maybe have a web page with a dedicated button...
-			(Like close_server.html, with a button sending a specific message in the client_body)
-
-			>> if (the_stop_button_is_pressed_somewhere)
+			if (_kill)
 				break;
-			*/
 		}
 	}
 }

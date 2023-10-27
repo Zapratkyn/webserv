@@ -236,7 +236,7 @@ bool Server::parseServer(const std::string &server_block, const std::string &ser
 	return true;
 }
 
-void	Server::handleRequest(int socket, struct sockaddr_in &sockaddr)
+void	Server::handleRequest(int socket, struct sockaddr_in &sockaddr, bool &kill)
 {
 	std::string request_header, request_body;
 	t_request	request;
@@ -245,10 +245,12 @@ void	Server::handleRequest(int socket, struct sockaddr_in &sockaddr)
 	try
 	{
 		getRequest(socket, request_header, request_body);
-		setRequest(request, request_header, request_body);
+		setRequest(request, request_header, request_body, kill);
 		// Uncomment to display the method (if valid) and the location found in the request
 		// std::cout << request.method << "\n" << request.location << "\n" << std::endl;
-		if (request.is_url)
+		if (kill)
+			killMessage(socket);
+		else if (request.is_url)
 			sendUrl(request, socket);
 		else
 		{
@@ -299,7 +301,7 @@ void Server::getRequest(int socket, std::string &request_header, std::string &re
 	// std::cout << request_header << "\n" << request_body << std::endl;
 }
 
-void Server::setRequest(t_request &request, std::string &request_header, std::string &request_body)
+void Server::setRequest(t_request &request, std::string &request_header, std::string &request_body, bool &kill)
 {
 	std::stringstream 	r_h(request_header);
 	std::string			buffer, dot = ".";
@@ -327,6 +329,12 @@ void Server::setRequest(t_request &request, std::string &request_header, std::st
 			else
 				request.location = buffer.substr(0);
 		}
+	}
+
+	if (request.location == "/kill")
+	{
+		kill = true;
+		return;
 	}
 	
 	if (request.location.substr(0, 7) == "http://")
