@@ -22,6 +22,8 @@ struct t_request {
 	std::string					method;
 	std::string					location;
 	std::string					url;
+	std::string					code;
+	std::string					message;
 	bool						is_url;
 
 };

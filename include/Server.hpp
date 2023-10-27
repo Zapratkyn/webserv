@@ -29,7 +29,7 @@ private:
 	void										addDefaultLocation();
 	void										getRequest(int, std::string &, std::string &);
 	void										setRequest(t_request &, std::string &, std::string &, bool &);
-	void										sendUrl(std::string &, int);
+	void										sendUrl(t_request &, int);
 
 public:
 

@@ -257,9 +257,14 @@ void	Server::handleRequest(int socket, struct sockaddr_in &sockaddr, bool &kill)
 		if (kill)
 			killMessage(socket);
 		else if (request.is_url)
-			sendUrl(request.url, socket);
+			sendUrl(request, socket);
 		else
-			sendUrl(hello, socket);
+		{
+			request.url = "./hello.html";
+			request.code = "200";
+			request.message = "OK";
+			sendUrl(request, socket);
+		}
 		// else
 		// 	direct(request, socket);
 		std::cout << "Response sent to " << inet_ntoa(sockaddr.sin_addr) << " !\n" << std::endl;
@@ -311,6 +316,8 @@ void Server::setRequest(t_request &request, std::string &request_header, std::st
 	int					line = 0;
 
 	request.url = "./www/errors/404.html";
+	request.code = "404";
+	request.message = "Not found";
 	request.is_url = false;
 
 	while (!r_h.eof())
@@ -363,7 +370,11 @@ void Server::setRequest(t_request &request, std::string &request_header, std::st
 			If not, we provide the 404 error page (default request.url at the start of the function)
 			*/
 			if (*it == request.location)
+			{
+				request.message = "OK";
+				request.code = "200";
 				request.url = *it;
+			}
 		}
 		return;
 	}
@@ -374,12 +385,17 @@ void Server::setRequest(t_request &request, std::string &request_header, std::st
 	(void)request_body;
 }
 
-void Server::sendUrl(std::string &url, int socket)
+void Server::sendUrl(t_request &request, int socket)
 {
-	std::ifstream 	ifs(url.c_str());
+	std::ifstream 	ifs(request.url.c_str());
 	std::string		html = "", buffer;
-	// We start our response by the http header with the OK code (200)
-	std::string 	result = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: ";
+	// We start our response by the http header with the right code
+	std::string 	result = "HTTP/1.1 ";
+
+	result.append(request.code);
+	result.append(" ");
+	result.append(request.message);
+	result.append("\nContent-Type: text/html\nContent-Length: ");
 
 	while (!ifs.eof())
 	{
@@ -395,7 +411,7 @@ void Server::sendUrl(std::string &url, int socket)
 	result.insert(result.find("</title>"), _server_name); 
 
 	// Uncomment to display the HTML code of the sent page
-	// std::cout << result << std::endl;
+	std::cout << result << std::endl;
 
 	write(socket, result.c_str(), result.size());
 }

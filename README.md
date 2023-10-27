@@ -48,7 +48,12 @@ Current state of the branch :
 
 - In any other case, the server sends a sample "Hello from the server" page and goes back to the main loop
 
+TO DO :
 
-NB : I need to find a way to apply the favicon and the stylesheet to the displayed pages
+- I need to find a way to apply the favicon and the stylesheet to the displayed pages
 
-NB2 : I'm not sure about the allowed methods for the locations. Either I won't let the user look for direct url or I'll update any page linked to a location if methods other than GET are specified in the location block.
+- I'm not sure about the allowed methods for the locations. Either I won't let the user look for direct url or I'll update any page linked to a location if methods other than GET are specified in the location block.
+
+- The PDF states we need to get through select for every I/O operation. The current program does it only for reading requests. I'll need to use a second fd_set. The potential problem is that I could stack request and never answer any of them as long as new request come in...
+
+- 
