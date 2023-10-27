@@ -7,9 +7,9 @@ Naming convention :
 
 Tasks:
 
-- Starting configuration > Read and parse the configuration file and make the changes written in it > Gilles
-- Request handling > open socket(s), poll() (or equivalent), listen, timeout... >
-- Reponse handling > Find the requested file if it exist, send errors if any, construct the html response and send it to the user
+- Starting configuration > Read and parse the configuration file and make the changes written in it > Done
+- Request handling > open socket(s), poll() (or equivalent), listen, timeout... > In progress
+- Reponse handling > Find the requested file if it exist, send errors if any, construct the html response and send it to the user > In progress
 - CGI > chose a language (Python, c, c++...), make a program for uploading files, another to fill in a form
 
 Notes about request handling :
@@ -20,7 +20,7 @@ Sometimes you'll get the location on the first line
 
 Sometimes you'll get it later on a line called 'Referer'
 
-We need to check both every time
+We need to check both every time > Done
 
 =============
 
@@ -42,12 +42,13 @@ Current state of the branch :
 
 - The server uses the header to identify the requested location and method
 
-- If the location is a url (ending with .html/.htm/.php), the server checks the url list and sends either the corresponding page or the 404 page
-
-- In any other case, the server sends a sample "Hello from the server" page
-
-- Back to the main loop
+- If the location is a url (ending with .html/.htm/.php), the server checks the url list and sends either the corresponding page or the 404 page, then goes back to the main loop
 
 - Searching for localhost:[any_set_port]/kill properly stops the server, frees what needs to be freed, displays a message in the terminal and show a relevant page to the user in the browser
+
+- In any other case, the server sends a sample "Hello from the server" page and goes back to the main loop
+
+
+NB : I need to find a way to apply the favicon and the stylesheet to the displayed pages
 
 NB2 : I'm not sure about the allowed methods for the locations. Either I won't let the user look for direct url or I'll update any page linked to a location if methods other than GET are specified in the location block.

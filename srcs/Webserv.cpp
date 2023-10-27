@@ -6,8 +6,8 @@ Webserv::Webserv(const std::string &conf_file) : _socketAddrLen(sizeof(_socketAd
 {
 	parseUrl("./www/", _url_list);
 	// Uncomment to display the list of url's
-	// for (std::vector<std::string>::iterator it = _url_list.begin(); it != _url_list.end(); it++)
-	// 	std::cout << *it << std::endl;
+	for (std::vector<std::string>::iterator it = _url_list.begin(); it != _url_list.end(); it++)
+		std::cout << *it << std::endl;
 	return; 
 }
 
@@ -97,7 +97,7 @@ void Webserv::startServer()
 			if (bind(_socket, (sockaddr *)&_socketAddr, _socketAddrLen) < 0)
 				throw bindException();
 
-			if (listen(_socket, 1000) < 0)
+			if (listen(_socket, 1000) < 0) // The second argument is the max number of connections the socket can take at a time
 				throw listenException();
 		}
 	}
@@ -122,7 +122,13 @@ void Webserv::startListen()
 		FD_ZERO(&_readfds);
 		for (std::vector<int>::iterator it = _socket_list.begin(); it != _socket_list.end(); it++)
 			FD_SET(*it, &_readfds);
-		if (select(max_fds, &_readfds, NULL, NULL, NULL) < 0) // Blocks until a new request is received
+		/*
+		Select blocks until a new request is received
+		It then sets the request receiving sockets to 1 and unblocks
+		It means that if several requests are waiting, it will sets so many sockets to 1
+		We then need to handle several potential requests in the newConnection() function
+		*/
+		if (select(max_fds, &_readfds, NULL, NULL, NULL) < 0)
 		{
 			ft_error(0);
 			continue;
@@ -148,7 +154,7 @@ int Webserv::newConnection(int max_fds)
 	or
 	- Use threads to let webserv handle several requests at a time
 
-	Or both...
+	Or maybe both...
 	*/
 	int new_socket = 0;
 

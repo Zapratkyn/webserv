@@ -36,7 +36,8 @@ int main(int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 
-	std::cout << "Webserv stopped" << std::endl;
+	// For an unknown reason, if I don't display something here, I get a SegFault error message...
+	std::cout << "Webserv stopped\n" << std::endl;
 
 	return EXIT_SUCCESS;
 }

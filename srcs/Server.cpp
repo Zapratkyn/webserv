@@ -27,15 +27,21 @@ bool Server::setServerName(const std::string &name)
 }
 bool Server::setRoot(std::string &root)
 {
-	std::string slash = "/";
+	std::string slash = "/", dot = ".";
 
 	if (_root != "")
 	{
 		ft_error(0, root, "root");
 		return false;
 	}
-	if (root[0] != '/')
+	// We need root path to start with "./"
+	if (root[0] != '/' && root[1] != '/')
+	{
 		root = slash.append(root);
+		root = dot.append(root);
+	}
+	else if (root[0] == '/')
+		root = dot.append(root);
 	if (root[root.size() - 1] != '/')
 		root.append("/");
 	_root = root;
@@ -123,7 +129,7 @@ void Server::addDefaultLocation()
 	if (_root != "")
 		default_location.root = _root;
 	else
-		default_location.root = "/www/";
+		default_location.root = "./www/";
 	default_location.location = "/";
 	default_location.methods.push_back("GET");
 	
@@ -144,7 +150,7 @@ std::vector<int>					Server::getSockets() const { return _sockets; }
 In the 2 functions below :
 We use the server_block to parse any option written in it to the server's attributes
 If an option doesn't exist or is in double, we throw an error and stop the program
-If a line doesn't end with a ';' or a bracket, we throw an error and stop the program
+If a line doesn't start with "location" and doesn't end with a ';' or a bracket, we throw an error and stop the program
 There can be several ports and locations (structures) in a server
 There can be several methods in a location
 Location names are used to make sure a same location is not used more than once
@@ -244,8 +250,8 @@ void	Server::handleRequest(int socket, struct sockaddr_in &sockaddr, bool &kill)
 
 	try
 	{
-		getRequest(socket, request_header, request_body);
-		setRequest(request, request_header, request_body, kill);
+		getRequest(socket, request_header, request_body); // Splits request into header and body (if any)
+		setRequest(request, request_header, request_body, kill); // See the function
 		// Uncomment to display the method (if valid) and the location found in the request
 		// std::cout << request.method << "\n" << request.location << "\n" << std::endl;
 		if (kill)
@@ -313,6 +319,7 @@ void Server::setRequest(t_request &request, std::string &request_header, std::st
 		line++;
 		if (line == 1)
 		{
+			// The method is always at the start of the request, for all the browsers I tested
 			request.method = buffer.substr(0, buffer.find_first_of(" \t"));
 			if (!validMethod(request.method))
 				throw invalidMethodException();
@@ -321,8 +328,10 @@ void Server::setRequest(t_request &request, std::string &request_header, std::st
 		{
 			buffer = &buffer[buffer.find_first_of(" \t")];
 			buffer = &buffer[buffer.find_first_not_of(" \t")];
+			// If the location is in the first line, right after the method
 			if (line == 1 && buffer.substr(0, buffer.find_first_of(" \t")) != "/favicon.ico")
 				request.location = buffer.substr(0, buffer.find_first_of(" \t"));
+			// If the location is on the line starting with "Referer:"
 			else
 				request.location = buffer.substr(0);
 		}
@@ -349,6 +358,10 @@ void Server::setRequest(t_request &request, std::string &request_header, std::st
 		request.location = dot.append(request.location);
 		for (std::vector<std::string>::iterator it = _url_list.begin(); it != _url_list.end(); it++)
 		{
+			/*
+			If the requested url exists in the Webserv's list, we provide the page
+			If not, we provide the 404 error page (default request.url at the start of the function)
+			*/
 			if (*it == request.location)
 				request.url = *it;
 		}
@@ -365,6 +378,7 @@ void Server::sendUrl(std::string &url, int socket)
 {
 	std::ifstream 	ifs(url.c_str());
 	std::string		html = "", buffer;
+	// We start our response by the http header with the OK code (200)
 	std::string 	result = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: ";
 
 	while (!ifs.eof())
@@ -373,11 +387,12 @@ void Server::sendUrl(std::string &url, int socket)
 		html.append(buffer);
 		html.append("\n");
 	}
-	result.append(ft_to_string(html.size()));
-	result.append("\n\n");
-	result.append(html);
+	result.append(ft_to_string(html.size())); // We append the size of the html page to the http response
+	result.append("\n\n"); // The http response's header stops here
+	result.append(html); // The http reponse body (html page)
 
-	result.insert(result.find("</title>"), _server_name);
+	// As a bonus, I set the browser's tab title to server_name
+	result.insert(result.find("</title>"), _server_name); 
 
 	// Uncomment to display the HTML code of the sent page
 	// std::cout << result << std::endl;

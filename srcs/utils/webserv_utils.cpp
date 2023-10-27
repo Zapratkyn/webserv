@@ -119,7 +119,7 @@ namespace webserv_utils {
 	void initSockaddr(struct sockaddr_in &socketAddr)
 	{
 		socketAddr.sin_family = AF_INET;
-		socketAddr.sin_addr.s_addr = inet_addr("127.0.0.1"); // Allows any address to reach the server
+		socketAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
 	}
 
 	// void initTimeval(struct timeval &tv)
@@ -259,13 +259,15 @@ namespace webserv_utils {
 	        extension = &file_name[file_name.find_last_of(".")];
 	        if (extension != ".html" && extension != ".htm" && extension != ".php")
 	        {
-	            sub_folder = folder.append(file_name);
+	            sub_folder = folder_cpy.append(file_name);
+				folder_cpy = folder;
 				sub_folder.append("/");
 	            parseUrl(sub_folder, url_list);
 	        }
 			else
 			{
 				file_name = folder_cpy.append(file_name);
+				folder_cpy = folder;
 				url_list.push_back(file_name);
 			}
 	        file = readdir(dir);
