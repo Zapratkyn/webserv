@@ -16,23 +16,11 @@ Tasks:
 
 ===============================
 
-Notes about request handling :
-
-The request is kinda random.
-
-Sometimes you'll get the location on the first line
-
-Sometimes you'll get it later on a line called 'Referer'
-
-We need to check both every time > Done
-
-====================================
-
 Current state of the branch :
 
-- The Webserv class parses the path to all the files in the www folder and its subfolders (Commented display in the Webserv's constructor)
+- The Webserv class parses the path to all the files in the www folder and its subfolders
 
-- Then it parses all the servers, using the options in the configuration file and giving each server a unique name (Commented display in Webserv::parseConf())
+- Then it parses all the servers, using the options in the configuration file and giving each server a unique name
 
 - Each port is used to set a socket
 
@@ -44,7 +32,7 @@ Current state of the branch :
 
 - The server splits the request into header and body
 
-- The server uses the header to identify the requested location and method (Commented display in )
+- The server uses the header to identify the requested location and method
 
 - If the location is a url (ending with .html/.htm/.php), the server checks the url list and sends either the corresponding page or the 404 page, then goes back to the main loop
 
@@ -52,7 +40,7 @@ Current state of the branch :
 
 - In any other case, the server sends a sample "Hello from the server" page and goes back to the main loop
 
-- In any of those cases, the code and the message will be correct ("200 OK" if page found, "404 Not found" if not - See the commented display in sendUrl())
+- In any of those cases, the code and the message will be correct ("200 OK" if page found, "404 Not found" if not)
 
 ================================
 
