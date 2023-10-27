@@ -7,6 +7,9 @@
 # define EXIT_SUCCESS 0
 # define EXIT_FAILURE 1
 
+# define DISPLAY_URL false
+# define DISPLAY_SERVERS false
+
 class Webserv {
 
 private:

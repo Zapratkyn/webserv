@@ -5,9 +5,11 @@ using namespace webserv_utils;
 Webserv::Webserv(const std::string &conf_file) : _socketAddrLen(sizeof(_socketAddr)), _conf(conf_file), _kill(false)
 {
 	parseUrl("./www/", _url_list);
-	// Uncomment to display the list of url's
-	// for (std::vector<std::string>::iterator it = _url_list.begin(); it != _url_list.end(); it++)
-	// 	std::cout << *it << std::endl;
+	if (DISPLAY_URL)
+	{
+		for (std::vector<std::string>::iterator it = _url_list.begin(); it != _url_list.end(); it++)
+			std::cout << *it << std::endl;
+	}
 	return; 
 }
 
@@ -62,9 +64,9 @@ void Webserv::parseConf()
 		}
 	}
 	infile.close();
-	// Uncomment to display parsed servers
-	// displayServers(_server_list);
-}
+	if (DISPLAY_SERVERS)
+		displayServers(_server_list);
+}	
 
 void Webserv::startServer()
 {

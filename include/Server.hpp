@@ -8,8 +8,11 @@
 #include <fstream>
 #include "utils/server_utils.hpp"
 
+# define DIGITS "0123456789"
 
-#define DIGITS "0123456789"
+# define DISPLAY_METHOD_AND_LOCATION false
+# define DISPLAY_REQUEST false
+# define DISPLAY_HTML false
 
 class Server {
 
@@ -58,7 +61,7 @@ public:
 	void										handleRequest(int, struct sockaddr_in &, bool &);
 
 	class readRequestException : public std::exception { public: virtual const char *what() const throw() { return "Error while reading request"; } };
-	class requestBodyTooBigException : public std::exception { public: virtual const char *what() const throw() { return "Client's request' body too big"; } };
+	class requestBodyTooBigException : public std::exception { public: virtual const char *what() const throw() { return "Client's request's body too big"; } };
 	class invalidMethodException : public std::exception { public: virtual const char *what() const throw() { return "Invalid method"; } };
 	class forbiddenMethodException : public std::exception { public: virtual const char *what() const throw() { return "Forbidden method"; } };
 

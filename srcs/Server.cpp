@@ -252,8 +252,8 @@ void	Server::handleRequest(int socket, struct sockaddr_in &sockaddr, bool &kill)
 	{
 		getRequest(socket, request_header, request_body); // Splits request into header and body (if any)
 		setRequest(request, request_header, request_body, kill); // See the function
-		// Uncomment to display the method (if valid) and the location found in the request
-		// std::cout << request.method << "\n" << request.location << "\n" << std::endl;
+		if (DISPLAY_METHOD_AND_LOCATION)
+			std::cout << request.method << "\n" << request.location << "\n" << std::endl;
 		if (kill)
 			killMessage(socket);
 		else if (request.is_url)
@@ -305,8 +305,8 @@ void Server::getRequest(int socket, std::string &request_header, std::string &re
 	}
 	if (request_body.size() > (size_t)_client_max_body_size)
 		throw requestBodyTooBigException();
-	// Uncomment to display request_header + request_body (if any)
-	// std::cout << request_header << "\n" << request_body << std::endl;
+	if (DISPLAY_REQUEST)
+		std::cout << request_header << "\n" << request_body << std::endl;
 }
 
 void Server::setRequest(t_request &request, std::string &request_header, std::string &request_body, bool &kill)
@@ -410,8 +410,8 @@ void Server::sendUrl(t_request &request, int socket)
 	// As a bonus, I set the browser's tab title to server_name
 	result.insert(result.find("</title>"), _server_name); 
 
-	// Uncomment to display the HTML code of the sent page
-	std::cout << result << std::endl;
+	if (DISPLAY_HTML)
+		std::cout << result << std::endl;
 
 	write(socket, result.c_str(), result.size());
 }
