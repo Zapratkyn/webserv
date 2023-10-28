@@ -59,4 +59,4 @@ Potential solution :
 > Select() again and compare the return value to the biggest listening socket int to determine if we need to handle stacked requests or get new ones
 > Handle stacked requests one by one, removing the sockets from the 2nd fd_set and the vector<int, t_request>
 
-NB : I'm still not quite sure about it because select() is used not on every operation but alternatively on in and out series of operations.
+NB : I'm still not quite sure about it because select() is used not on every operation but alternatively on in and out series of operations. But since select() browse through all the fd's and sets to 1 all of those which are available for in or out operation depending on the fd_set they are in, I suppose we could consider all the writers went through select() with this solution.
