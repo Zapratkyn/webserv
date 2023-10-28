@@ -63,4 +63,4 @@ Potential solution :
 - This way, we actually force the program to alternate between in and out. At each "round", we parse every waiting request, then handle them all in one go.
 
 NB : I'm still not quite sure about it because select() is used not on every operation but alternatively on in and out series of operations. But since select() browse through all the fd's and sets to 1 all of those which are available for in or out operation depending on the fd_set they are in, I suppose we could consider all the writefds went through select() with this solution.
-A nice plus to this method is that it allows us to keep an eye on the number of requests and send a bad gateway error page on any request above the number we set at the start in the listen() function.
+A nice plus to this method is that it allows us to keep an eye on the number of requests and send a bad gateway error page on any request above the number we set at the start in the listen() function. I need to make sure the int we use in the listen() function will not lead us to further problems...
