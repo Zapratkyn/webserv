@@ -1,60 +1,6 @@
 #include "../../include/utils/webserv_utils.hpp"
 
 namespace webserv_utils {
-
-	/*
-	Because of the -std=c++98 flag, we can't use pop_back(), std::stoi() and std::to_string()
-	So I coded them here
-	*/
-	std::string ft_pop_back(std::string str)
-	{
-    	std::string result = "";
-    	int pos = str.size() - 1;
-
-    	for (int i = 0; i < pos; i++)
-        	result += str[i];
-
-    	return result;
-	}
-
-	std::string ft_to_string(int nb)
-	{
-    	std::string result = "", ch;
-
-		while (nb > 0)
-		{
-			ch = nb % 10 + '0';
-			ch += result;
-        	result = ch;
-			nb /= 10;
-		}
-    	return ch;
-	}
-
-	// A function to delete any white space before and after a line in the configuration file
-	std::string trim(const std::string &str)
-	{
-	    std::string result;
-
-	    if (str.size())
-	    {
-	        result = &str[str.find_first_not_of(" \t")];
-	        while (result[result.size() - 1] == ' ' || result[result.size() - 1] == '\t')
-	            result = ft_pop_back(result);
-	    }
-	    return result;
-	}
-
-    int ft_stoi(std::string str)
-	{
-		int result = 0;
-		int size = str.size();
-
-		for (int i = 0; i < size; i++)
-			result = result * 10 + str[i] - '0';
-
-		return result;
-	}
 	
 	std::string getServerName(const std::string &server_block, int &default_name_index, std::map<std::string, Server*> &server_list)
 	{
@@ -273,6 +219,132 @@ namespace webserv_utils {
 	        file = readdir(dir);
 		}
 		closedir(dir);
+	}
+
+	void getRequest(int socket, int max_body_size, std::string &request_header, std::string &request_body)
+	{
+		int bytesReceived;
+		char buffer[100000] = {0};
+
+		bytesReceived = read(socket, buffer, 100000);
+		if (bytesReceived < 0)
+			throw readRequestException();
+
+		std::string oBuffer(buffer);
+		std::stringstream ifs(oBuffer);
+
+		while (!ifs.eof() && oBuffer.size())
+		{
+			getline(ifs, oBuffer);
+			if (oBuffer.size() != 0)
+			{
+				request_header.append(oBuffer);
+				request_header.append("\n");
+			}
+		}
+		while (!ifs.eof())
+		{
+			getline(ifs, oBuffer);
+			request_body.append(oBuffer);
+			request_body.append("\n");
+		}
+		if (request_body.size() > (size_t)max_body_size)
+			throw requestBodyTooBigException();
+		if (DISPLAY_REQUEST)
+			std::cout << request_header << "\n" << request_body << std::endl;
+	}
+
+	void setRequest(t_request &request, std::string &request_header, std::string &request_body, std::vector<std::string> &url_list)
+	{
+		std::stringstream 	r_h(request_header);
+		std::string			buffer, dot = ".";
+		int					line = 0;
+
+		request.url = "./www/errors/404.html";
+		request.code = "404 Not found";
+		request.is_url = false;
+		request.is_kill = false;
+
+		while (!r_h.eof())
+		{
+			getline(r_h, buffer);
+			line++;
+			if (line == 1)
+			{
+				// The method is always at the start of the request, for all the browsers I tested
+				request.method = buffer.substr(0, buffer.find_first_of(" \t"));
+				if (!validMethod(request.method))
+					throw invalidMethodException();
+			}
+			if (line == 1 || buffer.substr(0, buffer.find_first_of(" \t")) == "Referer:")
+			{
+				buffer = &buffer[buffer.find_first_of(" \t")];
+				buffer = &buffer[buffer.find_first_not_of(" \t")];
+				// If the location is in the first line, right after the method
+				if (line == 1 && buffer.substr(0, buffer.find_first_of(" \t")) != "/favicon.ico")
+					request.location = buffer.substr(0, buffer.find_first_of(" \t"));
+				// If the location is on the line starting with "Referer:"
+				else
+					request.location = buffer.substr(0);
+			}
+		}
+
+		if (request.location == "/kill")
+			request.is_kill = true;
+
+		if (request.location.substr(0, 7) == "http://")
+		{
+			request.location = &request.location[request.location.find_first_of(":") + 1];
+			request.location = &request.location[request.location.find_first_of(":") + 1];
+			request.location = &request.location[request.location.find_first_not_of(DIGITS)];
+		}
+
+		std::string extension = &request.location[request.location.find_last_of(".")];
+
+		if (extension == ".html" || extension == ".htm" || extension == ".php")
+		{
+			request.is_url = true;
+			request.location = dot.append(request.location);
+			for (std::vector<std::string>::iterator it = url_list.begin(); it != url_list.end(); it++)
+			{
+				/*
+				If the requested url exists in the Webserv's list, we provide the page
+				If not, we provide the 404 error page (default request.url at the start of the function)
+				*/
+				if (*it == request.location)
+				{
+					request.code = "200 OK";
+					request.url = *it;
+				}
+			}
+			return;
+		}
+
+		// if (!allowedMethod(request.method, _location_list[request.location].methods))
+		// 	throw forbiddenMethodException();
+
+		(void)request_body;
+	}
+
+	bool validMethod(std::string &method)
+	{
+		if (method != "GET" && method != "DELETE" && method != "POST" && method != "HEAD" 
+			&& method != "PUT" && method != "CONNECT" && method != "OPTIONS" && method != "TRACE"
+			&& method != "PATCH")
+			return false;
+		return true;
+	}
+
+	void killMessage(int socket)
+	{
+		std::string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> WEBSERV SHUT DOWN </h1><p>Good bye !</p></body></html>";
+    	std::string result = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: ";
+
+		result.append(ft_to_string(htmlFile.size()));
+		result.append("\n\n");
+		result.append(htmlFile);
+
+		write(socket, result.c_str(), result.size());
 	}
 
 };

@@ -7,6 +7,7 @@
 #include <dirent.h>
 #include <fstream>
 #include "utils/server_utils.hpp"
+#include "utils/utils.hpp"
 
 # define DIGITS "0123456789"
 
@@ -30,9 +31,7 @@ private:
 
 	bool 										parseOption(const int &, std::string &, std::stringstream &, const std::string &, std::vector<int> &);
 	void										addDefaultLocation();
-	void										getRequest(int, std::string &, std::string &);
-	void										setRequest(t_request &, std::string &, std::string &, bool &);
-	void										sendUrl(t_request &, int);
+	void										sendUrl(struct t_request &, int);
 
 public:
 
@@ -58,13 +57,7 @@ public:
 	void										addSocket(int&);
 
 	bool										parseServer(const std::string &, const std::string &, std::vector<int> &, std::vector<std::string> &);
-	void										handleRequest(int, struct sockaddr_in &, bool &);
-
-	class readRequestException : public std::exception { public: virtual const char *what() const throw() { return "Error while reading request"; } };
-	class requestBodyTooBigException : public std::exception { public: virtual const char *what() const throw() { return "Client's request's body too big"; } };
-	class invalidMethodException : public std::exception { public: virtual const char *what() const throw() { return "Invalid method"; } };
-	class forbiddenMethodException : public std::exception { public: virtual const char *what() const throw() { return "Forbidden method"; } };
-
+	void										handleRequest(int, struct t_request);
 
 };
 

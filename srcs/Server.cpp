@@ -242,147 +242,28 @@ bool Server::parseServer(const std::string &server_block, const std::string &ser
 	return true;
 }
 
-void	Server::handleRequest(int socket, struct sockaddr_in &sockaddr, bool &kill)
+void	Server::handleRequest(int socket, struct t_request request)
 {
-	std::string request_header, request_body;
-	t_request	request;
-	std::string message, hello = "./hello.html";
-
 	try
 	{
-		getRequest(socket, request_header, request_body); // Splits request into header and body (if any)
-		setRequest(request, request_header, request_body, kill); // See the function
-		if (DISPLAY_METHOD_AND_LOCATION)
-			std::cout << request.method << "\n" << request.location << "\n" << std::endl;
-		if (kill)
-			killMessage(socket);
-		else if (request.is_url)
+		if (request.is_url)
 			sendUrl(request, socket);
 		else
 		{
+			// Sample "Hello from the server" page. To delete later
 			request.url = "./hello.html";
-			request.code = "200";
-			request.message = "OK";
+			request.code = "200 OK";
 			sendUrl(request, socket);
 		}
 		// else
 		// 	direct(request, socket);
-		std::cout << "Response sent to " << inet_ntoa(sockaddr.sin_addr) << " !\n" << std::endl;
+		std::cout << "Response sent to " << request.client << " !\n" << std::endl;
 	}
 	catch (const std::exception &e)
 	{
 		std::cerr << _server_name << ": "
 		<< e.what() << "\n" << std::endl;
 	}
-}
-
-void Server::getRequest(int socket, std::string &request_header, std::string &request_body)
-{
-	int bytesReceived;
-	char buffer[100000] = {0};
-
-	bytesReceived = read(socket, buffer, 100000);
-	if (bytesReceived < 0)
-		throw readRequestException();
-
-	std::string oBuffer(buffer);
-	std::stringstream ifs(oBuffer);
-
-	while (!ifs.eof() && oBuffer.size())
-	{
-		getline(ifs, oBuffer);
-		if (oBuffer.size() != 0)
-		{
-			request_header.append(oBuffer);
-			request_header.append("\n");
-		}
-	}
-	while (!ifs.eof())
-	{
-		getline(ifs, oBuffer);
-		request_body.append(oBuffer);
-		request_body.append("\n");
-	}
-	if (request_body.size() > (size_t)_client_max_body_size)
-		throw requestBodyTooBigException();
-	if (DISPLAY_REQUEST)
-		std::cout << request_header << "\n" << request_body << std::endl;
-}
-
-void Server::setRequest(t_request &request, std::string &request_header, std::string &request_body, bool &kill)
-{
-	std::stringstream 	r_h(request_header);
-	std::string			buffer, dot = ".";
-	int					line = 0;
-
-	request.url = "./www/errors/404.html";
-	request.code = "404";
-	request.message = "Not found";
-	request.is_url = false;
-
-	while (!r_h.eof())
-	{
-		getline(r_h, buffer);
-		line++;
-		if (line == 1)
-		{
-			// The method is always at the start of the request, for all the browsers I tested
-			request.method = buffer.substr(0, buffer.find_first_of(" \t"));
-			if (!validMethod(request.method))
-				throw invalidMethodException();
-		}
-		if (line == 1 || buffer.substr(0, buffer.find_first_of(" \t")) == "Referer:")
-		{
-			buffer = &buffer[buffer.find_first_of(" \t")];
-			buffer = &buffer[buffer.find_first_not_of(" \t")];
-			// If the location is in the first line, right after the method
-			if (line == 1 && buffer.substr(0, buffer.find_first_of(" \t")) != "/favicon.ico")
-				request.location = buffer.substr(0, buffer.find_first_of(" \t"));
-			// If the location is on the line starting with "Referer:"
-			else
-				request.location = buffer.substr(0);
-		}
-	}
-
-	if (request.location == "/kill")
-	{
-		kill = true;
-		return;
-	}
-	
-	if (request.location.substr(0, 7) == "http://")
-	{
-		request.location = &request.location[request.location.find_first_of(":") + 1];
-		request.location = &request.location[request.location.find_first_of(":") + 1];
-		request.location = &request.location[request.location.find_first_not_of(DIGITS)];
-	}
-
-	std::string extension = &request.location[request.location.find_last_of(".")];
-
-	if (extension == ".html" || extension == ".htm" || extension == ".php")
-	{
-		request.is_url = true;
-		request.location = dot.append(request.location);
-		for (std::vector<std::string>::iterator it = _url_list.begin(); it != _url_list.end(); it++)
-		{
-			/*
-			If the requested url exists in the Webserv's list, we provide the page
-			If not, we provide the 404 error page (default request.url at the start of the function)
-			*/
-			if (*it == request.location)
-			{
-				request.message = "OK";
-				request.code = "200";
-				request.url = *it;
-			}
-		}
-		return;
-	}
-
-	// if (!allowedMethod(request.method, _location_list[request.location].methods))
-	// 	throw forbiddenMethodException();
-
-	(void)request_body;
 }
 
 void Server::sendUrl(t_request &request, int socket)
@@ -393,8 +274,6 @@ void Server::sendUrl(t_request &request, int socket)
 	std::string 	result = "HTTP/1.1 ";
 
 	result.append(request.code);
-	result.append(" ");
-	result.append(request.message);
 	result.append("\nContent-Type: text/html\nContent-Length: ");
 
 	while (!ifs.eof())

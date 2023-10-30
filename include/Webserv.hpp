@@ -2,7 +2,9 @@
 # define __WEBSERV_HPP__
 
 #include <ctime>
+#include <fcntl.h>
 #include "utils/webserv_utils.hpp"
+#include "utils/utils.hpp"
 
 # define EXIT_SUCCESS 0
 # define EXIT_FAILURE 1
@@ -10,21 +12,22 @@
 # define DISPLAY_URL false
 # define DISPLAY_SERVERS false
 
+# define MAX_LISTEN 1000
+
 class Webserv {
 
 private:
 
 	int									_socket;
-	fd_set								_readfds;
-	std::vector<int>					_socket_list;
-	int									_new_socket;
+	std::vector<int>					_listen_socket_list;
+	std::map<int, struct t_request>		_request_list;
 	struct sockaddr_in 					_socketAddr;
 	unsigned int						_socketAddrLen;
 	// struct timeval					_tv;
-	std::map<std::string, std::time_t>	_previous_client;
 	std::vector<std::string>			_url_list;
+	std::map<std::string, std::time_t>	_previous_clients;
 
-	int									newConnection(int);
+	bool								acceptNewConnections(int, fd_set &, fd_set &);
 
 	std::string							_conf;
 	std::map<std::string, Server*>		_server_list;

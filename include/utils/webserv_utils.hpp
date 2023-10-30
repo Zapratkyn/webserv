@@ -5,6 +5,8 @@
 #include <sys/select.h>
 #include <netinet/ip.h>
 #include "../Server.hpp"
+#include "utils.hpp"
+
 
 namespace webserv_utils {
 
@@ -17,12 +19,15 @@ namespace webserv_utils {
 	std::string	getServer(std::map<std::string, Server*>&, int&);
 	void		displayServers(std::map<std::string, Server*>&);
     void        parseUrl(std::string, std::vector<std::string> &);
+    void        getRequest(int, int, std::string &, std::string &);
+    void		setRequest(t_request &, std::string &, std::string &, std::vector<std::string> &);
+    bool		validMethod(std::string &);
+    void		killMessage(int);
 
-    // libft
-    std::string ft_pop_back(std::string);
-    int         ft_stoi(std::string);
-	std::string ft_to_string(int);
-    std::string trim(const std::string &);
+    class readRequestException : public std::exception { public: virtual const char *what() const throw() { return "Error while reading request"; } };
+    class requestBodyTooBigException : public std::exception { public: virtual const char *what() const throw() { return "Client's request's body too big"; } };
+    class invalidMethodException : public std::exception { public: virtual const char *what() const throw() { return "Invalid method"; } };
+	class forbiddenMethodException : public std::exception { public: virtual const char *what() const throw() { return "Forbidden method"; } };
 
 };
 

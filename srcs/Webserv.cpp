@@ -20,8 +20,10 @@ Webserv::~Webserv()
 		delete it->second;
 	// I thought about having servers as variables instead of pointers, to get rid of the need of deleting them but...
 	// We need to close all the sockets opened by the socket() function
-	for (std::vector<int>::iterator it = _socket_list.begin(); it != _socket_list.end(); it++)
+	for (std::vector<int>::iterator it = _listen_socket_list.begin(); it != _listen_socket_list.end(); it++)
 		close(*it);
+	for (std::map<int, t_request>::iterator it = _request_list.begin(); it != _request_list.end(); it++)
+		close(it->first);
 	return;
 }
 
@@ -92,14 +94,15 @@ void Webserv::startServer()
 			if (_socket < 0)
 				throw openSocketException();
 			
-			_socket_list.push_back(_socket);
+			fcntl(_socket, F_SETFL, O_NONBLOCK); // Set the sockets to non-blocking
+			_listen_socket_list.push_back(_socket);
 			server_it->second->addSocket(_socket);
 
 			_socketAddr.sin_port = htons(*port_it);
 			if (bind(_socket, (sockaddr *)&_socketAddr, _socketAddrLen) < 0)
 				throw bindException();
 
-			if (listen(_socket, 1000) < 0) // The second argument is the max number of connections the socket can take at a time
+			if (listen(_socket, MAX_LISTEN) < 0) // The second argument is the max number of connections the socket can take at a time
 				throw listenException();
 		}
 	}
@@ -114,70 +117,93 @@ void Webserv::startListen()
 	Since fd 0, 1 and 2 are already taken (STD_IN and STD_OUT and STD_ERR), our list begins at 3
 	Therefore, max_fds = total_number_of_sockets + STD_IN + STD_OUT + STD_ERR
 	*/
-	int max_fds = _socket_list.size() + 3;
-	std::string server;
+	int 			max_fds = _listen_socket_list.size() + 3;
+	fd_set			readfds, writefds;
+	std::string 	server;
 
 	std::cout << "Ready. Waiting for new connections...\n" << std::endl;
 
+	FD_ZERO(&writefds);
+	
 	while (true)
 	{
-		FD_ZERO(&_readfds);
-		for (std::vector<int>::iterator it = _socket_list.begin(); it != _socket_list.end(); it++)
-			FD_SET(*it, &_readfds);
+		FD_ZERO(&readfds);
+		for (std::vector<int>::iterator it = _listen_socket_list.begin(); it != _listen_socket_list.end(); it++)
+			FD_SET(*it, &readfds);
 		/*
 		Select blocks until a new request is received
 		It then sets the request receiving sockets to 1 and unblocks
-		It means that if several requests are waiting, it will sets so many sockets to 1
 		We then need to handle several potential requests in the newConnection() function
+		This will first stack pending requests (in the writefds fd_set and in the _request_list) \
+		Go through select() before handling the stacked requests \
+		Then handle all the stacked requests and go back to select() for another round
 		*/
-		if (select(max_fds, &_readfds, NULL, NULL, NULL) < 0)
+		if (select(max_fds + _request_list.size(), &readfds, &writefds, NULL, NULL) < 0)
 		{
 			ft_error(0);
 			continue;
 		}
-		_new_socket = newConnection(max_fds);
-		if (_new_socket > 0)
+		if (_request_list.empty())
 		{
-			server = getServer(_server_list, _socket); // Identify which server the user tries to reach
-			_server_list[server]->handleRequest(_new_socket, _socketAddr, _kill);
-			close(_new_socket);
-			if (_kill)
+			if (!acceptNewConnections(max_fds, readfds, writefds)) // Is a bool to allow us to shut the program down properly
 				break;
+		}
+		else
+		{
+			for (std::map<int, t_request>::iterator it = _request_list.begin(); it != _request_list.end(); it++)
+			{
+				_server_list[it->second.server]->handleRequest(it->first, it->second);
+				close(it->first);
+				FD_CLR(it->first, &writefds);
+			}
+			_request_list.clear();
 		}
 	}
 }
 
-int Webserv::newConnection(int max_fds)
+bool Webserv::acceptNewConnections(int max_fds, fd_set &readfds, fd_set &writefds)
 {
-	/*
-	At some point, we will probably need to stack requests
-	To do that, we can :
-	- Use the _readfds fd_set to add/remove incoming/handled requests
-	or
-	- Use threads to let webserv handle several requests at a time
-
-	Or maybe both...
-	*/
 	int new_socket = 0;
+	t_request new_request;
+	std::string header, body;
 
 	for (int i = 3; i < max_fds; i++)
 	{
 		_socket = i;
-		if (FD_ISSET(_socket, &_readfds))
+		if (FD_ISSET(_socket, &readfds))
 		{
-			new_socket = accept(_socket, (sockaddr *)&_socketAddr, &_socketAddrLen);
-			if (new_socket != EAGAIN && new_socket != EWOULDBLOCK)
-				break;
+			while(true)
+			{
+				new_request.server = getServer(_server_list, _socket);
+				new_socket = accept(_socket, (sockaddr *)&_socketAddr, &_socketAddrLen);
+				if (new_socket == EAGAIN || new_socket == EWOULDBLOCK)
+					break;
+				new_request.client = inet_ntoa(_socketAddr.sin_addr);
+				if (_previous_clients.find(new_request.client) != _previous_clients.end() && _previous_clients[new_request.client] == std::time(NULL))
+					break;
+				else
+				{
+					_previous_clients[new_request.client] = std::time(NULL);
+					std::cout << "New request received from " << new_request.client << " !\n" << std::endl;
+					FD_SET(new_socket, &writefds);
+					try
+					{
+						getRequest(new_socket, _server_list[new_request.server]->getBodySize(), header, body);
+						setRequest(new_request, header, body, _url_list);
+						_request_list[new_socket] = new_request;
+						if (new_request.is_kill)
+						{
+							killMessage(new_socket);
+							return false;
+						}
+					}
+					catch(const std::exception& e)
+					{
+						std::cerr << e.what() << '\n';
+					}
+				}
+			}
 		}
 	}
-	if (_new_socket < 0)
-	{
-		ft_error(1);
-		std::cerr << inet_ntoa(_socketAddr.sin_addr) << std::endl;
-	}
-	if (_previous_client.find(inet_ntoa(_socketAddr.sin_addr)) != _previous_client.end() && std::time(NULL) == _previous_client[inet_ntoa(_socketAddr.sin_addr)])
-		return 0;
-	_previous_client[inet_ntoa(_socketAddr.sin_addr)] = std::time(NULL);
-	std::cout << "New request received from " << inet_ntoa(_socketAddr.sin_addr) << " !\n" << std::endl;
-	return new_socket;
+	return true;
 }

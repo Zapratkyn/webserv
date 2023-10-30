@@ -10,7 +10,8 @@ SRC					=	srcs/main.cpp \
 						srcs/Server.cpp \
 						srcs/Webserv.cpp \
 						srcs/utils/webserv_utils.cpp \
-						srcs/utils/server_utils.cpp
+						srcs/utils/server_utils.cpp \
+						srcs/utils/utils.cpp
 
 OBJ					=	$(addprefix $(OBJDIR)/, $(SRC:.cpp=.o))
 
