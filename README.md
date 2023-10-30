@@ -46,7 +46,9 @@ Current state of the branch :
 
 NOTES :
 
-I'm quite satisfied with my select() implementation. No operation can be done unless select() said so. The program should be able to handle [ports * MAX_LISTEN] connections without failing. It will listen to all the pending requests, then pass them to the corresponding servers, which will handle them, and go back to listening. Select() makes sure the sockets (I/O) are always ready to listen/write.
+- I'm quite satisfied with my select() implementation. No operation can be done unless select() said so. The program should be able to handle [ports * MAX_LISTEN] connections without failing. It will listen to all the pending requests, then pass them to the corresponding servers, which will handle them, and go back to listening. Select() makes sure the sockets (I/O) are always ready to listen/write.
+
+- Instead of displaying messages on the terminal for every request received/handled, we could create a log file somewhere and write everything in it, with the time, the ip's, the server name and any other relevant information. > Done. But for some reason, I cannot add an ofstream to the Webserv class and keep it open always. It broke the program. Instead, I open and close the file each time a log needs to be done.
 
 ================================
 
@@ -55,5 +57,3 @@ TO DO :
 - I need to find a way to apply the favicon and the stylesheet to the displayed pages
 
 - I'm not sure about the allowed methods for the locations. Either I won't let the user look for direct url or I'll update any page linked to a location if methods other than GET are specified in the location block.
-
-- Instead of displaying messages on the terminal for every request received/handled, we could create a log file somewhere and write everything in it, with the time, the ip's, the server name and any other relevant information. > I tried (see comments here and there in Webserv.cpp/hpp), but for some reason, the presence of an ofstream in the class breaks the program... I'll dive into that later...

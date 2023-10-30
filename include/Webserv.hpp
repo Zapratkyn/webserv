@@ -26,7 +26,7 @@ private:
 	std::map<std::string, std::time_t>	_previous_clients;
 
 	bool								acceptNewConnections(int, fd_set &, fd_set &);
-	// void        						log(std::string, std::string);
+	void        						log(std::string, std::string);
 
 	std::string							_conf;
 	std::map<std::string, Server*>		_server_list;
