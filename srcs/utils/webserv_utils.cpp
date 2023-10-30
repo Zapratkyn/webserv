@@ -209,7 +209,8 @@ namespace webserv_utils {
 			{
 				file_name = folder_cpy.append(file_name);
 				folder_cpy = folder;
-				url_list.push_back(file_name);
+				if (file_name != "./www/hello.html")
+					url_list.push_back(file_name);
 			}
 	        file = readdir(dir);
 		}
@@ -255,8 +256,8 @@ namespace webserv_utils {
 		std::string			buffer, dot = ".";
 		int					line = 0;
 
-		request.url = "./www/errors/404.html";
-		request.code = "404 Not found";
+		request.url = "./www/hello.html";
+		request.code = "200 OK";
 		request.is_url = false;
 		request.is_kill = false;
 
@@ -319,10 +320,12 @@ namespace webserv_utils {
 				*/
 				if (*it == request.location)
 				{
-					request.code = "200 OK";
 					request.url = *it;
+					return;
 				}
 			}
+			request.url = "./www/errors/404.html";
+			request.code = "404 Not found";
 			return;
 		}
 

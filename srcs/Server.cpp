@@ -241,17 +241,9 @@ bool Server::parseServer(const std::string &server_block, const std::string &ser
 	return true;
 }
 
-void	Server::handleRequest(int socket, struct t_request request)
+void	Server::handleRequest(int socket, struct t_request &request)
 {
-	if (request.is_url)
-		sendUrl(request, socket);
-	else
-	{
-		// Sample "Hello from the server" page. To delete later
-		request.url = "./hello.html";
-		request.code = "200 OK";
-		sendUrl(request, socket);
-	}
+	sendUrl(request, socket);
 	// else
 	// 	direct(request, socket);
 }

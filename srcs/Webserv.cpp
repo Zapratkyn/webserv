@@ -25,7 +25,7 @@ Webserv::~Webserv()
 		close(*it);
 	for (std::map<int, t_request>::iterator it = _request_list.begin(); it != _request_list.end(); it++)
 		close(it->first);
-	log("", "Webserv stopped");
+	log("", "Webserv stopped", "", "");
 	// _log_file.close();
 	return;
 }
@@ -115,7 +115,7 @@ void Webserv::startServer()
 void Webserv::startListen()
 {
 	listenLog(_socketAddr, _server_list); // Displays all the open ports to the user
-	log("", "Webserv started");
+	log("", "Webserv started", "", "");
 
 	/*
 	Select() needs the biggest fd + 1 from all the fd_sets
@@ -161,7 +161,7 @@ void Webserv::startListen()
 				if (FD_ISSET(it->first, &writefds)) // Works only if select() said so
 				{
 					_server_list[it->second.server]->handleRequest(it->first, it->second);
-					log(it->second.client, "Response sent");
+					log(it->second.client, "Response sent", it->second.server, &it->second.url[6]);
 					close(it->first); // Closes the socket so it can be used again later
 					FD_CLR(it->first, &writefds); // Clears the writefds fd_set
 					tmp = it; // If I erase an iterator while itering on a std::map, I get a SEGFAULT
@@ -206,12 +206,12 @@ bool Webserv::acceptNewConnections(int max_fds, fd_set &readfds, fd_set &writefd
 				else
 				{
 					_previous_clients[new_request.client] = std::time(NULL);
-					log(new_request.client, "New request");
 					FD_SET(new_socket, &writefds); // We add the new_socket to the writefds fd_set
 					try
 					{
 						getRequest(new_socket, _server_list[new_request.server]->getBodySize(), header, body);
 						setRequest(new_request, header, body, _url_list);
+						log(new_request.client, "New request", new_request.server, &new_request.url[6]);
 						new_request.socket = new_socket;
 						_request_list[new_socket] = new_request;
 						if (new_request.is_kill)
@@ -223,7 +223,7 @@ bool Webserv::acceptNewConnections(int max_fds, fd_set &readfds, fd_set &writefd
 					catch(const std::exception& e)
 					{
 						close(new_socket);
-						log(new_request.client, e.what());
+						log(new_request.client, e.what(), "", "");
 					}
 				}
 			}
@@ -232,7 +232,7 @@ bool Webserv::acceptNewConnections(int max_fds, fd_set &readfds, fd_set &writefd
 	return true;
 }
 
-void Webserv::log(std::string client, std::string line)
+void Webserv::log(std::string client, std::string line, std::string server, std::string url)
 {
 	time_t tm = std::time(NULL);
 	char* dt = ctime(&tm);
@@ -241,10 +241,17 @@ void Webserv::log(std::string client, std::string line)
 
 	log_file.open("./webserv.log", std::ofstream::app);
 
+	log_file << odt << " - "; 
+	
 	if (client != "")
-		log_file << odt << " - " << client << ": " << line << "\n";
-	else
-		log_file << odt << " - " << line << "\n";
+		log_file << client << ": ";
+
+	log_file << line;
+
+	if (url != "")
+		log_file << " (" << url << " from " << server << ")";
+
+	log_file << "\n";
 	
 	log_file.close();
 }

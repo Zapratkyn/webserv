@@ -54,7 +54,7 @@ public:
 	void										addSocket(int&);
 
 	bool										parseServer(const std::string &, const std::string &, std::vector<int> &);
-	void										handleRequest(int, struct t_request);
+	void										handleRequest(int, struct t_request &);
 
 };
 
