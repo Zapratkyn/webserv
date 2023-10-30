@@ -2,8 +2,9 @@
 
 using namespace webserv_utils;
 
-Webserv::Webserv(const std::string &conf_file) : _socketAddrLen(sizeof(_socketAddr)), _conf(conf_file), _kill(false)
+Webserv::Webserv(const std::string &conf_file) : _socketAddrLen(sizeof(_socketAddr)), _conf(conf_file)
 {
+	// _log_file.open("./webserv.log", std::ofstream::app);
 	parseUrl("./www/", _url_list);
 	if (DISPLAY_URL)
 	{
@@ -24,6 +25,8 @@ Webserv::~Webserv()
 		close(*it);
 	for (std::map<int, t_request>::iterator it = _request_list.begin(); it != _request_list.end(); it++)
 		close(it->first);
+	// log("", "Webserv stopped");
+	// _log_file.close();
 	return;
 }
 
@@ -53,7 +56,7 @@ void Webserv::parseConf()
 			server_block = getServerBlock(infile);
 			server = new Server;
 			server_name = getServerName(server_block, default_name, _server_list);
-			if (!server->parseServer(server_block, server_name, port_list, _url_list))
+			if (!server->parseServer(server_block, server_name, port_list))
 			{
 				/*
 				If an error occurs, the server will not be added to the webserv's list of servers
@@ -73,6 +76,7 @@ void Webserv::parseConf()
 void Webserv::startServer()
 {
 	std::vector<int> port_list;
+	int listen_socket;
 
 	initSockaddr(_socketAddr);
 	// initTimeval(_tv);
@@ -81,8 +85,8 @@ void Webserv::startServer()
 	/*
 	Each port in the conf file is used to make an individual listening socket
 	We browse the whole list, create a socket for each port
-	We add the socket to the readfds set (for select()), to its server's socket_list (for getServer()) \
-	and to the global socket_list (to close everything at the end)
+	We add the socket to its server's socket_list (for getServer()) \
+	and to the global socket_list (to reset the readfds fd_set in startListen() and to close everything at the end)
 	Bind() gives a "name" to each socket
 	*/
 	for (std::map<std::string, Server*>::iterator server_it = _server_list.begin(); server_it != _server_list.end(); server_it++)
@@ -90,19 +94,19 @@ void Webserv::startServer()
 		port_list = server_it->second->getPorts();
 		for (std::vector<int>::iterator port_it = port_list.begin(); port_it != port_list.end(); port_it++)
 		{
-			_socket = socket(AF_INET, SOCK_STREAM, 0);
-			if (_socket < 0)
+			listen_socket = socket(AF_INET, SOCK_STREAM, 0);
+			if (listen_socket < 0)
 				throw openSocketException();
 			
-			fcntl(_socket, F_SETFL, O_NONBLOCK); // Set the sockets to non-blocking
-			_listen_socket_list.push_back(_socket);
-			server_it->second->addSocket(_socket);
+			fcntl(listen_socket, F_SETFL, O_NONBLOCK); // Sets the sockets to non-blocking
+			_listen_socket_list.push_back(listen_socket);
+			server_it->second->addSocket(listen_socket);
 
-			_socketAddr.sin_port = htons(*port_it);
-			if (bind(_socket, (sockaddr *)&_socketAddr, _socketAddrLen) < 0)
+			_socketAddr.sin_port = htons(*port_it); // Link the socket to the corresponding port
+			if (bind(listen_socket, (sockaddr *)&_socketAddr, _socketAddrLen) < 0)
 				throw bindException();
 
-			if (listen(_socket, MAX_LISTEN) < 0) // The second argument is the max number of connections the socket can take at a time
+			if (listen(listen_socket, MAX_LISTEN) < 0) // The second argument is the max number of connections the socket can take at a time
 				throw listenException();
 		}
 	}
@@ -111,6 +115,7 @@ void Webserv::startServer()
 void Webserv::startListen()
 {
 	listenLog(_socketAddr, _server_list); // Displays all the open ports to the user
+	// log("", "Webserv started");
 
 	/*
 	Select() needs the biggest fd + 1 from all the fd_sets
@@ -120,6 +125,7 @@ void Webserv::startListen()
 	int 			max_fds = _listen_socket_list.size() + 3;
 	fd_set			readfds, writefds;
 	std::string 	server;
+	std::map<int, t_request>::iterator tmp;
 
 	std::cout << "Ready. Waiting for new connections...\n" << std::endl;
 
@@ -127,13 +133,13 @@ void Webserv::startListen()
 	
 	while (true)
 	{
-		FD_ZERO(&readfds);
+		FD_ZERO(&readfds); // Reset the readfds fd_set
 		for (std::vector<int>::iterator it = _listen_socket_list.begin(); it != _listen_socket_list.end(); it++)
 			FD_SET(*it, &readfds);
 		/*
 		Select blocks until a new request is received
 		It then sets the request receiving sockets to 1 and unblocks
-		We then need to handle several potential requests in the newConnection() function
+		We then need to parse several potential requests in the newConnection() function
 		This will first stack pending requests (in the writefds fd_set and in the _request_list) \
 		Go through select() before handling the stacked requests \
 		Then handle all the stacked requests and go back to select() for another round
@@ -150,56 +156,74 @@ void Webserv::startListen()
 		}
 		else
 		{
-			for (std::map<int, t_request>::iterator it = _request_list.begin(); it != _request_list.end(); it++)
+			for (std::map<int, t_request>::iterator it = _request_list.begin(); it != _request_list.end();)
 			{
-				_server_list[it->second.server]->handleRequest(it->first, it->second);
-				close(it->first);
-				FD_CLR(it->first, &writefds);
+				if (FD_ISSET(it->first, &writefds)) // Works only if select() said so
+				{
+					_server_list[it->second.server]->handleRequest(it->first, it->second);
+					// log(it->second.client, "Response sent");
+					close(it->first); // Closes the socket so it can be used again later
+					FD_CLR(it->first, &writefds); // Clears the writefds fd_set
+					tmp = it; // If I erase an iterator while itering on a std::map, I get a SEGFAULT
+					it++;
+					_request_list.erase(tmp);
+				}
 			}
-			_request_list.clear();
 		}
 	}
 }
 
 bool Webserv::acceptNewConnections(int max_fds, fd_set &readfds, fd_set &writefds)
 {
-	int new_socket = 0;
+	int time, new_socket;
 	t_request new_request;
 	std::string header, body;
 
-	for (int i = 3; i < max_fds; i++)
+	for (int socket = 3; socket < max_fds; socket++)
 	{
-		_socket = i;
-		if (FD_ISSET(_socket, &readfds))
+		if (FD_ISSET(socket, &readfds))
 		{
+			/*
+			One socket may have up to MAX_LISTEN pending requests
+			So we use accept() on each socket until all pending requests have been parsed
+			*/
 			while(true)
 			{
-				new_request.server = getServer(_server_list, _socket);
-				new_socket = accept(_socket, (sockaddr *)&_socketAddr, &_socketAddrLen);
+				new_request.server = getServer(_server_list, socket);
+				new_socket = accept(socket, (sockaddr *)&_socketAddr, &_socketAddrLen);
 				if (new_socket == EAGAIN || new_socket == EWOULDBLOCK)
-					break;
+					break; // If no more pending request
 				new_request.client = inet_ntoa(_socketAddr.sin_addr);
-				if (_previous_clients.find(new_request.client) != _previous_clients.end() && _previous_clients[new_request.client] == std::time(NULL))
+				time = std::time(NULL);
+				if (_previous_clients.find(new_request.client) != _previous_clients.end() \
+					&& (_previous_clients[new_request.client] == time \
+					|| _previous_clients[new_request.client] == time - 1))
+				{
+					// If the same client has already sent a request in the last or current second
+					close(new_socket); // It will not be used this time, so we close it and use it again later 
 					break;
+				}
 				else
 				{
 					_previous_clients[new_request.client] = std::time(NULL);
-					std::cout << "New request received from " << new_request.client << " !\n" << std::endl;
-					FD_SET(new_socket, &writefds);
+					// log(new_request.client, "New request");
+					FD_SET(new_socket, &writefds); // We add the new_socket to the writefds fd_set
 					try
 					{
 						getRequest(new_socket, _server_list[new_request.server]->getBodySize(), header, body);
 						setRequest(new_request, header, body, _url_list);
+						new_request.socket = new_socket;
 						_request_list[new_socket] = new_request;
 						if (new_request.is_kill)
 						{
-							killMessage(new_socket);
+							killMessage(new_socket); // Displays a page stating the webserv is shut down to the client
 							return false;
 						}
 					}
 					catch(const std::exception& e)
 					{
-						std::cerr << e.what() << '\n';
+						close(new_socket);
+						// log(new_request.client, e.what());
 					}
 				}
 			}
@@ -207,3 +231,15 @@ bool Webserv::acceptNewConnections(int max_fds, fd_set &readfds, fd_set &writefd
 	}
 	return true;
 }
+
+// void Webserv::log(std::string client, std::string line)
+// {
+// 	time_t tm = std::time(NULL);
+// 	char* dt = ctime(&tm);
+// 	std::string odt = ft_pop_back(dt);
+
+// 	if (client != "")
+// 		_log_file << odt << " - " << client << ": " << line << "\n";
+// 	else
+// 		_log_file << odt << " - " << line << "\n";
+// }

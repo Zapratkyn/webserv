@@ -190,7 +190,7 @@ bool Server::parseOption(const int &option, std::string &value, std::stringstrea
 	return true;
 }
 
-bool Server::parseServer(const std::string &server_block, const std::string &server_name, std::vector<int> &port_list, std::vector<std::string> &url_list)
+bool Server::parseServer(const std::string &server_block, const std::string &server_name, std::vector<int> &port_list)
 {
 	std::string 		buffer, name, value, option_list[7] = {"listen", "host", "server_name", "client_max_body_size", "root", "index", "location"};
 	std::stringstream	ifs(server_block); // std::stringstream works the same as a std::ifstream but is constructed from a string instead of a file
@@ -238,32 +238,22 @@ bool Server::parseServer(const std::string &server_block, const std::string &ser
 		_client_max_body_size = 60000; // The PDF states we need to limit the client_max_body_size
 	if (_location_list.find("/") == _location_list.end())
 		addDefaultLocation();
-	_url_list = url_list;
 	return true;
 }
 
 void	Server::handleRequest(int socket, struct t_request request)
 {
-	try
+	if (request.is_url)
+		sendUrl(request, socket);
+	else
 	{
-		if (request.is_url)
-			sendUrl(request, socket);
-		else
-		{
-			// Sample "Hello from the server" page. To delete later
-			request.url = "./hello.html";
-			request.code = "200 OK";
-			sendUrl(request, socket);
-		}
-		// else
-		// 	direct(request, socket);
-		std::cout << "Response sent to " << request.client << " !\n" << std::endl;
+		// Sample "Hello from the server" page. To delete later
+		request.url = "./hello.html";
+		request.code = "200 OK";
+		sendUrl(request, socket);
 	}
-	catch (const std::exception &e)
-	{
-		std::cerr << _server_name << ": "
-		<< e.what() << "\n" << std::endl;
-	}
+	// else
+	// 	direct(request, socket);
 }
 
 void Server::sendUrl(t_request &request, int socket)

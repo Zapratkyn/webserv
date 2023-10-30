@@ -95,7 +95,7 @@ namespace webserv_utils {
 	   	ss << "\n\n### Webserv started ###\n\n"
 		<< "\n***\n\nListening on ADDRESS: " 
 	    << inet_ntoa(socketAddr.sin_addr) // inet_ntoa converts the Internet Host address to an IPv4 address (xxx.xxx.xxx.xxx)
-	    << " (localhost)\n\nPORTS:\n\n";
+	    << " (localhost)\n\nLISTENING PORTS:\n\n";
 		for (std::map<std::string, Server*>::iterator server_it = server_list.begin(); server_it != server_list.end(); server_it++)
 		{
 			port_list = server_it->second->getPorts();
@@ -117,13 +117,8 @@ namespace webserv_utils {
 			for (std::vector<int>::iterator socket_it = socket_list.begin(); socket_it != socket_list.end(); socket_it++)
 			{
 				if (*socket_it == socket)
-				{
-					result = server_it->second->getServerName();
-					break;
-				}
+					return server_it->second->getServerName();
 			}
-			if (result != "")
-				break;
 		}
 		return result;
 	}
@@ -274,7 +269,12 @@ namespace webserv_utils {
 				// The method is always at the start of the request, for all the browsers I tested
 				request.method = buffer.substr(0, buffer.find_first_of(" \t"));
 				if (!validMethod(request.method))
+				{
+					request.url = "./www/errors/400.html";
+					request.code = "400 Bad Request";
+					errorPage(request);
 					throw invalidMethodException();
+				}
 			}
 			if (line == 1 || buffer.substr(0, buffer.find_first_of(" \t")) == "Referer:")
 			{
@@ -287,6 +287,12 @@ namespace webserv_utils {
 				else
 					request.location = buffer.substr(0);
 			}
+		}
+
+		if (DISPLAY_METHOD_AND_LOCATION)
+		{
+			std::cout << "Method = " << request.method << std::endl;
+			std::cout << "Location = " << request.location << std::endl;
 		}
 
 		if (request.location == "/kill")
@@ -345,6 +351,32 @@ namespace webserv_utils {
 		result.append(htmlFile);
 
 		write(socket, result.c_str(), result.size());
+	}
+
+	void errorPage(t_request request)
+	{
+		std::ifstream 	ifs(request.url.c_str());
+		std::string		html = "", buffer;
+		// We start our response by the http header with the right code
+		std::string 	result = "HTTP/1.1 ";
+
+		result.append(request.code);
+		result.append("\nContent-Type: text/html\nContent-Length: ");
+
+		while (!ifs.eof())
+		{
+			getline(ifs, buffer);
+			html.append(buffer);
+			html.append("\n");
+		}
+		result.append(ft_to_string(html.size())); // We append the size of the html page to the http response
+		result.append("\n\n"); // The http response's header stops here
+		result.append(html); // The http reponse body (html page)
+
+		if (DISPLAY_HTML)
+			std::cout << result << std::endl;
+
+		write(request.socket, result.c_str(), result.size());
 	}
 
 };

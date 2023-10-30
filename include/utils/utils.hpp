@@ -13,6 +13,7 @@ struct t_request {
     std::string                 client;
 	bool						is_url;
     bool						is_kill;
+	int							socket;
 
 };
 

@@ -11,8 +11,6 @@
 
 # define DIGITS "0123456789"
 
-# define DISPLAY_METHOD_AND_LOCATION false
-# define DISPLAY_REQUEST false
 # define DISPLAY_HTML false
 
 class Server {
@@ -27,7 +25,6 @@ private:
 	std::vector<int>							_ports;
 	std::vector<int>							_sockets;
 	std::map<std::string, t_location>			_location_list;
-	std::vector<std::string>					_url_list;
 
 	bool 										parseOption(const int &, std::string &, std::stringstream &, const std::string &, std::vector<int> &);
 	void										addDefaultLocation();
@@ -56,7 +53,7 @@ public:
 	bool										addLocation(std::stringstream&, std::string &value);
 	void										addSocket(int&);
 
-	bool										parseServer(const std::string &, const std::string &, std::vector<int> &, std::vector<std::string> &);
+	bool										parseServer(const std::string &, const std::string &, std::vector<int> &);
 	void										handleRequest(int, struct t_request);
 
 };

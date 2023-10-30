@@ -1,7 +1,6 @@
 #ifndef __WEBSERV_HPP__
 # define __WEBSERV_HPP__
 
-#include <ctime>
 #include <fcntl.h>
 #include "utils/webserv_utils.hpp"
 #include "utils/utils.hpp"
@@ -18,7 +17,6 @@ class Webserv {
 
 private:
 
-	int									_socket;
 	std::vector<int>					_listen_socket_list;
 	std::map<int, struct t_request>		_request_list;
 	struct sockaddr_in 					_socketAddr;
@@ -28,10 +26,11 @@ private:
 	std::map<std::string, std::time_t>	_previous_clients;
 
 	bool								acceptNewConnections(int, fd_set &, fd_set &);
+	// void        						log(std::string, std::string);
 
 	std::string							_conf;
 	std::map<std::string, Server*>		_server_list;
-	bool								_kill;
+	// std::ofstream						_log_file;
 
 public:
 
@@ -45,6 +44,7 @@ public:
 	class bindException : public std::exception { public: virtual const char *what() const throw() { return "ERROR\nCouldn't bind socket"; } };
 	class listenException : public std::exception { public: virtual const char *what() const throw() { return "ERROR\nCouldn't start listening"; } };
 	class confFailureException : public std::exception { public: virtual const char *what() const throw() { return "Configuration failure. Program stopped."; } };
+	class logError : public std::exception { public: virtual const char *what() const throw() { return "LOG ERROR."; } };
 
 };
 

@@ -4,8 +4,12 @@
 #include <sys/socket.h>
 #include <sys/select.h>
 #include <netinet/ip.h>
+#include <ctime>
 #include "../Server.hpp"
 #include "utils.hpp"
+
+# define DISPLAY_REQUEST false
+# define DISPLAY_METHOD_AND_LOCATION false
 
 
 namespace webserv_utils {
@@ -23,6 +27,7 @@ namespace webserv_utils {
     void		setRequest(t_request &, std::string &, std::string &, std::vector<std::string> &);
     bool		validMethod(std::string &);
     void		killMessage(int);
+    void        errorPage(struct t_request);
 
     class readRequestException : public std::exception { public: virtual const char *what() const throw() { return "Error while reading request"; } };
     class requestBodyTooBigException : public std::exception { public: virtual const char *what() const throw() { return "Client's request's body too big"; } };
