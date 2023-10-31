@@ -209,7 +209,7 @@ namespace webserv_utils {
 			{
 				file_name = folder_cpy.append(file_name);
 				folder_cpy = folder;
-				if (file_name != "./www/hello.html")
+				if (file_name != "./www/hello.html" && file_name != "./www/kill.html")
 					url_list.push_back(file_name);
 			}
 	        file = readdir(dir);
@@ -222,12 +222,11 @@ namespace webserv_utils {
 		request.body = "";
 		request.header = "";
 		request.client = "";
-		request.code = "";
-		request.location = "";
+		request.code = "200 OK";
+		request.location = "/";
 		request.method = "";
-		request.url = "";
+		request.url = "./www/hello.html";
 		request.server = "";
-		request.is_kill = false;
 		request.is_url = false;
 	}
 
@@ -238,12 +237,7 @@ namespace webserv_utils {
 
 		bytesReceived = read(request.socket, buffer, 100000);
 		if (bytesReceived < 0)
-		{
-			request.url = "./www/errors/400.html";
-			request.code = "400 Bad Request";
-			sendUrl(request);
 			throw readRequestException();
-		}
 
 		std::string oBuffer(buffer);
 		std::stringstream ifs(oBuffer);
@@ -267,103 +261,6 @@ namespace webserv_utils {
 			throw requestBodyTooBigException();
 		if (DISPLAY_REQUEST)
 			std::cout << request.header << "\n" << request.body << std::endl;
-	}
-
-	void setRequest(t_request &request, std::vector<std::string> &url_list)
-	{
-		std::stringstream 	r_h(request.header);
-		std::string			buffer, dot = ".";
-		int					line = 0;
-
-		request.url = "./www/hello.html";
-		request.code = "200 OK";
-		request.location = "/";
-		request.is_url = false;
-		request.is_kill = false;
-
-		while (!r_h.eof())
-		{
-			getline(r_h, buffer);
-			line++;
-			if (line == 1)
-			{
-				// The method is always at the start of the request, for all the browsers I tested
-				request.method = buffer.substr(0, buffer.find_first_of(" \t"));
-				if (!validMethod(request.method))
-				{
-					request.url = "./www/errors/400.html";
-					request.code = "400 Bad Request";
-					sendUrl(request);
-					throw invalidMethodException();
-				}
-			}
-			if (line == 1 || buffer.substr(0, buffer.find_first_of(" \t")) == "Referer:")
-			{
-				buffer = &buffer[buffer.find_first_of(" \t")];
-				buffer = &buffer[buffer.find_first_not_of(" \t")];
-				// If the location is in the first line, right after the method
-				if (line == 1 && buffer.substr(0, buffer.find_first_of(" \t")) != "/favicon.ico")
-					request.location = buffer.substr(0, buffer.find_first_of(" \t"));
-				// If the location is on the line starting with "Referer:"
-				else
-					request.location = buffer.substr(0);
-			}
-		}
-
-		if (DISPLAY_METHOD_AND_LOCATION)
-		{
-			std::cout << "Method = " << request.method << std::endl;
-			std::cout << "Location = " << request.location << std::endl;
-		}
-
-		if (request.location == "/kill")
-			request.is_kill = true;
-
-		if (request.location.substr(0, 7) == "http://")
-		{
-			request.location = &request.location[request.location.find_first_of(":") + 1];
-			request.location = &request.location[request.location.find_first_of(":") + 1];
-			request.location = &request.location[request.location.find_first_not_of(DIGITS)];
-		}
-
-		std::string extension = &request.location[request.location.find_last_of(".")];
-
-		log("", request.client, request.server, request.location, 2);
-
-		if (extension == ".html" || extension == ".htm" || extension == ".php")
-		{
-			request.is_url = true;
-			request.location = dot.append(request.location);
-			for (std::vector<std::string>::iterator it = url_list.begin(); it != url_list.end(); it++)
-			{
-				/*
-				If the requested url exists in the Webserv's list, we provide the page
-				If not, we provide the 404 error page (default request.url at the start of the function)
-				*/
-				if (*it == request.location)
-				{
-					request.url = *it;
-					return;
-				}
-			}
-			request.url = "./www/errors/404.html";
-			request.code = "404 Not found";
-			return;
-		}
-
-		// if (!allowedMethod(request.method, _location_list[request.location].methods))
-		// 	throw forbiddenMethodException();
-
-		(void)request.body;
-	}
-
-	bool validMethod(std::string &method)
-	{
-		if (method != "GET" && method != "DELETE" && method != "POST" && method != "HEAD" 
-			&& method != "PUT" && method != "CONNECT" && method != "OPTIONS" && method != "TRACE"
-			&& method != "PATCH")
-			return false;
-		return true;
 	}
 
 	void killMessage(int socket)

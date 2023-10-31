@@ -241,10 +241,29 @@ bool Server::parseServer(const std::string &server_block, const std::string &ser
 	return true;
 }
 
-void	Server::handleRequest(struct t_request &request)
+void Server::handleRequest(struct t_request &request, std::vector<std::string> &url_list, bool &kill)
 {
+	try
+	{
+		setRequest(request, kill); // Gets the method and the location from the request
+		if (!kill)
+		{
+			/*
+			Truncs the location (if needed)
+			Sets the request.url if location ends with html/htm/php
+			*/
+			checkUrl(request, url_list);
+			if (!request.is_url)
+				// Checks redirections, allowed methods and destinations (url)
+				checkLocation(request, _location_list);
+		}
+	}
+	catch(const std::exception& e)
+	{
+		log(e.what(), request.client, "", "", 1);
+	}
+	
 	sendUrl(request);
-	log("", request.client, request.server, request.url, 3);
-	// else
-	// 	direct(request, socket);
+	if (!kill)
+		log("", request.client, request.server, request.url, 3);
 }

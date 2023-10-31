@@ -124,6 +124,7 @@ void Webserv::startListen()
 	fd_set			readfds, writefds;
 	std::string 	server;
 	std::map<int, struct t_request>::iterator tmp;
+	bool			kill = false;
 
 	FD_ZERO(&writefds);
 	
@@ -156,7 +157,9 @@ void Webserv::startListen()
 			{
 				if (FD_ISSET(it->first, &writefds)) // Works only if select() said so
 				{
-					_server_list[it->second.server]->handleRequest(it->second);
+					_server_list[it->second.server]->handleRequest(it->second, _url_list, kill);
+					if (kill)
+						break;
 					close(it->first); // Closes the socket so it can be used again later
 					FD_CLR(it->first, &writefds); // Clears the writefds fd_set
 					tmp = it; // If I erase an iterator while itering on a std::map, I get a SEGFAULT
@@ -165,6 +168,8 @@ void Webserv::startListen()
 				}
 			}
 		}
+		if (kill)
+			break;
 	}
 	log("Webserv stopped", "", "", "", 0);
 }
@@ -207,13 +212,7 @@ bool Webserv::acceptNewConnections(int max_fds, fd_set &readfds, fd_set &writefd
 					try
 					{
 						getRequest(_server_list[new_request.server]->getBodySize(), new_request);
-						setRequest(new_request, _url_list);
 						_request_list[new_socket] = new_request;
-						if (new_request.is_kill)
-						{
-							killMessage(new_socket); // Displays a page stating the webserv is shut down to the client
-							return false;
-						}
 					}
 					catch(const std::exception& e)
 					{

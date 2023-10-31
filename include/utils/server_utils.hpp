@@ -8,6 +8,10 @@
 #include <unistd.h>
 #include "utils.hpp"
 
+# define DISPLAY_METHOD_AND_LOCATION false
+
+# define DIGITS "0123456789"
+
 struct t_location {
 
 	std::string					location;
@@ -26,6 +30,11 @@ namespace server_utils {
     t_location  newLocation(const std::string &, const std::string &);
     void        ft_error(int, std::string, std::string);
 	bool		allowedMethod(std::string &, std::vector<std::string> &);
+	void		setRequest(t_request &, bool &);
+	void		checkUrl(struct t_request &, std::vector<std::string> &);
+	void		checkLocation(struct t_request &, std::map<std::string, struct t_location> &);
+
+	class invalidMethodException : public std::exception { public: virtual const char *what() const throw() { return "Invalid method"; } };
 
 };
 

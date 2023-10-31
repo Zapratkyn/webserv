@@ -19,7 +19,6 @@ struct t_request {
     std::string                 header;
     std::string                 body;
 	bool						is_url;
-    bool						is_kill;
 	int							socket;
 
 };

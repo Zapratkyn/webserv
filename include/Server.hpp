@@ -9,8 +9,6 @@
 #include "utils/server_utils.hpp"
 #include "utils/utils.hpp"
 
-# define DIGITS "0123456789"
-
 class Server {
 
 private:
@@ -51,7 +49,7 @@ public:
 	void										addSocket(int&);
 
 	bool										parseServer(const std::string &, const std::string &, std::vector<int> &);
-	void										handleRequest(struct t_request &);
+	void										handleRequest(struct t_request &, std::vector<std::string> &, bool &);
 
 };
 

@@ -26,11 +26,9 @@ Current state of the branch :
 
 - The main loop starts and waits for new connections
 
-- We use the std::time() function to limit connections to 1 connection/sec/client
+- We use the std::time() function to limit connections to 1 connection/sec/client (Doesn't always work. Dunno why)
 
-- The request is sent to the corresponding server
-
-- The server splits the request into header and body
+- The Webserv splits the request into header and body
 
 - The server uses the header to identify the requested location and method
 
@@ -57,3 +55,5 @@ TO DO :
 - I need to find a way to apply the favicon and the stylesheet to the displayed pages
 
 - I'm not sure about the allowed methods for the locations. Either I won't let the user look for direct url or I'll update any page linked to a location if methods other than GET are specified in the location block.
+
+- CGI !!!

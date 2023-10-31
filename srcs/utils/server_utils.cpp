@@ -162,4 +162,108 @@ namespace server_utils {
 		return false;
 	}
 
+	bool validMethod(std::string &method)
+	{
+		if (method != "GET" && method != "DELETE" && method != "POST" && method != "HEAD" 
+			&& method != "PUT" && method != "CONNECT" && method != "OPTIONS" && method != "TRACE"
+			&& method != "PATCH")
+			return false;
+		return true;
+	}
+
+	void setRequest(t_request &request, bool &kill)
+	{
+		std::stringstream 	r_h(request.header);
+		std::string			buffer, dot = ".";
+		int					line = 0;
+
+		while (!r_h.eof())
+		{
+			getline(r_h, buffer);
+			line++;
+			if (line == 1)
+			{
+				// The method is always at the start of the request, for all the browsers I tested
+				request.method = buffer.substr(0, buffer.find_first_of(" \t"));
+				if (!validMethod(request.method))
+				{
+					request.url = "./www/errors/400.html";
+					request.code = "400 Bad Request";
+					sendUrl(request);
+					throw invalidMethodException();
+				}
+			}
+			if (line == 1 || buffer.substr(0, buffer.find_first_of(" \t")) == "Referer:")
+			{
+				buffer = &buffer[buffer.find_first_of(" \t")];
+				buffer = &buffer[buffer.find_first_not_of(" \t")];
+				// If the location is in the first line, right after the method
+				if (line == 1 && buffer.substr(0, buffer.find_first_of(" \t")) != "/favicon.ico")
+					request.location = buffer.substr(0, buffer.find_first_of(" \t"));
+				// If the location is on the line starting with "Referer:"
+				else
+					request.location = buffer.substr(0);
+			}
+		}
+
+		if (DISPLAY_METHOD_AND_LOCATION)
+		{
+			std::cout << "Method = " << request.method << std::endl;
+			std::cout << "Location = " << request.location << std::endl;
+		}
+
+		if (request.location == "/kill")
+		{
+			kill = true;
+			request.url = "./www/kill.html";
+		}
+
+		// if (!allowedMethod(request.method, _location_list[request.location].methods))
+		// 	throw forbiddenMethodException();
+
+		(void)request.body;
+	}
+
+	void checkUrl(struct t_request &request, std::vector<std::string> &url_list)
+	{
+		std::string dot = ".";
+
+		if (request.location.substr(0, 7) == "http://")
+		{
+			request.location = &request.location[request.location.find_first_of(":") + 1];
+			request.location = &request.location[request.location.find_first_of(":") + 1];
+			request.location = &request.location[request.location.find_first_not_of(DIGITS)];
+		}
+
+		std::string extension = &request.location[request.location.find_last_of(".")];
+
+		log("", request.client, request.server, request.location, 2);
+
+		if (extension == ".html" || extension == ".htm" || extension == ".php")
+		{
+			request.is_url = true;
+			request.location = dot.append(request.location);
+			for (std::vector<std::string>::iterator it = url_list.begin(); it != url_list.end(); it++)
+			{
+				/*
+				If the requested url exists in the Webserv's list, we provide the page
+				If not, we provide the 404 error page (default request.url at the start of the function)
+				*/
+				if (*it == request.location)
+				{
+					request.url = *it;
+					return;
+				}
+			}
+			request.url = "./www/errors/404.html";
+			request.code = "404 Not found";
+		}
+	}
+
+	void checkLocation(struct t_request &request, std::map<std::string, struct t_location> &location_list)
+	{
+		(void)request;
+		(void)location_list;
+	}
+
 };
