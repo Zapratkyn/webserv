@@ -23,11 +23,12 @@ namespace webserv_utils {
 	std::string	getServer(std::map<std::string, Server*>&, int&);
 	void		displayServers(std::map<std::string, Server*>&);
     void        parseUrl(std::string, std::vector<std::string> &);
-    void        getRequest(int, int, std::string &, std::string &);
-    void		setRequest(t_request &, std::string &, std::string &, std::vector<std::string> &);
+    void        getRequest(int, struct t_request &);
+    void		setRequest(t_request &, std::vector<std::string> &);
     bool		validMethod(std::string &);
     void		killMessage(int);
     void        errorPage(struct t_request);
+    void        initRequest(struct t_request&);
 
     class readRequestException : public std::exception { public: virtual const char *what() const throw() { return "Error while reading request"; } };
     class requestBodyTooBigException : public std::exception { public: virtual const char *what() const throw() { return "Client's request's body too big"; } };

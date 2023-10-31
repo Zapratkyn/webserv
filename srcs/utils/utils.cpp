@@ -53,3 +53,63 @@ int ft_stoi(std::string str)
 
 	return result;
 }
+
+void log(std::string line, std::string client, std::string server, std::string url, int type)
+{
+	time_t tm = std::time(NULL);
+	char* dt = ctime(&tm);
+	std::string odt = ft_pop_back(dt);
+	std::ofstream log_file;
+
+	log_file.open("./webserv.log", std::ofstream::app);
+
+	log_file << odt << " - ";
+
+	switch (type)
+	{
+	case 0:
+		log_file << line << "\n";
+		break;
+	case 1:
+		log_file << client << ": " << line << "\n";
+		break;
+	case 2:
+		log_file << server << ": Request (" << url << ") received from " << client << "\n";
+		break;
+	case 3:
+		log_file << server << ": Reponse (" << &url[1] << ") sent to " << client << "\n";
+		break;
+	}
+	
+	log_file.close();
+}
+
+void sendUrl(t_request &request)
+{
+	std::ifstream 	ifs(request.url.c_str());
+	std::string		html = "", buffer;
+	// We start our response by the http header with the right code
+	std::string 	result = "HTTP/1.1 ";
+
+	result.append(request.code);
+	result.append("\nContent-Type: text/html\nContent-Length: ");
+
+	while (!ifs.eof())
+	{
+		getline(ifs, buffer);
+		html.append(buffer);
+		html.append("\n");
+	}
+	result.append(ft_to_string(html.size())); // We append the size of the html page to the http response
+	result.append("\n\n"); // The http response's header stops here
+	result.append(html); // The http reponse body (html page)
+
+	// As a bonus, I set the browser's tab title to server_name
+	if (result.find("<title></title>"))
+		result.insert(result.find("</title>"), request.server); 
+
+	if (DISPLAY_HTML)
+		std::cout << result << std::endl;
+
+	write(request.socket, result.c_str(), result.size());
+}

@@ -102,7 +102,7 @@ namespace webserv_utils {
 			for (std::vector<int>::iterator port_it = port_list.begin(); port_it != port_list.end(); port_it++)
 				ss << " - " << *port_it << "\n";
 		}
-	    ss << "\n***\n\n";
+	    ss << "\n***\n";
 		std::cout << ss.str() << std::endl;
 	}
 
@@ -217,14 +217,33 @@ namespace webserv_utils {
 		closedir(dir);
 	}
 
-	void getRequest(int socket, int max_body_size, std::string &request_header, std::string &request_body)
+	void initRequest(struct t_request &request)
+	{
+		request.body = "";
+		request.header = "";
+		request.client = "";
+		request.code = "";
+		request.location = "";
+		request.method = "";
+		request.url = "";
+		request.server = "";
+		request.is_kill = false;
+		request.is_url = false;
+	}
+
+	void getRequest(int max_body_size, struct t_request &request)
 	{
 		int bytesReceived;
 		char buffer[100000] = {0};
 
-		bytesReceived = read(socket, buffer, 100000);
+		bytesReceived = read(request.socket, buffer, 100000);
 		if (bytesReceived < 0)
+		{
+			request.url = "./www/errors/400.html";
+			request.code = "400 Bad Request";
+			sendUrl(request);
 			throw readRequestException();
+		}
 
 		std::string oBuffer(buffer);
 		std::stringstream ifs(oBuffer);
@@ -234,30 +253,31 @@ namespace webserv_utils {
 			getline(ifs, oBuffer);
 			if (oBuffer.size() != 0)
 			{
-				request_header.append(oBuffer);
-				request_header.append("\n");
+				request.header.append(oBuffer);
+				request.header.append("\n");
 			}
 		}
 		while (!ifs.eof())
 		{
 			getline(ifs, oBuffer);
-			request_body.append(oBuffer);
-			request_body.append("\n");
+			request.body.append(oBuffer);
+			request.body.append("\n");
 		}
-		if (request_body.size() > (size_t)max_body_size)
+		if (request.body.size() > (size_t)max_body_size)
 			throw requestBodyTooBigException();
 		if (DISPLAY_REQUEST)
-			std::cout << request_header << "\n" << request_body << std::endl;
+			std::cout << request.header << "\n" << request.body << std::endl;
 	}
 
-	void setRequest(t_request &request, std::string &request_header, std::string &request_body, std::vector<std::string> &url_list)
+	void setRequest(t_request &request, std::vector<std::string> &url_list)
 	{
-		std::stringstream 	r_h(request_header);
+		std::stringstream 	r_h(request.header);
 		std::string			buffer, dot = ".";
 		int					line = 0;
 
 		request.url = "./www/hello.html";
 		request.code = "200 OK";
+		request.location = "/";
 		request.is_url = false;
 		request.is_kill = false;
 
@@ -273,7 +293,7 @@ namespace webserv_utils {
 				{
 					request.url = "./www/errors/400.html";
 					request.code = "400 Bad Request";
-					errorPage(request);
+					sendUrl(request);
 					throw invalidMethodException();
 				}
 			}
@@ -308,6 +328,8 @@ namespace webserv_utils {
 
 		std::string extension = &request.location[request.location.find_last_of(".")];
 
+		log("", request.client, request.server, request.location, 2);
+
 		if (extension == ".html" || extension == ".htm" || extension == ".php")
 		{
 			request.is_url = true;
@@ -332,7 +354,7 @@ namespace webserv_utils {
 		// if (!allowedMethod(request.method, _location_list[request.location].methods))
 		// 	throw forbiddenMethodException();
 
-		(void)request_body;
+		(void)request.body;
 	}
 
 	bool validMethod(std::string &method)
@@ -354,32 +376,6 @@ namespace webserv_utils {
 		result.append(htmlFile);
 
 		write(socket, result.c_str(), result.size());
-	}
-
-	void errorPage(t_request request)
-	{
-		std::ifstream 	ifs(request.url.c_str());
-		std::string		html = "", buffer;
-		// We start our response by the http header with the right code
-		std::string 	result = "HTTP/1.1 ";
-
-		result.append(request.code);
-		result.append("\nContent-Type: text/html\nContent-Length: ");
-
-		while (!ifs.eof())
-		{
-			getline(ifs, buffer);
-			html.append(buffer);
-			html.append("\n");
-		}
-		result.append(ft_to_string(html.size())); // We append the size of the html page to the http response
-		result.append("\n\n"); // The http response's header stops here
-		result.append(html); // The http reponse body (html page)
-
-		if (DISPLAY_HTML)
-			std::cout << result << std::endl;
-
-		write(request.socket, result.c_str(), result.size());
 	}
 
 };

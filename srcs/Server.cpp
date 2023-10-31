@@ -241,38 +241,10 @@ bool Server::parseServer(const std::string &server_block, const std::string &ser
 	return true;
 }
 
-void	Server::handleRequest(int socket, struct t_request &request)
+void	Server::handleRequest(struct t_request &request)
 {
-	sendUrl(request, socket);
+	sendUrl(request);
+	log("", request.client, request.server, request.url, 3);
 	// else
 	// 	direct(request, socket);
-}
-
-void Server::sendUrl(t_request &request, int socket)
-{
-	std::ifstream 	ifs(request.url.c_str());
-	std::string		html = "", buffer;
-	// We start our response by the http header with the right code
-	std::string 	result = "HTTP/1.1 ";
-
-	result.append(request.code);
-	result.append("\nContent-Type: text/html\nContent-Length: ");
-
-	while (!ifs.eof())
-	{
-		getline(ifs, buffer);
-		html.append(buffer);
-		html.append("\n");
-	}
-	result.append(ft_to_string(html.size())); // We append the size of the html page to the http response
-	result.append("\n\n"); // The http response's header stops here
-	result.append(html); // The http reponse body (html page)
-
-	// As a bonus, I set the browser's tab title to server_name
-	result.insert(result.find("</title>"), _server_name); 
-
-	if (DISPLAY_HTML)
-		std::cout << result << std::endl;
-
-	write(socket, result.c_str(), result.size());
 }

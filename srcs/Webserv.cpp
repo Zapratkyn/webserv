@@ -23,10 +23,8 @@ Webserv::~Webserv()
 	// We need to close all the sockets opened by the socket() function
 	for (std::vector<int>::iterator it = _listen_socket_list.begin(); it != _listen_socket_list.end(); it++)
 		close(*it);
-	for (std::map<int, t_request>::iterator it = _request_list.begin(); it != _request_list.end(); it++)
+	for (std::map<int, struct t_request>::iterator it = _request_list.begin(); it != _request_list.end(); it++)
 		close(it->first);
-	log("", "Webserv stopped", "", "");
-	// _log_file.close();
 	return;
 }
 
@@ -115,7 +113,7 @@ void Webserv::startServer()
 void Webserv::startListen()
 {
 	listenLog(_socketAddr, _server_list); // Displays all the open ports to the user
-	log("", "Webserv started", "", "");
+	log("Webserv started", "", "", "", 0);
 
 	/*
 	Select() needs the biggest fd + 1 from all the fd_sets
@@ -125,9 +123,7 @@ void Webserv::startListen()
 	int 			max_fds = _listen_socket_list.size() + 3;
 	fd_set			readfds, writefds;
 	std::string 	server;
-	std::map<int, t_request>::iterator tmp;
-
-	std::cout << "Ready. Waiting for new connections...\n" << std::endl;
+	std::map<int, struct t_request>::iterator tmp;
 
 	FD_ZERO(&writefds);
 	
@@ -156,12 +152,11 @@ void Webserv::startListen()
 		}
 		else
 		{
-			for (std::map<int, t_request>::iterator it = _request_list.begin(); it != _request_list.end();)
+			for (std::map<int, struct t_request>::iterator it = _request_list.begin(); it != _request_list.end();)
 			{
 				if (FD_ISSET(it->first, &writefds)) // Works only if select() said so
 				{
-					_server_list[it->second.server]->handleRequest(it->first, it->second);
-					log(it->second.client, "Response sent", it->second.server, &it->second.url[6]);
+					_server_list[it->second.server]->handleRequest(it->second);
 					close(it->first); // Closes the socket so it can be used again later
 					FD_CLR(it->first, &writefds); // Clears the writefds fd_set
 					tmp = it; // If I erase an iterator while itering on a std::map, I get a SEGFAULT
@@ -171,13 +166,13 @@ void Webserv::startListen()
 			}
 		}
 	}
+	log("Webserv stopped", "", "", "", 0);
 }
 
 bool Webserv::acceptNewConnections(int max_fds, fd_set &readfds, fd_set &writefds)
 {
 	int time, new_socket;
-	t_request new_request;
-	std::string header, body;
+	struct t_request new_request;
 
 	for (int socket = 3; socket < max_fds; socket++)
 	{
@@ -189,6 +184,7 @@ bool Webserv::acceptNewConnections(int max_fds, fd_set &readfds, fd_set &writefd
 			*/
 			while(true)
 			{
+				initRequest(new_request);
 				new_request.server = getServer(_server_list, socket);
 				new_socket = accept(socket, (sockaddr *)&_socketAddr, &_socketAddrLen);
 				if (new_socket == EAGAIN || new_socket == EWOULDBLOCK)
@@ -207,12 +203,11 @@ bool Webserv::acceptNewConnections(int max_fds, fd_set &readfds, fd_set &writefd
 				{
 					_previous_clients[new_request.client] = std::time(NULL);
 					FD_SET(new_socket, &writefds); // We add the new_socket to the writefds fd_set
+					new_request.socket = new_socket;
 					try
 					{
-						getRequest(new_socket, _server_list[new_request.server]->getBodySize(), header, body);
-						setRequest(new_request, header, body, _url_list);
-						log(new_request.client, "New request", new_request.server, &new_request.url[6]);
-						new_request.socket = new_socket;
+						getRequest(_server_list[new_request.server]->getBodySize(), new_request);
+						setRequest(new_request, _url_list);
 						_request_list[new_socket] = new_request;
 						if (new_request.is_kill)
 						{
@@ -223,35 +218,11 @@ bool Webserv::acceptNewConnections(int max_fds, fd_set &readfds, fd_set &writefd
 					catch(const std::exception& e)
 					{
 						close(new_socket);
-						log(new_request.client, e.what(), "", "");
+						log(e.what(), new_request.client, "", "", 1);
 					}
 				}
 			}
 		}
 	}
 	return true;
-}
-
-void Webserv::log(std::string client, std::string line, std::string server, std::string url)
-{
-	time_t tm = std::time(NULL);
-	char* dt = ctime(&tm);
-	std::string odt = ft_pop_back(dt);
-	std::ofstream log_file;
-
-	log_file.open("./webserv.log", std::ofstream::app);
-
-	log_file << odt << " - "; 
-	
-	if (client != "")
-		log_file << client << ": ";
-
-	log_file << line;
-
-	if (url != "")
-		log_file << " (" << url << " from " << server << ")";
-
-	log_file << "\n";
-	
-	log_file.close();
 }
