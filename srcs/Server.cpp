@@ -255,15 +255,14 @@ void Server::handleRequest(struct t_request &request, std::vector<std::string> &
 			checkUrl(request, url_list);
 			if (!request.is_url)
 				// Checks redirections, allowed methods and destinations (url)
-				checkLocation(request, _location_list);
+				checkLocation(request, _location_list, url_list);
 		}
 	}
 	catch(const std::exception& e)
 	{
 		log(e.what(), request.client, "", "", 1);
 	}
-	
-	sendUrl(request);
+
 	if (!kill)
 		log("", request.client, request.server, request.url, 3);
 }

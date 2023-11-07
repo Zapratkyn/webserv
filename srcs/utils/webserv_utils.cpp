@@ -228,6 +228,7 @@ namespace webserv_utils {
 		request.url = "./www/hello.html";
 		request.server = "";
 		request.is_url = false;
+		request.is_dir = false;
 	}
 
 	void getRequest(int max_body_size, struct t_request &request)
@@ -261,18 +262,6 @@ namespace webserv_utils {
 			throw requestBodyTooBigException();
 		if (DISPLAY_REQUEST)
 			std::cout << request.header << "\n" << request.body << std::endl;
-	}
-
-	void killMessage(int socket)
-	{
-		std::string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> WEBSERV SHUT DOWN </h1><p>Good bye !</p></body></html>";
-    	std::string result = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: ";
-
-		result.append(ft_to_string(htmlFile.size()));
-		result.append("\n\n");
-		result.append(htmlFile);
-
-		write(socket, result.c_str(), result.size());
 	}
 
 };

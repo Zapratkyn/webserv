@@ -24,7 +24,6 @@ namespace webserv_utils {
     void        parseUrl(std::string, std::vector<std::string> &);
     void        getRequest(int, struct t_request &);
     bool		validMethod(std::string &);
-    void		killMessage(int);
     void        initRequest(struct t_request&);
 
     class readRequestException : public std::exception { public: virtual const char *what() const throw() { return "Error while reading request"; } };

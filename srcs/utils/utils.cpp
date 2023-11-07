@@ -65,8 +65,7 @@ void log(std::string line, std::string client, std::string server, std::string u
 
 	log_file << odt << " - ";
 
-	switch (type)
-	{
+	switch (type) {
 	case 0:
 		log_file << line << "\n";
 		break;
@@ -105,7 +104,7 @@ void sendUrl(t_request &request)
 	result.append(html); // The http reponse body (html page)
 
 	// As a bonus, I set the browser's tab title to server_name
-	if (result.find("<title></title>"))
+	if (request.location != "/kill")
 		result.insert(result.find("</title>"), request.server); 
 
 	if (DISPLAY_HTML)

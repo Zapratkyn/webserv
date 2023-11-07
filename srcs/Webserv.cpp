@@ -4,7 +4,6 @@ using namespace webserv_utils;
 
 Webserv::Webserv(const std::string &conf_file) : _socketAddrLen(sizeof(_socketAddr)), _conf(conf_file)
 {
-	// _log_file.open("./webserv.log", std::ofstream::app);
 	parseUrl("./www/", _url_list);
 	if (DISPLAY_URL)
 	{
@@ -19,8 +18,6 @@ Webserv::~Webserv()
 	// Since servers in the server list are dynamically allocated pointers, we delete each server one by one in the destructor at the end of the program
 	for (std::map<std::string, Server*>::iterator it = _server_list.begin(); it != _server_list.end(); it++)
 		delete it->second;
-	// I thought about having servers as variables instead of pointers, to get rid of the need of deleting them but...
-	// We need to close all the sockets opened by the socket() function
 	for (std::vector<int>::iterator it = _listen_socket_list.begin(); it != _listen_socket_list.end(); it++)
 		close(*it);
 	for (std::map<int, struct t_request>::iterator it = _request_list.begin(); it != _request_list.end(); it++)
@@ -122,7 +119,6 @@ void Webserv::startListen()
 	*/
 	int 			max_fds = _listen_socket_list.size() + 3;
 	fd_set			readfds, writefds;
-	std::string 	server;
 	std::map<int, struct t_request>::iterator tmp;
 	bool			kill = false;
 
@@ -147,10 +143,7 @@ void Webserv::startListen()
 			continue;
 		}
 		if (_request_list.empty())
-		{
-			if (!acceptNewConnections(max_fds, readfds, writefds)) // Is a bool to allow us to shut the program down properly
-				break;
-		}
+			acceptNewConnections(max_fds, readfds, writefds);
 		else
 		{
 			for (std::map<int, struct t_request>::iterator it = _request_list.begin(); it != _request_list.end();)
@@ -162,8 +155,7 @@ void Webserv::startListen()
 						break;
 					close(it->first); // Closes the socket so it can be used again later
 					FD_CLR(it->first, &writefds); // Clears the writefds fd_set
-					tmp = it; // If I erase an iterator while itering on a std::map, I get a SEGFAULT
-					it++;
+					tmp = it++; // If I erase an iterator while itering on a std::map, I get a SEGFAULT
 					_request_list.erase(tmp);
 				}
 			}
@@ -174,7 +166,7 @@ void Webserv::startListen()
 	log("Webserv stopped", "", "", "", 0);
 }
 
-bool Webserv::acceptNewConnections(int max_fds, fd_set &readfds, fd_set &writefds)
+void Webserv::acceptNewConnections(int max_fds, fd_set &readfds, fd_set &writefds)
 {
 	int time, new_socket;
 	struct t_request new_request;
@@ -223,5 +215,4 @@ bool Webserv::acceptNewConnections(int max_fds, fd_set &readfds, fd_set &writefd
 			}
 		}
 	}
-	return true;
 }

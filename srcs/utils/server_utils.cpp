@@ -216,6 +216,7 @@ namespace server_utils {
 		{
 			kill = true;
 			request.url = "./www/kill.html";
+			sendUrl(request);
 		}
 
 		// if (!allowedMethod(request.method, _location_list[request.location].methods))
@@ -239,31 +240,97 @@ namespace server_utils {
 
 		log("", request.client, request.server, request.location, 2);
 
+		request.location = dot.append(request.location);
+
 		if (extension == ".html" || extension == ".htm" || extension == ".php")
 		{
 			request.is_url = true;
-			request.location = dot.append(request.location);
 			for (std::vector<std::string>::iterator it = url_list.begin(); it != url_list.end(); it++)
 			{
 				/*
 				If the requested url exists in the Webserv's list, we provide the page
-				If not, we provide the 404 error page (default request.url at the start of the function)
+				If not, we provide the 404 error page
 				*/
 				if (*it == request.location)
 				{
 					request.url = *it;
+					sendUrl(request);
 					return;
 				}
 			}
 			request.url = "./www/errors/404.html";
 			request.code = "404 Not found";
+			sendUrl(request);
 		}
 	}
 
-	void checkLocation(struct t_request &request, std::map<std::string, struct t_location> &location_list)
+	void checkLocation(struct t_request &request, std::map<std::string, struct t_location> &location_list, std::vector<std::string> &url_list)
 	{
-		(void)request;
-		(void)location_list;
+		for (std::map<std::string, struct t_location>::iterator it = location_list.begin(); it != location_list.end(); it ++)
+		{
+			if (request.location == it->first)
+			{
+				if (it->second.index != "")
+					request.url = it->second.index;
+				else
+					sendTable(request, url_list);
+			}
+		}
+	}
+
+	void sendTable(struct t_request &request, std::vector<std::string> &url_list)
+	{
+		std::ifstream 	ifs("./www/dir.html");
+		std::string		html = "", buffer, loc;
+		std::string 	result = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: ";
+		int				loc_len = request.location.size();
+
+		while (!ifs.eof())
+		{
+			getline(ifs, buffer);
+			html.append(buffer);
+			html.append("\n");
+		}
+
+		html.insert(html.find("</title>"), request.server);
+		html.insert(html.find("</h2>"), request.location);
+
+		if (request.location != "/www")
+			addParentDirectory(html, ft_pop_back(request.location));
+
+		for (std::vector<std::string>::iterator it = url_list.begin(); it != url_list.end(); it++)
+		{
+			loc = *it;
+			if (loc[loc_len] && loc.substr(0, loc_len) == request.location)
+				addLink(html, loc);
+		}
+
+		result.append(ft_to_string(html.size())); // We append the size of the html page to the http response
+		result.append("\n\n"); // The http response's header stops here
+		result.append(html); // The http reponse body (html page)
+
+		write(request.socket, result.c_str(), result.size());
+	}
+
+	void addParentDirectory(std::string &html, std::string location)
+	{
+		int spot = html.find("</tr>") + 5;
+		std::string loc = location.substr(0, location.find_last_of("/")), localhost = "localhost:";
+
+		html.insert(spot, "\n\t<tr>\n\t\t<td><a href=");
+		spot += 21;
+		html.insert(spot++, 1, '"');
+		html.insert(spot, loc);
+		spot += (loc.size());
+		html.insert(spot++, 1, '"');
+		html.insert(spot, ">Parent directory</a></td>\n\t</tr>\n");
+
+	}
+
+	void addLink(std::string &html, std::string &loc)
+	{
+		(void)html;
+		(void)loc;
 	}
 
 };
