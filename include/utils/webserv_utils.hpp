@@ -13,6 +13,7 @@
 
 namespace webserv_utils {
 
+    bool        default_port_is_set(std::vector<int>);
     std::string getServerName(const std::string &, int &, std::map<std::string, Server*>&);
     std::string getServerBlock(std::ifstream &);
     void        initSockaddr(struct sockaddr_in &);

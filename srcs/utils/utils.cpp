@@ -104,7 +104,7 @@ void sendUrl(t_request &request)
 	result.append(html); // The http reponse body (html page)
 
 	// As a bonus, I set the browser's tab title to server_name
-	if (request.location != "/kill")
+	if (result.find("<title></title>"))
 		result.insert(result.find("</title>"), request.server); 
 
 	if (DISPLAY_HTML)

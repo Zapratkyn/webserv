@@ -4,7 +4,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/types.h>
-#include <dirent.h>
 #include <fstream>
 #include "utils/server_utils.hpp"
 #include "utils/utils.hpp"
@@ -21,6 +20,7 @@ private:
 	std::vector<int>							_ports;
 	std::vector<int>							_sockets;
 	std::map<std::string, t_location>			_location_list;
+	int											_default_port;
 
 	bool 										parseOption(const int &, std::string &, std::stringstream &, const std::string &, std::vector<int> &);
 	void										addDefaultLocation();

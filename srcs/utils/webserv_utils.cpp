@@ -2,6 +2,16 @@
 
 namespace webserv_utils {
 	
+	bool default_port_is_set(std::vector<int> port_list)
+	{
+		for (std::vector<int>::iterator it = port_list.begin(); it != port_list.end(); it++)
+		{
+			if (*it == 8080)
+				return true;
+		}
+		return false;
+	}
+	
 	std::string getServerName(const std::string &server_block, int &default_name_index, std::map<std::string, Server*> &server_list)
 	{
 		std::stringstream 	ifs(server_block);
@@ -225,7 +235,7 @@ namespace webserv_utils {
 		request.code = "200 OK";
 		request.location = "/";
 		request.method = "";
-		request.url = "./www/hello.html";
+		request.url = "./hello.html";
 		request.server = "";
 		request.is_url = false;
 		request.is_dir = false;

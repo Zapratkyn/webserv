@@ -1,5 +1,11 @@
 # webserv
 
+Warning :
+
+If during testing you get a "Couldn't bind socket" error, just keep trying to run the program. A listening socket stays unavailable for a short period after being used by a program, even if you close it with the kill method.
+
+==============================
+
 Naming convention :
 
 - Variables, structures, namespaces : snake_case
@@ -36,7 +42,7 @@ Current state of the branch :
 
 - Searching for localhost:[any_set_port]/kill properly stops the server, frees what needs to be freed, displays a message in the terminal and show a relevant page to the user in the browser
 
-- In any other case, the server sends a sample "Hello from the server" page and goes back to the main loop
+- If you look for a set location (example, localhost:8083/loc, with the custom.conf file), you get a directory page. The links don't work yet.
 
 - In any of those cases, the code and the message will be correct ("200 OK" if page found, "404 Not found" if not)
 
@@ -44,7 +50,9 @@ Current state of the branch :
 
 NOTES :
 
-- I'm quite satisfied with my select() implementation. No operation can be done unless select() said so. The program should be able to handle [ports * MAX_LISTEN] connections without failing. It will listen to all the pending requests, then pass them to the corresponding servers, which will handle them, and go back to listening. Select() makes sure the sockets (I/O) are always ready to listen/write.
+- I'm quite satisfied with my select() implementation. No operation can be done unless select() said so. The program should be able to handle [ports * MAX_LISTEN] connections without failing. It will listen to the first pending request of each listening port, parse the whole request (header and body) and send it to the corresponding server. It will go through select() before any of those operations.
+
+NB : For some reason, the previous implementation worked on my linux but not on the school's MAC's. I didn't go to school since my last modification. Therefore, I cannot guarantee it will work this time. I hope it will though...
 
 - Instead of displaying messages on the terminal for every request received/handled, we could create a log file somewhere and write everything in it, with the time, the ip's, the server name and any other relevant information. > Done. But for some reason, I cannot add an ofstream to the Webserv class and keep it open always. It broke the program. Instead, I open and close the file each time a log needs to be done.
 

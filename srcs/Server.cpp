@@ -44,6 +44,8 @@ bool Server::setRoot(std::string &root)
 		root = dot.append(root);
 	if (root[root.size() - 1] != '/')
 		root.append("/");
+	if (root == "./")
+		root = "./www/";
 	_root = root;
 	return true;
 }
@@ -94,7 +96,7 @@ bool Server::addPort(const std::string &value, std::vector<int> &port_list)
 }
 bool Server::addLocation(std::stringstream &ifs, std::string &value)
 {
-	std::string location_block;
+	std::string location_block, slash = "/";
 
 	if (!_location_list.empty())
 	{
@@ -107,6 +109,7 @@ bool Server::addLocation(std::stringstream &ifs, std::string &value)
 	location_block = getLocationBlock(ifs);
 	if (location_block.size())
 	{
+		value = slash.append(value);
 		_location_list[value] = newLocation(value, location_block);
 		if (!_location_list[value].valid)
 			return false;
@@ -129,7 +132,7 @@ void Server::addDefaultLocation()
 	if (_root != "")
 		default_location.root = _root;
 	else
-		default_location.root = "./www/";
+		default_location.root = "./www/pages/";
 	default_location.location = "/";
 	default_location.methods.push_back("GET");
 	
@@ -238,6 +241,7 @@ bool Server::parseServer(const std::string &server_block, const std::string &ser
 		_client_max_body_size = 60000; // The PDF states we need to limit the client_max_body_size
 	if (_location_list.find("/") == _location_list.end())
 		addDefaultLocation();
+	_default_port = _ports[0];
 	return true;
 }
 
@@ -249,13 +253,13 @@ void Server::handleRequest(struct t_request &request, std::vector<std::string> &
 		if (!kill)
 		{
 			/*
-			Truncs the location (if needed)
+			Truncates the location (if needed)
 			Sets the request.url if location ends with html/htm/php
 			*/
 			checkUrl(request, url_list);
 			if (!request.is_url)
 				// Checks redirections, allowed methods and destinations (url)
-				checkLocation(request, _location_list, url_list);
+				checkLocation(request, _location_list, _default_port);
 		}
 	}
 	catch(const std::exception& e)
