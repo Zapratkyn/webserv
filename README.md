@@ -16,7 +16,7 @@ Naming convention :
 Tasks:
 
 - Starting configuration > Read and parse the configuration file and make the changes written in it > Done
-- Request handling > open socket(s), poll() (or equivalent), listen, timeout... > In progress
+- Request handling > open socket(s), poll() (or equivalent), listen, timeout... > Done (I think...)
 - Reponse handling > Find the requested file if it exist, send errors if any, construct the html response and send it to the user > In progress
 - CGI > chose a language (Python, c, c++...), make a program for uploading files, another to fill in a form
 
@@ -28,11 +28,9 @@ Current state of the branch :
 
 - Then it parses all the servers, using the options in the configuration file and giving each server a unique name
 
-- Each port is used to set a socket
+- Each port is used to set a listening socket
 
 - The main loop starts and waits for new connections
-
-- We use the std::time() function to limit connections to 1 connection/sec/client (Doesn't always work. Dunno why)
 
 - The Webserv splits the request into header and body
 
@@ -63,5 +61,11 @@ TO DO :
 - I need to find a way to apply the favicon and the stylesheet to the displayed pages
 
 - I'm not sure about the allowed methods for the locations. Either I won't let the user look for direct url or I'll update any page linked to a location if methods other than GET are specified in the location block.
+
+- Manage the links
+
+- Redirections
+
+- Use the www as the root of everything. Meaning the user CANNOT access anything in the main folder AND start any requested location with "./www/"
 
 - CGI !!!
