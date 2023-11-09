@@ -208,7 +208,7 @@ namespace webserv_utils {
 	            continue; 
 	        }
 	        extension = &file_name[file_name.find_last_of(".")];
-	        if (extension != ".html" && extension != ".htm" && extension != ".php")
+	        if (extension != ".html" && extension != ".htm" && extension != ".php" && extension != ".file")
 	        {
 	            sub_folder = folder_cpy.append(file_name);
 				folder_cpy = folder;
@@ -219,8 +219,7 @@ namespace webserv_utils {
 			{
 				file_name = folder_cpy.append(file_name);
 				folder_cpy = folder;
-				if (file_name != "./www/hello.html" && file_name != "./www/kill.html")
-					url_list.push_back(file_name);
+				url_list.push_back(file_name);
 			}
 	        file = readdir(dir);
 		}

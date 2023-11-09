@@ -221,8 +221,6 @@ namespace server_utils {
 
 		// if (!allowedMethod(request.method, _location_list[request.location].methods))
 		// 	throw forbiddenMethodException();
-
-		(void)request.body;
 	}
 
 	void checkUrl(struct t_request &request, std::vector<std::string> &url_list)

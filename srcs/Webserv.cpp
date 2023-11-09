@@ -106,7 +106,7 @@ void Webserv::startServer()
 				throw listenException();
 		}
 	}
-	if (!default_port_is_set(full_port_list))
+	if (!default_port_is_set(full_port_list)) // I chose to use a default port to access things like files, stylesheets and favicons...
 	{
 		listen_socket = socket(AF_INET, SOCK_STREAM, 0);
 		if (listen_socket < 0)
@@ -114,7 +114,7 @@ void Webserv::startServer()
 		fcntl(listen_socket, F_SETFL, O_NONBLOCK);
 		_listen_socket_list.push_back(listen_socket);
 		_server_list.begin()->second->addSocket(listen_socket);
-		_socketAddr.sin_port = htons(8080);
+		_socketAddr.sin_port = htons(8080); // The default port
 		if (bind(listen_socket, (sockaddr *)&_socketAddr, _socketAddrLen) < 0)
 			throw bindException();
 		if (listen(listen_socket, MAX_LISTEN) < 0)
@@ -124,7 +124,7 @@ void Webserv::startServer()
 
 void Webserv::startListen()
 {
-	listenLog(_socketAddr, _server_list); // Displays all the open ports to the user
+	listenLog(_socketAddr, _server_list); // Displays all the open ports to the user on the terminal
 	log("Webserv started", "", "", "", 0);
 
 	/*
@@ -148,8 +148,10 @@ void Webserv::startListen()
 		It then sets the request receiving sockets to 1 and unblocks
 		acceptNewConnections() will create new sockets and add them to the readfds fd_set
 		After a 2nd select(), we read from the newly created sockets and parse the requests' headers and bodies
-		Go through select() again before handling the stacked requests \
-		Then handle all the stacked requests and go back to select() for another round
+		Go through select() again before handling the stacked requests
+		Then handle all the stacked requests
+		Reset the readfds with the listening sockets
+		Go through the whole process again
 		*/
 		if (select(max_fds, &readfds, &writefds, NULL, NULL) < 0)
 		{
@@ -221,7 +223,7 @@ void Webserv::sendRequests(bool &kill, fd_set &writefds)
 
 	for (std::map<int, struct t_request>::iterator it = _request_list.begin(); it != _request_list.end();)
 	{
-		if (FD_ISSET(it->first, &writefds)) // Works only if select() said so
+		if (FD_ISSET(it->first, &writefds))
 		{
 			_server_list[it->second.server]->handleRequest(it->second, _url_list, kill);
 			if (kill)
