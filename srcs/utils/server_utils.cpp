@@ -45,11 +45,12 @@ namespace server_utils {
 		t_location loc;
 		int option, pos;
 		std::stringstream ifs(location_block);
-		std::string method, buffer, name, value, slash = "/", option_list[3] = {"root", "index", "allow_methods"};
+		std::string method, buffer, name, value, slash = "/", option_list[4] = {"root", "index", "allow_methods", "autoindex"};
 
 		loc.location = location_name;
 		loc.root = "";
 		loc.index = "";
+		loc.autoindex = "off";
 		loc.valid = false;
 
 		while (!ifs.eof())
@@ -62,7 +63,7 @@ namespace server_utils {
 			}
 			name = getOptionName(buffer);
 			value = getOptionValue(buffer);
-			for (int i = 0; i <= 3; i++)
+			for (int i = 0; i <= 4; i++)
 			{
 				option = i;
 				if (name == option_list[i])
@@ -119,6 +120,9 @@ namespace server_utils {
 							break;
 						value = &value[value.find_first_not_of(" \t")];
 					}
+					break;
+				case 3:
+					loc.autoindex = value;
 					break;
 				default:
 					ft_error(4, name, "");
@@ -240,16 +244,20 @@ namespace server_utils {
 
 	void checkLocation(struct t_request &request, std::map<std::string, struct t_location> &location_list)
 	{
+		std::string dot = ".";
+
 		for (std::map<std::string, struct t_location>::iterator it = location_list.begin(); it != location_list.end(); it ++)
 		{
 			if (request.location == it->first)
 			{
-				// if (it->second.index != "")
-				// 	request.url = it->second.index;
-				// else
+				if (it->second.index != "")
+				{
+					request.url = it->second.root.append(it->second.index);
+					request.url = dot.append(request.url);
+					sendUrl(request);
+				}
+				else if (it->second.autoindex == "on")
 					sendTable(request, it->second.root);
-				request.url = "./dir.html";
-				return;
 			}
 		}
 		request.url = "./www/errors/404.html";
@@ -290,6 +298,8 @@ namespace server_utils {
 	{
 		int spot = html.rfind("</table>");
 		std::string loc = location.substr(0, location.find_last_of("/"));
+
+		loc = loc.substr(0, loc.find_last_of("/"));
 
 		html.insert(spot, "\t<tr>\n\t\t<td></td>\n\t\t<td><a href=");
 		spot = html.rfind("</table>");

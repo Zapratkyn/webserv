@@ -11,8 +11,6 @@ Webserv::Webserv(const std::string &conf_file) : _socketAddrLen(sizeof(_socketAd
 		for (std::vector<std::string>::iterator it = _url_list.begin(); it != _url_list.end(); it++)
 			std::cout << *it << std::endl;
 	}
-	for (std::vector<std::string>::iterator it = _folder_list.begin(); it != _folder_list.end(); it++)
-			std::cout << *it << std::endl;
 	return; 
 }
 

@@ -129,6 +129,7 @@ void Server::addDefaultLocation()
 	else
 		default_location.root = "/www/";
 	default_location.location = "/";
+	default_location.autoindex = "on";
 	default_location.methods.push_back("GET");
 	
 	_location_list["/"] = default_location;
@@ -239,6 +240,7 @@ bool Server::parseServer(const std::string &server_block, const std::string &ser
 		addDefaultLocation();
 	for (std::vector<std::string>::iterator it = folder_list.begin(); it != folder_list.end(); it++)
 	{
+		folder.autoindex = "on";
 		folder.root = *it;
 		folder.location = *it;
 		_location_list[*it] = folder;

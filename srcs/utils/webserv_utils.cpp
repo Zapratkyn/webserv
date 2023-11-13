@@ -80,7 +80,7 @@ namespace webserv_utils {
 
 	// void initTimeval(struct timeval &tv)
 	// {
-	// 	tv.tv_sec = 5;
+	// 	tv.tv_sec = 1;
 	// 	tv.tv_usec = 0;
 	// }
 
