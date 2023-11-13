@@ -9,7 +9,7 @@
 # define EXIT_FAILURE 1
 
 # define DISPLAY_URL false
-# define DISPLAY_SERVERS false
+# define DISPLAY_SERVERS true
 
 # define MAX_LISTEN 1000
 
@@ -23,6 +23,7 @@ private:
 	unsigned int						_socketAddrLen;
 	// struct timeval					_tv;
 	std::vector<std::string>			_url_list;
+	std::vector<std::string>			_folder_list;
 
 	void								acceptNewConnections(int &, fd_set &);
 	void								readRequests(fd_set &, fd_set &);

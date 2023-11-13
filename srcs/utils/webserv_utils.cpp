@@ -191,7 +191,7 @@ namespace webserv_utils {
 		}
 	}
 
-	void parseUrl(std::string folder, std::vector<std::string> &url_list)
+	void parseUrl(std::string folder, std::vector<std::string> &url_list, std::vector<std::string> &folder_list)
 	{
 		DIR *dir = opendir(folder.c_str());
 	    struct dirent *file;
@@ -213,7 +213,8 @@ namespace webserv_utils {
 	            sub_folder = folder_cpy.append(file_name);
 				folder_cpy = folder;
 				sub_folder.append("/");
-	            parseUrl(sub_folder, url_list);
+				folder_list.push_back(&sub_folder[1]);
+	            parseUrl(sub_folder, url_list, folder_list);
 	        }
 			else
 			{

@@ -47,7 +47,7 @@ public:
 	bool										addLocation(std::stringstream&, std::string &value);
 	void										addSocket(int&);
 
-	bool										parseServer(const std::string &, const std::string &, std::vector<int> &);
+	bool										parseServer(const std::string &, const std::string &, std::vector<int> &, std::vector<std::string> &);
 	void										handleRequest(struct t_request &, std::vector<std::string> &, bool &);
 
 };

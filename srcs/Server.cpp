@@ -27,25 +27,20 @@ bool Server::setServerName(const std::string &name)
 }
 bool Server::setRoot(std::string &root)
 {
-	std::string slash = "/", dot = ".";
+	std::string slash = "/";
 
 	if (_root != "")
 	{
 		ft_error(0, root, "root");
 		return false;
 	}
-	// We need root path to start with "./"
-	if (root[0] != '/' && root[1] != '/')
-	{
+	// We need root path to start with "/"
+	if (root[0] != '/')
 		root = slash.append(root);
-		root = dot.append(root);
-	}
-	else if (root[0] == '/')
-		root = dot.append(root);
 	if (root[root.size() - 1] != '/')
 		root.append("/");
-	if (root == "./")
-		root = "./www/";
+	if (root == "/")
+		root = "/www/";
 	_root = root;
 	return true;
 }
@@ -132,7 +127,7 @@ void Server::addDefaultLocation()
 	if (_root != "")
 		default_location.root = _root;
 	else
-		default_location.root = "./www/pages/";
+		default_location.root = "/www/";
 	default_location.location = "/";
 	default_location.methods.push_back("GET");
 	
@@ -193,11 +188,12 @@ bool Server::parseOption(const int &option, std::string &value, std::stringstrea
 	return true;
 }
 
-bool Server::parseServer(const std::string &server_block, const std::string &server_name, std::vector<int> &port_list)
+bool Server::parseServer(const std::string &server_block, const std::string &server_name, std::vector<int> &port_list, std::vector<std::string> &folder_list)
 {
 	std::string 		buffer, name, value, option_list[7] = {"listen", "host", "server_name", "client_max_body_size", "root", "index", "location"};
 	std::stringstream	ifs(server_block); // std::stringstream works the same as a std::ifstream but is constructed from a string instead of a file
 	int					option;
+	t_location			folder;
 	
 	while (!ifs.eof())
 	{
@@ -241,6 +237,12 @@ bool Server::parseServer(const std::string &server_block, const std::string &ser
 		_client_max_body_size = 60000; // The PDF states we need to limit the client_max_body_size
 	if (_location_list.find("/") == _location_list.end())
 		addDefaultLocation();
+	for (std::vector<std::string>::iterator it = folder_list.begin(); it != folder_list.end(); it++)
+	{
+		folder.root = *it;
+		folder.location = *it;
+		_location_list[*it] = folder;
+	}
 	return true;
 }
 

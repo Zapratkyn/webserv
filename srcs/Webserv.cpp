@@ -4,12 +4,15 @@ using namespace webserv_utils;
 
 Webserv::Webserv(const std::string &conf_file) : _socketAddrLen(sizeof(_socketAddr)), _conf(conf_file)
 {
-	parseUrl("./www/", _url_list);
+	_folder_list.push_back("/www/");
+	parseUrl("./www/", _url_list, _folder_list);
 	if (DISPLAY_URL)
 	{
 		for (std::vector<std::string>::iterator it = _url_list.begin(); it != _url_list.end(); it++)
 			std::cout << *it << std::endl;
 	}
+	for (std::vector<std::string>::iterator it = _folder_list.begin(); it != _folder_list.end(); it++)
+			std::cout << *it << std::endl;
 	return; 
 }
 
@@ -51,7 +54,7 @@ void Webserv::parseConf()
 			server_block = getServerBlock(infile);
 			server = new Server;
 			server_name = getServerName(server_block, default_name, _server_list);
-			if (!server->parseServer(server_block, server_name, port_list))
+			if (!server->parseServer(server_block, server_name, port_list, _folder_list))
 			{
 				/*
 				If an error occurs, the server will not be added to the webserv's list of servers
