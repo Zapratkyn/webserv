@@ -2,7 +2,7 @@
 
 namespace webserv_utils {
 	
-	bool default_port_is_set(std::vector<int> &port_list)
+	bool default_port_is_set(std::vector<int> port_list)
 	{
 		for (std::vector<int>::iterator it = port_list.begin(); it != port_list.end(); it++)
 		{
@@ -208,7 +208,7 @@ namespace webserv_utils {
 	            continue; 
 	        }
 	        extension = &file_name[file_name.find_last_of(".")];
-	        if (extension != ".html" && extension != ".htm" && extension != ".php")
+	        if (extension != ".html" && extension != ".htm" && extension != ".php" && extension != ".file")
 	        {
 	            sub_folder = folder_cpy.append(file_name);
 				folder_cpy = folder;
@@ -219,8 +219,7 @@ namespace webserv_utils {
 			{
 				file_name = folder_cpy.append(file_name);
 				folder_cpy = folder;
-				if (file_name != "./www/hello.html" && file_name != "./www/kill.html" && file_name != "./www/dir.html")
-					url_list.push_back(file_name);
+				url_list.push_back(file_name);
 			}
 	        file = readdir(dir);
 		}
@@ -235,7 +234,7 @@ namespace webserv_utils {
 		request.code = "200 OK";
 		request.location = "/";
 		request.method = "";
-		request.url = "./www/hello.html";
+		request.url = "./hello.html";
 		request.server = "";
 		request.is_url = false;
 		request.is_dir = false;

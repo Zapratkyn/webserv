@@ -1,7 +1,7 @@
 #include "../../include/utils/utils.hpp"
 
 /*
-Because of the -std=c++98 flag, we can't use pop_back(), std::stoi() and std::to_string()
+Because of the -std=c++98 flag, we can't use std::string::pop_back(), std::stoi() and std::to_string()
 So I coded them here
 */
 std::string ft_pop_back(std::string str)
@@ -104,7 +104,7 @@ void sendUrl(t_request &request)
 	result.append(html); // The http reponse body (html page)
 
 	// As a bonus, I set the browser's tab title to server_name
-	if (request.location != "/kill")
+	if (result.find("<title></title>"))
 		result.insert(result.find("</title>"), request.server); 
 
 	if (DISPLAY_HTML)
