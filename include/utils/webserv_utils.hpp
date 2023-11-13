@@ -9,7 +9,7 @@
 #include "../Server.hpp"
 #include "utils.hpp"
 
-# define DISPLAY_REQUEST true
+# define DISPLAY_REQUEST false
 
 # define BUFFER_SIZE 10000
 
@@ -20,7 +20,7 @@ namespace webserv_utils {
     std::string getServerName(const std::string &, int &, std::map<std::string, Server*>&);
     std::string getServerBlock(std::ifstream &);
     void        initSockaddr(struct sockaddr_in &);
-    // void        initTimeval(struct timeval &);
+    void        initTimeval(struct timeval &);
     void        ft_error(int);
 	void		listenLog(struct sockaddr_in&, std::map<std::string, Server*>&);
 	std::string	getServer(std::map<std::string, Server*>&, int&);

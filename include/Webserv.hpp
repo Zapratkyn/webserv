@@ -21,7 +21,7 @@ private:
 	std::map<int, struct t_request>		_request_list;
 	struct sockaddr_in 					_socketAddr;
 	unsigned int						_socketAddrLen;
-	// struct timeval					_tv;
+	// struct timeval						_tv;
 	std::vector<std::string>			_url_list;
 	std::vector<std::string>			_folder_list;
 
