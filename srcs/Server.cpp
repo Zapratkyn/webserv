@@ -241,7 +241,6 @@ bool Server::parseServer(const std::string &server_block, const std::string &ser
 		_client_max_body_size = 60000; // The PDF states we need to limit the client_max_body_size
 	if (_location_list.find("/") == _location_list.end())
 		addDefaultLocation();
-	_default_port = _ports[0];
 	return true;
 }
 
@@ -259,7 +258,7 @@ void Server::handleRequest(struct t_request &request, std::vector<std::string> &
 			checkUrl(request, url_list);
 			if (!request.is_url)
 				// Checks redirections, allowed methods and destinations (url)
-				checkLocation(request, _location_list, _default_port);
+				checkLocation(request, _location_list);
 		}
 	}
 	catch(const std::exception& e)

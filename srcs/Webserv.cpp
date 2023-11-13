@@ -106,7 +106,7 @@ void Webserv::startServer()
 				throw listenException();
 		}
 	}
-	if (!default_port_is_set(full_port_list)) // I chose to use a default port to access things like files, stylesheets and favicons...
+	if (!defaultPortIsSet(full_port_list)) // I chose to use a default port to access things like files, stylesheets and favicons...
 	{
 		listen_socket = socket(AF_INET, SOCK_STREAM, 0);
 		if (listen_socket < 0)

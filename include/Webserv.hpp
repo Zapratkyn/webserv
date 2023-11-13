@@ -23,7 +23,6 @@ private:
 	unsigned int						_socketAddrLen;
 	// struct timeval					_tv;
 	std::vector<std::string>			_url_list;
-	std::map<std::string, std::time_t>	_previous_clients;
 
 	void								acceptNewConnections(int &, fd_set &);
 	void								readRequests(fd_set &, fd_set &);

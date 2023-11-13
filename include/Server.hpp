@@ -20,7 +20,6 @@ private:
 	std::vector<int>							_ports;
 	std::vector<int>							_sockets;
 	std::map<std::string, t_location>			_location_list;
-	int											_default_port;
 
 	bool 										parseOption(const int &, std::string &, std::stringstream &, const std::string &, std::vector<int> &);
 	void										addDefaultLocation();

@@ -147,3 +147,170 @@ Wed Nov  8 13:04:32 2023 - My server: Reponse (/www/errors/400.html) sent to 127
 Wed Nov  8 13:06:18 2023 - Webserv started
 Wed Nov  8 13:06:56 2023 - Webserv started
 Wed Nov  8 13:07:37 2023 - Webserv started
+Mon Nov 13 09:58:50 2023 - Webserv started
+Mon Nov 13 09:58:53 2023 - My server: Request (/) received from 127.0.0.1
+Mon Nov 13 09:59:24 2023 - Webserv started
+Mon Nov 13 09:59:26 2023 - My server: Request (/) received from 127.0.0.1
+Mon Nov 13 10:00:09 2023 - Webserv started
+Mon Nov 13 10:00:10 2023 - My server: Request (/) received from 127.0.0.1
+Mon Nov 13 10:00:42 2023 - Webserv started
+Mon Nov 13 10:00:44 2023 - My server: Request (/) received from 127.0.0.1
+Mon Nov 13 10:01:18 2023 - Webserv started
+Mon Nov 13 10:01:20 2023 - My server: Request (/) received from 127.0.0.1
+Mon Nov 13 10:01:52 2023 - Webserv started
+Mon Nov 13 10:01:54 2023 - My server: Request (/) received from 127.0.0.1
+Mon Nov 13 10:02:26 2023 - Webserv started
+Mon Nov 13 10:02:34 2023 - 127.0.0.1: Invalid method
+Mon Nov 13 10:02:34 2023 - My server: Reponse (/www/errors/400.html) sent to 127.0.0.1
+Mon Nov 13 10:02:36 2023 - My server: Request (/www/pages/index.html) received from 127.0.0.1
+Mon Nov 13 10:02:36 2023 - My server: Reponse (/www/pages/index.html) sent to 127.0.0.1
+Mon Nov 13 10:02:36 2023 - My server: Request (/www/pages/index.html) received from 127.0.0.1
+Mon Nov 13 10:02:36 2023 - My server: Reponse (/www/errors/404.html) sent to 127.0.0.1
+Mon Nov 13 10:05:32 2023 - Webserv started
+Mon Nov 13 10:05:35 2023 - My server: Request (/www/pages/index.html) received from 127.0.0.1
+Mon Nov 13 10:05:35 2023 - My server: Reponse (/www/pages/index.html) sent to 127.0.0.1
+Mon Nov 13 10:05:44 2023 - My server: Request (/www/) received from 127.0.0.1
+Mon Nov 13 10:05:44 2023 - My server: Reponse (/www/errors/404.html) sent to 127.0.0.1
+Mon Nov 13 10:05:49 2023 - My server: Request (/www) received from 127.0.0.1
+Mon Nov 13 10:05:49 2023 - My server: Reponse (/www/errors/404.html) sent to 127.0.0.1
+Mon Nov 13 10:06:01 2023 - My server: Request (/) received from 127.0.0.1
+Mon Nov 13 10:08:24 2023 - Webserv started
+Mon Nov 13 10:08:32 2023 - 127.0.0.1: Invalid method
+Mon Nov 13 10:08:32 2023 - My server: Reponse (/www/errors/400.html) sent to 127.0.0.1
+Mon Nov 13 10:08:34 2023 - My server: Request (/www/pages/test.html) received from 127.0.0.1
+Mon Nov 13 10:08:34 2023 - My server: Reponse (/www/pages/test.html) sent to 127.0.0.1
+Mon Nov 13 10:08:55 2023 - Webserv stopped
+Mon Nov 13 10:10:08 2023 - Webserv started
+Mon Nov 13 10:10:17 2023 - My server: Request (/www/pages/test.html) received from 127.0.0.1
+Mon Nov 13 10:10:17 2023 - My server: Reponse (/www/pages/test.html) sent to 127.0.0.1
+Mon Nov 13 10:10:20 2023 - My server: Request (/www/pages/test.html) received from 127.0.0.1
+Mon Nov 13 10:10:20 2023 - My server: Reponse (/www/errors/404.html) sent to 127.0.0.1
+Mon Nov 13 10:10:20 2023 - My server: Request (/www/pages/index.html) received from 127.0.0.1
+Mon Nov 13 10:10:20 2023 - My server: Reponse (/www/errors/404.html) sent to 127.0.0.1
+Mon Nov 13 10:11:05 2023 - My server: Request (/www/pages/index.html) received from 127.0.0.1
+Mon Nov 13 10:11:05 2023 - My server: Reponse (/www/errors/404.html) sent to 127.0.0.1
+Mon Nov 13 10:11:13 2023 - Webserv stopped
+Mon Nov 13 10:11:45 2023 - Webserv started
+Mon Nov 13 10:11:55 2023 - My server: Request (/www/pages/test.html) received from 127.0.0.1
+Mon Nov 13 10:11:55 2023 - My server: Reponse (/www/pages/test.html) sent to 127.0.0.1
+Mon Nov 13 10:11:55 2023 - My server: Request (/www/pages/test.html) received from 127.0.0.1
+Mon Nov 13 10:11:55 2023 - My server: Reponse (/www/pages/test.html) sent to 127.0.0.1
+Mon Nov 13 10:12:09 2023 - My server: Request (/www/pages/test.html) received from 127.0.0.1
+Mon Nov 13 10:12:09 2023 - My server: Reponse (/www/errors/404.html) sent to 127.0.0.1
+Mon Nov 13 10:12:09 2023 - My server: Request (/www/pages/index.html) received from 127.0.0.1
+Mon Nov 13 10:12:09 2023 - My server: Reponse (/www/errors/404.html) sent to 127.0.0.1
+Mon Nov 13 10:13:38 2023 - Webserv stopped
+Mon Nov 13 10:20:43 2023 - Webserv started
+Mon Nov 13 10:20:51 2023 - My server: Request (/www/pages/test.html) received from 127.0.0.1
+Mon Nov 13 10:20:51 2023 - My server: Reponse (/www/pages/test.html) sent to 127.0.0.1
+Mon Nov 13 10:20:51 2023 - My server: Request (/www/pages/test.html) received from 127.0.0.1
+Mon Nov 13 10:20:51 2023 - My server: Reponse (/www/errors/404.html) sent to 127.0.0.1
+Mon Nov 13 10:21:44 2023 - Webserv stopped
+Mon Nov 13 10:26:31 2023 - Webserv started
+Mon Nov 13 10:26:38 2023 - My server: Request (/www/pages/test.html) received from 127.0.0.1
+Mon Nov 13 10:26:38 2023 - My server: Reponse (/www/pages/test.html) sent to 127.0.0.1
+Mon Nov 13 10:26:38 2023 - My server: Request (/) received from 127.0.0.1
+Mon Nov 13 10:27:20 2023 - Webserv started
+Mon Nov 13 10:27:23 2023 - My server: Request (/www/pages/index.html) received from 127.0.0.1
+Mon Nov 13 10:27:23 2023 - My server: Reponse (/www/pages/index.html) sent to 127.0.0.1
+Mon Nov 13 10:33:45 2023 - Webserv started
+Mon Nov 13 10:33:48 2023 - My server: Request (/www/pages/test.html) received from 127.0.0.1
+Mon Nov 13 10:33:48 2023 - My server: Reponse (/www/pages/test.html) sent to 127.0.0.1
+Mon Nov 13 10:33:52 2023 - My server: Request (/www/pages/test.html) received from 127.0.0.1
+Mon Nov 13 10:33:52 2023 - My server: Reponse (/www/pages/test.html) sent to 127.0.0.1
+Mon Nov 13 10:33:56 2023 - My server: Request (/www/pages/test.html) received from 127.0.0.1
+Mon Nov 13 10:33:56 2023 - My server: Reponse (/www/pages/test.html) sent to 127.0.0.1
+Mon Nov 13 10:34:02 2023 - My server: Request (/www/pages/test.html) received from 127.0.0.1
+Mon Nov 13 10:34:02 2023 - My server: Reponse (/www/pages/test.html) sent to 127.0.0.1
+Mon Nov 13 10:34:09 2023 - My server: Request (/www/pages/index.html) received from 127.0.0.1
+Mon Nov 13 10:34:09 2023 - My server: Reponse (/www/pages/index.html) sent to 127.0.0.1
+Mon Nov 13 10:34:18 2023 - My server: Request (/www/pages/test.html) received from 127.0.0.1
+Mon Nov 13 10:34:18 2023 - My server: Reponse (/www/pages/test.html) sent to 127.0.0.1
+Mon Nov 13 10:34:21 2023 - My server: Request (/www/pages/index.html) received from 127.0.0.1
+Mon Nov 13 10:34:21 2023 - My server: Reponse (/www/pages/index.html) sent to 127.0.0.1
+Mon Nov 13 10:34:31 2023 - Webserv stopped
+Mon Nov 13 10:38:34 2023 - Webserv started
+Mon Nov 13 10:38:42 2023 - My server: Request (/) received from 127.0.0.1
+Mon Nov 13 10:39:15 2023 - Webserv started
+Mon Nov 13 10:39:17 2023 - My server: Request (/) received from 127.0.0.1
+Mon Nov 13 10:40:43 2023 - Webserv started
+Mon Nov 13 10:40:46 2023 - My server: Request (/) received from 127.0.0.1
+Mon Nov 13 10:44:03 2023 - Webserv started
+Mon Nov 13 10:44:05 2023 - My server: Request (/) received from 127.0.0.1
+Mon Nov 13 10:48:17 2023 - Webserv started
+Mon Nov 13 10:48:19 2023 - My server: Request (/www/pages/test.html) received from 127.0.0.1
+Mon Nov 13 10:48:19 2023 - My server: Reponse (/www/pages/test.html) sent to 127.0.0.1
+Mon Nov 13 10:48:28 2023 - Webserv stopped
+Mon Nov 13 10:49:15 2023 - Webserv started
+Mon Nov 13 10:49:21 2023 - My server: Request (/www/pages/test.html) received from 127.0.0.1
+Mon Nov 13 10:49:21 2023 - My server: Reponse (/www/pages/test.html) sent to 127.0.0.1
+Mon Nov 13 10:49:23 2023 - My server: Request (/www/pages/index.html) received from 127.0.0.1
+Mon Nov 13 10:49:23 2023 - My server: Reponse (/www/pages/index.html) sent to 127.0.0.1
+Mon Nov 13 10:49:34 2023 - Webserv stopped
+Mon Nov 13 11:14:32 2023 - Webserv started
+Mon Nov 13 11:14:44 2023 - My server: Request (/www/pages/) received from 127.0.0.1
+Mon Nov 13 11:14:44 2023 - My server: Reponse (/www/errors/404.html) sent to 127.0.0.1
+Mon Nov 13 11:14:51 2023 - My server: Request (/www/loc) received from 127.0.0.1
+Mon Nov 13 11:14:51 2023 - My server: Reponse (/www/errors/404.html) sent to 127.0.0.1
+Mon Nov 13 11:15:03 2023 - Webserv stopped
+Mon Nov 13 11:15:36 2023 - Webserv started
+Mon Nov 13 11:15:44 2023 - My server: Request (/loc1) received from 127.0.0.1
+Mon Nov 13 11:15:44 2023 - My server: Reponse (/dir.html) sent to 127.0.0.1
+Mon Nov 13 11:15:49 2023 - My server: Request (/www/errors) received from 127.0.0.1
+Mon Nov 13 11:15:49 2023 - My server: Reponse (/www/errors/404.html) sent to 127.0.0.1
+Mon Nov 13 11:16:11 2023 - My server: Request (/www/files) received from 127.0.0.1
+Mon Nov 13 11:16:11 2023 - My server: Reponse (/www/errors/404.html) sent to 127.0.0.1
+Mon Nov 13 11:16:13 2023 - My server: Request (/www/pages) received from 127.0.0.1
+Mon Nov 13 11:16:13 2023 - My server: Reponse (/www/errors/404.html) sent to 127.0.0.1
+Mon Nov 13 11:16:18 2023 - Webserv stopped
+Mon Nov 13 11:17:53 2023 - Webserv started
+Mon Nov 13 11:18:01 2023 - My server: Request (/www/pages/test.html) received from 127.0.0.1
+Mon Nov 13 11:18:01 2023 - My server: Reponse (/www/pages/test.html) sent to 127.0.0.1
+Mon Nov 13 11:18:06 2023 - My server: Request (/www/pages/test.html) received from 127.0.0.1
+Mon Nov 13 11:18:06 2023 - My server: Reponse (/www/pages/test.html) sent to 127.0.0.1
+Mon Nov 13 11:18:07 2023 - My server: Request (/www/pages/index.html) received from 127.0.0.1
+Mon Nov 13 11:18:07 2023 - My server: Reponse (/www/pages/index.html) sent to 127.0.0.1
+Mon Nov 13 11:18:12 2023 - Webserv stopped
+Mon Nov 13 11:22:52 2023 - Webserv started
+Mon Nov 13 11:22:56 2023 - My server: Request (/) received from 127.0.0.1
+Mon Nov 13 11:24:08 2023 - Webserv started
+Mon Nov 13 11:24:12 2023 - My server: Request (/) received from 127.0.0.1
+Mon Nov 13 11:24:46 2023 - Webserv started
+Mon Nov 13 11:24:49 2023 - My server: Request (/) received from 127.0.0.1
+Mon Nov 13 11:25:20 2023 - Webserv started
+Mon Nov 13 11:25:22 2023 - My server: Request (/) received from 127.0.0.1
+Mon Nov 13 11:35:24 2023 - Webserv started
+Mon Nov 13 11:35:30 2023 - My server: Request (/www/pages/index.html) received from 127.0.0.1
+Mon Nov 13 11:35:30 2023 - My server: Reponse (/www/pages/index.html) sent to 127.0.0.1
+Mon Nov 13 11:35:38 2023 - My server: Request (/www/pages/test.html) received from 127.0.0.1
+Mon Nov 13 11:35:38 2023 - My server: Reponse (/www/pages/test.html) sent to 127.0.0.1
+Mon Nov 13 11:35:39 2023 - My server: Request (/www/pages/index.html) received from 127.0.0.1
+Mon Nov 13 11:35:39 2023 - My server: Reponse (/www/pages/index.html) sent to 127.0.0.1
+Mon Nov 13 11:37:28 2023 - Webserv stopped
+Mon Nov 13 11:38:39 2023 - Webserv started
+Mon Nov 13 11:38:45 2023 - Webserv started
+Mon Nov 13 11:38:49 2023 - My server: Request (/loc1) received from 127.0.0.1
+Mon Nov 13 11:38:49 2023 - My server: Reponse (/dir.html) sent to 127.0.0.1
+Mon Nov 13 11:39:02 2023 - My server: Request (/loc1) received from 127.0.0.1
+Mon Nov 13 11:39:02 2023 - My server: Reponse (/dir.html) sent to 127.0.0.1
+Mon Nov 13 11:39:06 2023 - My server: Request (/www/errors) received from 127.0.0.1
+Mon Nov 13 11:39:06 2023 - My server: Reponse (/www/errors/404.html) sent to 127.0.0.1
+Mon Nov 13 11:39:15 2023 - My server: Request (/www/errors) received from 127.0.0.1
+Mon Nov 13 11:39:15 2023 - My server: Reponse (/www/errors/404.html) sent to 127.0.0.1
+Mon Nov 13 11:39:16 2023 - My server: Request (/www/pages) received from 127.0.0.1
+Mon Nov 13 11:39:16 2023 - My server: Reponse (/www/errors/404.html) sent to 127.0.0.1
+Mon Nov 13 11:39:34 2023 - Webserv stopped
+Mon Nov 13 11:40:06 2023 - Webserv started
+Mon Nov 13 11:40:11 2023 - My server: Request (/loc1) received from 127.0.0.1
+Mon Nov 13 11:40:11 2023 - My server: Reponse (/dir.html) sent to 127.0.0.1
+Mon Nov 13 11:40:19 2023 - My server: Request (/loc1) received from 127.0.0.1
+Mon Nov 13 11:40:19 2023 - My server: Reponse (/dir.html) sent to 127.0.0.1
+Mon Nov 13 11:40:25 2023 - My server: Request (/loc1) received from 127.0.0.1
+Mon Nov 13 11:40:25 2023 - My server: Reponse (/dir.html) sent to 127.0.0.1
+Mon Nov 13 11:40:28 2023 - My server: Request (/www/pages/index.html) received from 127.0.0.1
+Mon Nov 13 11:40:28 2023 - My server: Reponse (/www/pages/index.html) sent to 127.0.0.1
+Mon Nov 13 11:40:31 2023 - My server: Request (/www/pages/test.html) received from 127.0.0.1
+Mon Nov 13 11:40:31 2023 - My server: Reponse (/www/pages/test.html) sent to 127.0.0.1
+Mon Nov 13 11:40:32 2023 - My server: Request (/www/pages/index.html) received from 127.0.0.1
+Mon Nov 13 11:40:32 2023 - My server: Reponse (/www/pages/index.html) sent to 127.0.0.1
+Mon Nov 13 11:43:35 2023 - Webserv stopped

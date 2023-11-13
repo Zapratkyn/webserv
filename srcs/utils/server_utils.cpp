@@ -125,6 +125,8 @@ namespace server_utils {
 					return loc;
 			}
 		}
+		if (loc.root == "" || loc.root == "/")
+			loc.root = "/www/";
 		loc.valid = true;
 		return loc;
 	}
@@ -173,38 +175,20 @@ namespace server_utils {
 
 	void setRequest(t_request &request, bool &kill)
 	{
-		std::stringstream 	r_h(request.header);
-		std::string			buffer, dot = ".";
-		int					line = 0;
+		std::string first_line = request.header.substr(0, request.header.find_first_of("\n"));
 
-		while (!r_h.eof())
+		request.method = first_line.substr(0, first_line.find_first_of(" \t"));
+		if (!validMethod(request.method))
 		{
-			getline(r_h, buffer);
-			line++;
-			if (line == 1)
-			{
-				// The method is always at the start of the request, for all the browsers I tested
-				request.method = buffer.substr(0, buffer.find_first_of(" \t"));
-				if (!validMethod(request.method))
-				{
-					request.url = "./www/errors/400.html";
-					request.code = "400 Bad Request";
-					sendUrl(request);
-					throw invalidMethodException();
-				}
-			}
-			if (line == 1 || buffer.substr(0, buffer.find_first_of(" \t")) == "Referer:")
-			{
-				buffer = &buffer[buffer.find_first_of(" \t")];
-				buffer = &buffer[buffer.find_first_not_of(" \t")];
-				// If the location is in the first line, right after the method
-				if (line == 1 && buffer.substr(0, buffer.find_first_of(" \t")) != "/favicon.ico")
-					request.location = buffer.substr(0, buffer.find_first_of(" \t"));
-				// If the location is on the line starting with "Referer:"
-				else
-					request.location = buffer.substr(0);
-			}
+			request.url = "./www/errors/400.html";
+			request.code = "400 Bad Request";
+			sendUrl(request);
+			throw invalidMethodException();
 		}
+		first_line = &first_line[first_line.find_first_of(" \t")];
+		first_line = &first_line[first_line.find_first_not_of(" \t")];
+		request.location = first_line.substr(0, first_line.find_first_of(" \t"));
+
 
 		if (DISPLAY_METHOD_AND_LOCATION)
 		{
@@ -218,21 +202,11 @@ namespace server_utils {
 			request.url = "./kill.html";
 			sendUrl(request);
 		}
-
-		// if (!allowedMethod(request.method, _location_list[request.location].methods))
-		// 	throw forbiddenMethodException();
 	}
 
 	void checkUrl(struct t_request &request, std::vector<std::string> &url_list)
 	{
 		std::string dot = ".";
-
-		if (request.location.substr(0, 7) == "http://")
-		{
-			request.location = &request.location[request.location.find_first_of(":") + 1];
-			request.location = &request.location[request.location.find_first_of(":") + 1];
-			request.location = &request.location[request.location.find_first_not_of(DIGITS)];
-		}
 
 		log("", request.client, request.server, request.location, 2);
 		
@@ -264,7 +238,7 @@ namespace server_utils {
 			request.location.append("/");
 	}
 
-	void checkLocation(struct t_request &request, std::map<std::string, struct t_location> &location_list, int port)
+	void checkLocation(struct t_request &request, std::map<std::string, struct t_location> &location_list)
 	{
 		for (std::map<std::string, struct t_location>::iterator it = location_list.begin(); it != location_list.end(); it ++)
 		{
@@ -273,7 +247,7 @@ namespace server_utils {
 				// if (it->second.index != "")
 				// 	request.url = it->second.index;
 				// else
-					sendTable(request, ft_to_string(port), it->second.root);
+					sendTable(request, it->second.root);
 				request.url = "./dir.html";
 				return;
 			}
@@ -283,10 +257,10 @@ namespace server_utils {
 		sendUrl(request);
 	}
 
-	void sendTable(struct t_request &request, std::string port, std::string root)
+	void sendTable(struct t_request &request, std::string root)
 	{
 		std::ifstream 	ifs("./dir.html");
-		std::string		html = "", buffer, loc;
+		std::string		html = "", buffer;
 		std::string 	result = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: ";
 
 		while (!ifs.eof())
@@ -300,10 +274,10 @@ namespace server_utils {
 		html.insert(html.find("</title>"), request.server);
 		html.insert(html.find("</h2>"), request.location);
 
-		if (loc != "/www/")
-			addParentDirectory(html, ft_pop_back(request.location), port);
+		if (root != "/www/")
+			addParentDirectory(html, root);
 
-		addLinkList(html, root, port);
+		addLinkList(html, root);
 
 		result.append(ft_to_string(html.size())); // We append the size of the html page to the http response
 		result.append("\n\n"); // The http response's header stops here
@@ -312,35 +286,29 @@ namespace server_utils {
 		write(request.socket, result.c_str(), result.size());
 	}
 
-	void addParentDirectory(std::string &html, std::string location, std::string port)
+	void addParentDirectory(std::string &html, std::string location)
 	{
-		int spot = html.find("</tr>") + 5;
-		std::string loc = location.substr(0, location.find_last_of("/")), url = "localhost:";
+		int spot = html.rfind("</table>");
+		std::string loc = location.substr(0, location.find_last_of("/"));
 
-		url.append(port);
-		url.append(loc);
-
-		html.insert(spot, "\n\t<tr>\n\t\t<td></td>\n\t\t<td><a href=");
-		spot += 33;
+		html.insert(spot, "\t<tr>\n\t\t<td></td>\n\t\t<td><a href=");
+		spot = html.rfind("</table>");
 		html.insert(spot++, 1, '"');
-		html.insert(spot, url);
-		spot += (url.size());
+		html.insert(spot, loc);
+		spot = html.rfind("</table>");
 		html.insert(spot++, 1, '"');
-		html.insert(spot, ">Parent directory</a></td>\n\t</tr>\n");
+		html.insert(spot, ">Parent directory</a></td>\n\t\t<td>Directory</td>\n\t</tr>\n");
 
 	}
 
-	void addLinkList(std::string &html, std::string location, std::string port)
+	void addLinkList(std::string &html, std::string location)
 	{
 		DIR *dir;
 	    struct dirent *file;
-		std::string file_name, url = "localhost:", url_copy, extension, dot = ".";
+		std::string file_name, url_copy, extension, dot = ".";
 		int spot;
 
 		dir = opendir(dot.append(location).c_str());
-
-		url.append(port);
-		url.append(location);
 		file = readdir(dir);
 		
 		while (file)
@@ -352,35 +320,27 @@ namespace server_utils {
 	            continue; 
 	        }
 			spot = html.rfind("</table>");
-			html.insert(spot, "\n\t<tr>\n\t\t<td></td>\n\t\t<td><a href=");
+			html.insert(spot, "\t<tr>\n\t\t<td></td>\n\t\t<td><a href=");
 			spot = html.rfind("</table>");
 			html.insert(spot++, 1, '"');
-			url_copy = url;
+			url_copy = location;
 			url_copy.append(file_name);
 			html.insert(spot, url_copy);
-			spot += url_copy.size();
+			spot = html.rfind("</table>");
 			html.insert(spot++, 1, '"');
 			html.insert(spot++, 1, '>');
 			html.insert(spot, file_name);
-			spot += file_name.size();
+			spot = html.rfind("</table>");
 			html.insert(spot, "</a></td>\n\t\t<td>");
 			spot = html.rfind("</table>");
 			extension = &url_copy[url_copy.find_last_of(".")];
 			if (extension == ".html" || extension == ".htm" || extension == ".php")
-			{
 				html.insert(spot, "Web page");
-				spot += 8;
-			}
 			else if (extension == ".file")
-			{
 				html.insert(spot, "File");
-				spot += 4;
-			}
 			else
-			{
-				html.insert(spot, "Folder");
-				spot += 6;
-			}
+				html.insert(spot, "Directory");
+			spot = html.rfind("</table>");
 			html.insert(spot, "</td>\n\t</tr>\n");
 			file = readdir(dir);
 		}

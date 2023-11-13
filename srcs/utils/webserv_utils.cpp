@@ -2,7 +2,7 @@
 
 namespace webserv_utils {
 	
-	bool default_port_is_set(std::vector<int> port_list)
+	bool defaultPortIsSet(std::vector<int> &port_list)
 	{
 		for (std::vector<int>::iterator it = port_list.begin(); it != port_list.end(); it++)
 		{
@@ -274,7 +274,7 @@ namespace webserv_utils {
 		while (!ifs.eof() && oBuffer.size())
 		{
 			getline(ifs, oBuffer);
-			if (oBuffer.size() != 0)
+			if (oBuffer.size())
 			{
 				request.header.append(oBuffer);
 				request.header.append("\n");
