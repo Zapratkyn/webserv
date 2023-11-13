@@ -65,10 +65,6 @@ TO DO :
 
 - I'm not sure about the allowed methods for the locations. Either I won't let the user look for direct url or I'll update any page linked to a location if methods other than GET are specified in the location block.
 
-- Manage the links
-
 - Redirections
-
-- Use the www as the root of everything. Meaning the user CANNOT access anything in the main folder AND start any requested location with "./www/"
 
 - CGI !!!

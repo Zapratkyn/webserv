@@ -9,7 +9,7 @@
 # define EXIT_FAILURE 1
 
 # define DISPLAY_URL false
-# define DISPLAY_SERVERS true
+# define DISPLAY_SERVERS false
 
 # define MAX_LISTEN 1000
 
