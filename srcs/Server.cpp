@@ -125,7 +125,7 @@ void Server::addDefaultLocation()
 	if (_index != "")
 		default_location.index = _index;
 	else
-		default_location.index = "index.html";
+		default_location.index = "pages/index.html";
 	if (_root != "")
 		default_location.root = _root;
 	else

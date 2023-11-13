@@ -2,6 +2,16 @@
 
 namespace webserv_utils {
 	
+	bool default_port_is_set(std::vector<int> &port_list)
+	{
+		for (std::vector<int>::iterator it = port_list.begin(); it != port_list.end(); it++)
+		{
+			if (*it == 8080)
+				return true;
+		}
+		return false;
+	}
+	
 	std::string getServerName(const std::string &server_block, int &default_name_index, std::map<std::string, Server*> &server_list)
 	{
 		std::stringstream 	ifs(server_block);
@@ -209,7 +219,7 @@ namespace webserv_utils {
 			{
 				file_name = folder_cpy.append(file_name);
 				folder_cpy = folder;
-				if (file_name != "./www/hello.html" && file_name != "./www/kill.html")
+				if (file_name != "./www/hello.html" && file_name != "./www/kill.html" && file_name != "./www/dir.html")
 					url_list.push_back(file_name);
 			}
 	        file = readdir(dir);
@@ -231,12 +241,31 @@ namespace webserv_utils {
 		request.is_dir = false;
 	}
 
+	void readRequests(std::map<std::string, Server*> &server_list, std::map<int, t_request> &request_list, fd_set &readfds)
+	{
+		for (std::map<int, t_request>::iterator it = request_list.begin(); it != request_list.end(); it++)
+		{
+			if (FD_ISSET(it->first, &readfds))
+			{
+				try
+				{
+					getRequest(server_list[it->second.server]->getBodySize(), it->second);
+				}
+				catch(const std::exception& e)
+				{
+					log(e.what(), it->second.client, "", "", 1);
+				}
+			}
+			FD_CLR(it->first, &readfds);
+		}
+	}
+
 	void getRequest(int max_body_size, struct t_request &request)
 	{
 		int bytesReceived;
-		char buffer[100000] = {0};
+		char buffer[BUFFER_SIZE];
 
-		bytesReceived = read(request.socket, buffer, 100000);
+		bytesReceived = read(request.socket, buffer, BUFFER_SIZE);
 		if (bytesReceived < 0)
 			throw readRequestException();
 

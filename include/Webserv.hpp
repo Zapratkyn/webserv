@@ -25,7 +25,7 @@ private:
 	std::vector<std::string>			_url_list;
 	std::map<std::string, std::time_t>	_previous_clients;
 
-	void								acceptNewConnections(int, fd_set &, fd_set &);
+	fd_set								acceptNewConnections(int &, fd_set &, fd_set &);
 
 	std::string							_conf;
 	std::map<std::string, Server*>		_server_list;

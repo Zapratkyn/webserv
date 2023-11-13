@@ -117,34 +117,42 @@ void Webserv::startListen()
 	Since fd 0, 1 and 2 are already taken (STD_IN and STD_OUT and STD_ERR), our list begins at 3
 	Therefore, max_fds = total_number_of_sockets + STD_IN + STD_OUT + STD_ERR
 	*/
-	int 			max_fds = _listen_socket_list.size() + 3;
+	int 			max_fds = _listen_socket_list.size() + 3, step = 1;
 	fd_set			readfds, writefds;
 	std::map<int, struct t_request>::iterator tmp;
 	bool			kill = false;
 
 	FD_ZERO(&writefds);
+	FD_ZERO(&readfds);
+	for (std::vector<int>::iterator it = _listen_socket_list.begin(); it != _listen_socket_list.end(); it++)
+		FD_SET(*it, &readfds);
 	
-	while (true)
+	while (!kill)
 	{
-		FD_ZERO(&readfds); // Reset the readfds fd_set
-		for (std::vector<int>::iterator it = _listen_socket_list.begin(); it != _listen_socket_list.end(); it++)
-			FD_SET(*it, &readfds);
 		/*
 		Select blocks until a new request is received
 		It then sets the request receiving sockets to 1 and unblocks
-		We then need to parse several potential requests in the newConnection() function
+		We then need to parse several potential requests in the acceptNewConnections() function
 		This will first stack pending requests (in the writefds fd_set and in the _request_list) \
 		Go through select() before handling the stacked requests \
 		Then handle all the stacked requests and go back to select() for another round
 		*/
-		if (select(max_fds + _request_list.size(), &readfds, &writefds, NULL, NULL) < 0)
+		if (select(max_fds, &readfds, &writefds, NULL, NULL) < 0)
 		{
 			ft_error(0);
 			continue;
 		}
-		if (_request_list.empty())
-			acceptNewConnections(max_fds, readfds, writefds);
-		else
+		if (step == 1)
+		{
+			readfds = acceptNewConnections(max_fds, readfds, writefds);
+			step++;
+		}
+		else if (step == 2)
+		{
+			readRequests(_server_list, _request_list, readfds);
+			step++;
+		}
+		else if (step == 3)
 		{
 			for (std::map<int, struct t_request>::iterator it = _request_list.begin(); it != _request_list.end();)
 			{
@@ -157,19 +165,23 @@ void Webserv::startListen()
 					FD_CLR(it->first, &writefds); // Clears the writefds fd_set
 					tmp = it++; // If I erase an iterator while itering on a std::map, I get a SEGFAULT
 					_request_list.erase(tmp);
+					max_fds--;
 				}
 			}
+			step = 1;
+			FD_ZERO(&readfds); // Reset the readfds fd_set
+			for (std::vector<int>::iterator it = _listen_socket_list.begin(); it != _listen_socket_list.end(); it++)
+				FD_SET(*it, &readfds);
 		}
-		if (kill)
-			break;
 	}
 	log("Webserv stopped", "", "", "", 0);
 }
 
-void Webserv::acceptNewConnections(int max_fds, fd_set &readfds, fd_set &writefds)
+fd_set Webserv::acceptNewConnections(int &max_fds, fd_set &readfds, fd_set &writefds)
 {
 	int time, new_socket;
 	struct t_request new_request;
+	fd_set new_fd_set;
 
 	for (int socket = 3; socket < max_fds; socket++)
 	{
@@ -199,20 +211,14 @@ void Webserv::acceptNewConnections(int max_fds, fd_set &readfds, fd_set &writefd
 				else
 				{
 					_previous_clients[new_request.client] = std::time(NULL);
-					FD_SET(new_socket, &writefds); // We add the new_socket to the writefds fd_set
+					FD_SET(new_socket, &writefds);
+					FD_SET(new_socket, &new_fd_set);
+					max_fds++;
 					new_request.socket = new_socket;
-					try
-					{
-						getRequest(_server_list[new_request.server]->getBodySize(), new_request);
-						_request_list[new_socket] = new_request;
-					}
-					catch(const std::exception& e)
-					{
-						close(new_socket);
-						log(e.what(), new_request.client, "", "", 1);
-					}
+					_request_list[new_socket] = new_request;
 				}
 			}
 		}
 	}
+	return new_fd_set;
 }
