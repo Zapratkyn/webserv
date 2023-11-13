@@ -8,3 +8,20 @@ Mon Nov 13 12:05:57 2023 - Webserv started
 Mon Nov 13 12:06:01 2023 - My server: Request (/) received from 127.0.0.1
 Mon Nov 13 12:08:55 2023 - Webserv started
 Mon Nov 13 12:08:58 2023 - My server: Request (/) received from 127.0.0.1
+Mon Nov 13 14:33:43 2023 - Webserv started
+Mon Nov 13 14:34:06 2023 - Webserv stopped
+Mon Nov 13 14:35:22 2023 - Webserv started
+Mon Nov 13 14:35:30 2023 - My server: Request (/) received from 127.0.0.1
+Mon Nov 13 14:35:30 2023 - My server: Reponse (/dir.html) sent to 127.0.0.1
+Mon Nov 13 14:35:30 2023 - My server: Request (/favicon.ico) received from 127.0.0.1
+Mon Nov 13 14:35:30 2023 - My server: Reponse (/www/errors/404.html) sent to 127.0.0.1
+Mon Nov 13 14:35:36 2023 - My server: Request (/) received from 127.0.0.1
+Mon Nov 13 14:35:36 2023 - My server: Reponse (/dir.html) sent to 127.0.0.1
+Mon Nov 13 14:35:41 2023 - Webserv stopped
+Mon Nov 13 14:36:42 2023 - Webserv started
+Mon Nov 13 14:36:59 2023 - Webserv started
+Mon Nov 13 14:37:04 2023 - My server: Request (/) received from 127.0.0.1
+Mon Nov 13 14:37:04 2023 - My server: Reponse (/dir.html) sent to 127.0.0.1
+Mon Nov 13 14:37:12 2023 - My server: Request (/test) received from 127.0.0.1
+Mon Nov 13 14:37:12 2023 - My server: Reponse (/www/errors/404.html) sent to 127.0.0.1
+Mon Nov 13 14:37:29 2023 - Webserv stopped
