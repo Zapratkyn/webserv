@@ -8,8 +8,8 @@
 # define EXIT_SUCCESS 0
 # define EXIT_FAILURE 1
 
-# define DISPLAY_URL false
-# define DISPLAY_SERVERS false
+# define DISPLAY_URL true
+# define DISPLAY_SERVERS true
 
 # define MAX_LISTEN 1000
 

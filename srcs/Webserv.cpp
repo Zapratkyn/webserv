@@ -161,8 +161,10 @@ void Webserv::startListen()
 		}
 		if (step == 1)
 			acceptNewConnections(max_fds, readfds);
-		else if (step == 2)
+		else if (step == 2) {
+			//TODO this doesn't come back
 			readRequests(readfds, writefds);
+		}
 		else if (step == 3)
 			sendRequests(kill, writefds);
 		if (++step == 4)
