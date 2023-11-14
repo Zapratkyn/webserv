@@ -1,13 +1,17 @@
 NAME				=	webserv
 
 CC					=	c++
-CPPFLAGS			=	-Wall -Wextra -Werror -std=c++98
+CPPFLAGS			=	-Wall -Wextra -Werror -std=c++98 -g -fsanitize=address
 RM					=	rm -rf
 
 OBJDIR				=	.obj
 
-SRC					=	server_linux.cpp \
-						http_tcpServer_linux.cpp
+SRC					=	srcs/main.cpp \
+						srcs/Server.cpp \
+						srcs/Webserv.cpp \
+						srcs/utils/webserv_utils.cpp \
+						srcs/utils/server_utils.cpp \
+						srcs/utils/utils.cpp
 
 OBJ					=	$(addprefix $(OBJDIR)/, $(SRC:.cpp=.o))
 
