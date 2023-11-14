@@ -2,9 +2,11 @@
 
 bool valid_file(const std::string &); // I like to keep the main() function on top :)
 
+//TODO argc check (less or more than 2)
+// DONE
 int main(int argc, char **argv)
 {
-	if (argc > 2)
+	if (argc != 2)
 	{
 		std::cerr << "ERROR\nExpected : ./webserv [configuration file path]" << std::endl;
 		return EXIT_FAILURE;
