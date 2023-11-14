@@ -25,3 +25,6 @@ Mon Nov 13 14:37:04 2023 - My server: Reponse (/dir.html) sent to 127.0.0.1
 Mon Nov 13 14:37:12 2023 - My server: Request (/test) received from 127.0.0.1
 Mon Nov 13 14:37:12 2023 - My server: Reponse (/www/errors/404.html) sent to 127.0.0.1
 Mon Nov 13 14:37:29 2023 - Webserv stopped
+Tue Nov 14 15:35:21 2023 - Webserv started
+Tue Nov 14 15:38:12 2023 - Webserv started
+Tue Nov 14 15:48:17 2023 - Webserv started
