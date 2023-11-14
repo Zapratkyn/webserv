@@ -6,7 +6,7 @@
 #include <fstream>
 #include <unistd.h>
 
-# define DISPLAY_HTML false
+# define DISPLAY_HTML true
 
 struct t_request {
 

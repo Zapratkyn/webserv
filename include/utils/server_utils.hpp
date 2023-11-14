@@ -9,7 +9,7 @@
 #include <dirent.h>
 #include "utils.hpp"
 
-# define DISPLAY_METHOD_AND_LOCATION false
+# define DISPLAY_METHOD_AND_LOCATION true
 
 # define DIGITS "0123456789"
 
