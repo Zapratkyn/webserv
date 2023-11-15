@@ -241,25 +241,6 @@ namespace webserv_utils {
 		request.is_dir = false;
 	}
 
-	void readRequests(std::map<std::string, Server*> &server_list, std::map<int, t_request> &request_list, fd_set &readfds)
-	{
-		for (std::map<int, t_request>::iterator it = request_list.begin(); it != request_list.end(); it++)
-		{
-			if (FD_ISSET(it->first, &readfds))
-			{
-				try
-				{
-					getRequest(server_list[it->second.server]->getBodySize(), it->second);
-				}
-				catch(const std::exception& e)
-				{
-					log(e.what(), it->second.client, "", "", 1);
-				}
-			}
-			FD_CLR(it->first, &readfds);
-		}
-	}
-
 	void getRequest(int max_body_size, struct t_request &request)
 	{
 		int bytesReceived;
