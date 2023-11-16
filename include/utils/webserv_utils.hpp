@@ -9,7 +9,7 @@
 #include "../Server.hpp"
 #include "utils.hpp"
 
-# define DISPLAY_REQUEST false
+# define DISPLAY_REQUEST true
 
 # define BUFFER_SIZE 10000
 

@@ -24,7 +24,7 @@ Tasks:
 
 Current state of the branch :
 
-- The Webserv class parses the path to all the files in the www folder and its subfolders
+- The Webserv class parses the path to all the files and folders in the www folder and its subfolders
 
 - Then it parses all the servers, using the options in the configuration file and giving each server a unique name
 
@@ -32,15 +32,19 @@ Current state of the branch :
 
 - The main loop starts and waits for new connections
 
+- All pending requests are stacked in a list. An error (500) is sent to any client after the MAX_LISTEN is reached on a socket
+
+- The webserv identify the requested server and the client for each request
+
 - The Webserv splits the request into header and body
 
-- The server uses the header to identify the requested location and method
+- The corresponding server uses the header to identify the requested location and method
 
 - If the location is a url (ending with .html/.htm/.php), the server checks the url list and sends either the corresponding page or the 404 page, then goes back to the main loop
 
-- Searching for localhost:[any_set_port]/kill properly stops the server, frees what needs to be freed, displays a message in the terminal and show a relevant page to the user in the browser
+- If the location is directory or a location with autoindex setup, the server sends ./dir.html to the client, filled with links to any file or folder found in the directory
 
-- If you look for a set location (example, localhost:8083/loc, with the custom.conf file), you get a directory page. The links don't work yet.
+- Searching for localhost:[any_set_port]/kill properly stops the server, frees what needs to be freed, displays a message in the terminal and in the log and shows a relevant page to the user in the browser
 
 - In any of those cases, the code and the message will be correct ("200 OK" if page found, "404 Not found" if not)
 
@@ -59,9 +63,11 @@ Edit 13 Nov : I tried and it works just fine !
 
 TO DO :
 
+- Implement the timeout for select(). Meaning, if a problem occurs and client is stuck in loading, send a error (500) to every waiting client, clear the request list, unblock everything and wait for new connexions.
+
 - Throw an error if a location name has an extension (Like .html)
 
-- I need to find a way to apply the favicon and the stylesheet to the displayed pages
+- I need to find a way to apply the favicon (works on Firefox, not on Chrome) and the stylesheet to the displayed pages
 
 - I'm not sure about the allowed methods for the locations. Either I won't let the user look for direct url or I'll update any page linked to a location if methods other than GET are specified in the location block.
 
