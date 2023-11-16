@@ -34,7 +34,7 @@ bool Server::setRoot(std::string &root)
 		ft_error(0, root, "root");
 		return false;
 	}
-	// We need root path to start with "/"
+	// We need root path to start and end with '/'
 	if (root[0] != '/')
 		root = slash.append(root);
 	if (root[root.size() - 1] != '/')
@@ -270,6 +270,6 @@ void Server::handleRequest(struct t_request &request, std::vector<std::string> &
 		log(e.what(), request.client, "", "", 1);
 	}
 
-	if (!kill)
+	if (!kill && request.url != "./favicon.ico")
 		log("", request.client, request.server, request.url, 3);
 }

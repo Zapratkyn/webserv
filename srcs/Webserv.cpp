@@ -75,7 +75,7 @@ void Webserv::startServer()
 	int listen_socket;
 
 	initSockaddr(_socketAddr);
-	// initTimeval(_tv);
+	initTimeval(_tv);
 
 
 	/*
@@ -107,20 +107,20 @@ void Webserv::startServer()
 				throw listenException();
 		}
 	}
-	if (!defaultPortIsSet(full_port_list)) // I chose to use a default port to access things like files, stylesheets and favicons...
-	{
-		listen_socket = socket(AF_INET, SOCK_STREAM, 0);
-		if (listen_socket < 0)
-			throw openSocketException();
-		fcntl(listen_socket, F_SETFL, O_NONBLOCK);
-		_listen_socket_list.push_back(listen_socket);
-		_server_list.begin()->second->addSocket(listen_socket);
-		_socketAddr.sin_port = htons(8080); // The default port
-		if (bind(listen_socket, (sockaddr *)&_socketAddr, _socketAddrLen) < 0)
-			throw bindException();
-		if (listen(listen_socket, MAX_LISTEN) < 0)
-			throw listenException();
-	}
+	// if (!defaultPortIsSet(full_port_list)) // I chose to use a default port to access things like files, stylesheets and favicons...
+	// {
+	// 	listen_socket = socket(AF_INET, SOCK_STREAM, 0);
+	// 	if (listen_socket < 0)
+	// 		throw openSocketException();
+	// 	fcntl(listen_socket, F_SETFL, O_NONBLOCK);
+	// 	_listen_socket_list.push_back(listen_socket);
+	// 	_server_list.begin()->second->addSocket(listen_socket);
+	// 	_socketAddr.sin_port = htons(8080); // The default port
+	// 	if (bind(listen_socket, (sockaddr *)&_socketAddr, _socketAddrLen) < 0)
+	// 		throw bindException();
+	// 	if (listen(listen_socket, MAX_LISTEN) < 0)
+	// 		throw listenException();
+	// }
 }
 
 void Webserv::startListen()
@@ -151,7 +151,7 @@ void Webserv::startListen()
 		After a 2nd select(), we read from the newly created sockets and parse the requests' headers and bodies
 		Go through select() again before handling the stacked requests
 		Then handle all the stacked requests
-		Reset the readfds with the listening sockets
+		Reset the readfds with the listening sockets (see above)
 		Go through the whole process again
 		*/
 		if (select(max_fds, &readfds, &writefds, NULL, NULL) < 0)
@@ -161,9 +161,9 @@ void Webserv::startListen()
 		}
 		if (step == 1)
 			acceptNewConnections(max_fds, readfds);
-		else if (step == 2)
+		else if (step == 2 && !_request_list.empty())
 			readRequests(readfds, writefds);
-		else if (step == 3)
+		else if (step == 3 && !_request_list.empty())
 			sendRequests(kill, writefds);
 		if (++step == 4)
 			step = 1;
@@ -173,7 +173,7 @@ void Webserv::startListen()
 
 void Webserv::acceptNewConnections(int &max_fds, fd_set &readfds)
 {
-	int new_socket;
+	int new_socket, listen;
 	struct t_request new_request;
 	std::vector<int> new_socket_list;
 
@@ -181,14 +181,28 @@ void Webserv::acceptNewConnections(int &max_fds, fd_set &readfds)
 	{
 		if (FD_ISSET(socket, &readfds))
 		{
-			initRequest(new_request);
-			new_socket = accept(socket, (sockaddr *)&_socketAddr, &_socketAddrLen);
-			new_request.server = getServer(_server_list, socket);
-			new_request.client = inet_ntoa(_socketAddr.sin_addr);
-			new_request.socket = new_socket;
-			_request_list[new_socket] = new_request;
-			max_fds++;
-			new_socket_list.push_back(new_socket);
+			listen = 1;
+			while (true)
+			{
+				initRequest(new_request);
+				new_socket = accept(socket, (sockaddr *)&_socketAddr, &_socketAddrLen);
+				if (new_socket < 0)
+					break;
+				if (listen > MAX_LISTEN)
+				{
+					new_request.url = "./www/errors/500.html";
+					new_request.code = "500 Internal Server Error";
+					sendUrl(new_request);
+					continue;
+				}
+				new_request.server = getServer(_server_list, socket);
+				new_request.client = inet_ntoa(_socketAddr.sin_addr);
+				new_request.socket = new_socket;
+				_request_list[new_socket] = new_request;
+				max_fds++;
+				new_socket_list.push_back(new_socket);
+				listen++;
+			}
 		}
 	}
 	// We keep only the new sockets to avoid having select() applied on the same sockets several times
@@ -236,4 +250,5 @@ void Webserv::sendRequests(bool &kill, fd_set &writefds)
 	}
 	// We don't want select() to test this fd_set anymore
 	FD_ZERO(&writefds);
+	_request_list.clear();
 }

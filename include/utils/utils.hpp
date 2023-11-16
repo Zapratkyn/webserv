@@ -30,5 +30,6 @@ std::string ft_to_string(int);
 std::string trim(const std::string &);
 void        log(std::string, std::string, std::string, std::string, int);
 void		sendUrl(struct t_request &);
+void		sendFile(struct t_request &);
 
 #endif

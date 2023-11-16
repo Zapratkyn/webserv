@@ -122,6 +122,11 @@ namespace server_utils {
 					}
 					break;
 				case 3:
+					if (value != "on" && value != "off")
+					{
+						ft_error(5, value, "");
+						return loc;
+					}
 					loc.autoindex = value;
 					break;
 				default:
@@ -155,6 +160,8 @@ namespace server_utils {
 			case 4:
 				std::cerr << value << ": invalid option" << std::endl;
 				break;
+			case 5:
+				std::cerr << "autoindex " << value << ": invalid value" << std::endl;
 		}
 	}
 
@@ -211,12 +218,12 @@ namespace server_utils {
 	void checkUrl(struct t_request &request, std::vector<std::string> &url_list)
 	{
 		std::string dot = ".";
-
-		log("", request.client, request.server, request.location, 2);
 		
 		std::string extension = &request.location[request.location.find_last_of(".")];
 
-		if (extension == ".html" || extension == ".htm" || extension == ".php")
+		log("", request.client, request.server, request.location, 2);
+
+		if (extension != "")
 		{
 			request.is_url = true;
 			request.location = dot.append(request.location);
@@ -255,9 +262,14 @@ namespace server_utils {
 					request.url = it->second.root.append(it->second.index);
 					request.url = dot.append(request.url);
 					sendUrl(request);
+					return;
 				}
 				else if (it->second.autoindex == "on")
+				{
+					request.url = "./dir.html";
 					sendTable(request, it->second.root);
+					return;
+				}
 			}
 		}
 		request.url = "./www/errors/404.html";

@@ -2,15 +2,15 @@
 
 namespace webserv_utils {
 	
-	bool defaultPortIsSet(std::vector<int> &port_list)
-	{
-		for (std::vector<int>::iterator it = port_list.begin(); it != port_list.end(); it++)
-		{
-			if (*it == 8080)
-				return true;
-		}
-		return false;
-	}
+	// bool defaultPortIsSet(std::vector<int> &port_list)
+	// {
+	// 	for (std::vector<int>::iterator it = port_list.begin(); it != port_list.end(); it++)
+	// 	{
+	// 		if (*it == 8080)
+	// 			return true;
+	// 	}
+	// 	return false;
+	// }
 	
 	std::string getServerName(const std::string &server_block, int &default_name_index, std::map<std::string, Server*> &server_list)
 	{
@@ -78,11 +78,11 @@ namespace webserv_utils {
 		socketAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
 	}
 
-	// void initTimeval(struct timeval &tv)
-	// {
-	// 	tv.tv_sec = 1;
-	// 	tv.tv_usec = 0;
-	// }
+	void initTimeval(struct timeval &tv)
+	{
+		tv.tv_sec = 5;
+		tv.tv_usec = 0;
+	}
 
 	// Namespaces allow us to use the same function name in different contexts
 	void ft_error(int type)
@@ -208,7 +208,7 @@ namespace webserv_utils {
 	            continue; 
 	        }
 	        extension = &file_name[file_name.find_last_of(".")];
-	        if (extension != ".html" && extension != ".htm" && extension != ".php" && extension != ".file")
+	        if (extension != ".html" && extension != ".htm" && extension != ".php" && extension != ".file" && extension != ".ico")
 	        {
 	            sub_folder = folder_cpy.append(file_name);
 				folder_cpy = folder;
@@ -235,29 +235,10 @@ namespace webserv_utils {
 		request.code = "200 OK";
 		request.location = "/";
 		request.method = "";
-		request.url = "./hello.html";
+		request.url = "";
 		request.server = "";
 		request.is_url = false;
 		request.is_dir = false;
-	}
-
-	void readRequests(std::map<std::string, Server*> &server_list, std::map<int, t_request> &request_list, fd_set &readfds)
-	{
-		for (std::map<int, t_request>::iterator it = request_list.begin(); it != request_list.end(); it++)
-		{
-			if (FD_ISSET(it->first, &readfds))
-			{
-				try
-				{
-					getRequest(server_list[it->second.server]->getBodySize(), it->second);
-				}
-				catch(const std::exception& e)
-				{
-					log(e.what(), it->second.client, "", "", 1);
-				}
-			}
-			FD_CLR(it->first, &readfds);
-		}
 	}
 
 	void getRequest(int max_body_size, struct t_request &request)

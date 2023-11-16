@@ -107,4 +107,27 @@ void sendUrl(t_request &request)
 		std::cout << result << std::endl;
 
 	write(request.socket, result.c_str(), result.size());
+
+	ifs.close();
+}
+
+void sendFile(t_request &request)
+{
+	std::ifstream 	ifs(request.url.c_str(), std::ifstream::binary);
+	std::string		html = "", buffer;
+	std::string 	result = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: ";
+
+	while (!ifs.eof())
+	{
+		getline(ifs, buffer);
+		html.append(buffer);
+		html.append("\n");
+	}
+	result.append(ft_to_string(html.size()));
+	result.append("\n\n");
+	result.append(html);
+
+	write(request.socket, result.c_str(), result.size());
+
+	ifs.close();
 }

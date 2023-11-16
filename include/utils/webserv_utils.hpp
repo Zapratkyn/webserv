@@ -30,7 +30,7 @@ namespace webserv_utils {
     void        getRequest(int, struct t_request &);
     bool		validMethod(std::string &);
     void        initRequest(struct t_request&);
-	bool		defaultPortIsSet(std::vector<int> &);
+	// bool		defaultPortIsSet(std::vector<int> &);
 
     class readRequestException : public std::exception { public: virtual const char *what() const throw() { return "Error while reading request"; } };
     class requestBodyTooBigException : public std::exception { public: virtual const char *what() const throw() { return "Client's request's body too big"; } };
