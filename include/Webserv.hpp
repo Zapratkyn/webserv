@@ -2,11 +2,10 @@
 #define __WEBSERV_HPP__
 
 #include "utils/utils.hpp"
+#include "utils/parse_utils.hpp"
 #include "utils/webserv_utils.hpp"
 #include <fcntl.h>
-
-#define EXIT_SUCCESS 0
-#define EXIT_FAILURE 1
+#include <cstdlib>
 
 #define DISPLAY_URL true
 #define DISPLAY_SERVERS true
@@ -34,9 +33,9 @@ private:
 public:
   Webserv(const std::string &);
   ~Webserv();
-  void startListen();
-  void startServer();
-  void parseConf();
+  void run();
+  void init();
+  void parse();
 
   class openSocketException : public std::exception {
   public:

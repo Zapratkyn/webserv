@@ -2,151 +2,6 @@
 
 namespace server_utils {
 
-std::string getOptionName(const std::string &str) {
-  std::string result = str.substr(0, str.find_first_of(" \t"));
-
-  return result;
-}
-
-std::string getOptionValue(const std::string &str) {
-  std::string result = &str[str.find_first_of(" \t")];
-
-  result = &result[result.find_first_not_of(" \t")];
-
-  while (result[result.size() - 1] == '{' || result[result.size() - 1] == ';' ||
-         result[result.size() - 1] == ' ' || result[result.size() - 1] == '\t')
-    result = ft_pop_back(result);
-
-  return result;
-}
-
-std::string getLocationBlock(std::stringstream &ifs) {
-  std::string location_block, buffer;
-
-  while (location_block[location_block.size() - 1] != '}') {
-    getline(ifs, buffer);
-    if (buffer[0] == '{')
-      continue;
-    location_block.append(buffer);
-    if (location_block[location_block.size() - 1] != '}')
-      location_block.append("\n");
-  }
-  location_block = ft_pop_back(location_block);
-  if (location_block[location_block.size() - 1] == '\n')
-    location_block = ft_pop_back(location_block);
-  return location_block;
-}
-
-t_location newLocation(const std::string &location_name,
-                       const std::string &location_block) {
-  t_location loc;
-  int option, pos;
-  std::stringstream ifs(location_block);
-  std::string method, buffer, name, value,
-      slash = "/",
-      option_list[4] = {"root", "index", "allow_methods", "autoindex"};
-
-  loc.location = location_name;
-  loc.root = "";
-  loc.index = "";
-  loc.autoindex = "off";
-  loc.valid = false;
-
-  while (!ifs.eof()) {
-    getline(ifs, buffer);
-    if (buffer[buffer.size() - 1] != ';') {
-      ft_error(1, buffer, buffer);
-      return loc;
-    }
-    name = getOptionName(buffer);
-    value = getOptionValue(buffer);
-    for (int i = 0; i <= 4; i++) {
-      option = i;
-      if (name == option_list[i])
-        break;
-    }
-    switch (option) {
-    case 0:
-      if (loc.root != "") {
-        ft_error(0, value, "loc.root");
-        return loc;
-      }
-      if (value[0] != '/')
-        value = slash.append(value);
-      if (value[value.size() - 1] != '/')
-        value.append("/");
-      loc.root = value;
-      break;
-    case 1:
-      if (loc.index != "") {
-        ft_error(0, value, "loc.index");
-        return loc;
-      }
-      loc.index = value;
-      break;
-    case 2:
-      value.push_back(' ');
-      while (1) {
-        pos = value.find_first_of(" \t");
-        method = value.substr(0, pos);
-        if (method != "GET" && method != "DELETE" && method != "POST" &&
-            method != "HEAD" && method != "PUT" && method != "CONNECT" &&
-            method != "OPTIONS" && method != "TRACE" && method != "PATCH") {
-          ft_error(3, method, "");
-          return loc;
-        }
-        if (!loc.methods.empty()) {
-          for (std::vector<std::string>::iterator it = loc.methods.begin();
-               it != loc.methods.end(); it++) {
-            if (*it == method) {
-              ft_error(0, value, "loc.allow_method");
-              return loc;
-            }
-          }
-        }
-        loc.methods.push_back(method);
-        value = &value[pos + 1];
-        if (!value.size())
-          break;
-        value = &value[value.find_first_not_of(" \t")];
-      }
-      break;
-    case 3:
-      loc.autoindex = value;
-      break;
-    default:
-      ft_error(4, name, "");
-      return loc;
-    }
-  }
-  if (loc.root == "" || loc.root == "/")
-    loc.root = "/www/";
-  loc.valid = true;
-  return loc;
-}
-
-// Namespaces allow us to use the same function name in different contexts
-void ft_error(int type, std::string value, std::string option) {
-  std::cerr << "ERROR\n";
-  switch (type) {
-  case 0:
-    std::cerr << option << " " << value << ": duplicate" << std::endl;
-    break;
-  case 1:
-    std::cerr << option << " " << value << ": missing ';'" << std::endl;
-    break;
-  case 2:
-    std::cerr << option << " " << value << ": Not a number" << std::endl;
-    break;
-  case 3:
-    std::cerr << value << ": invalid method" << std::endl;
-    break;
-  case 4:
-    std::cerr << value << ": invalid option" << std::endl;
-    break;
-  }
-}
-
 bool allowedMethod(std::string &method, std::vector<std::string> &list) {
   for (std::vector<std::string>::iterator it = list.begin(); it != list.end();
        it++) {
@@ -329,6 +184,35 @@ void addLinkList(std::string &html, std::string location) {
     file = readdir(dir);
   }
   closedir(dir);
+}
+
+bool setSocketAddress(const std::string &ip_address,
+                      const std::string &port_num,
+                      struct sockaddr_in *socket_addr) {
+  struct addrinfo hints = {};
+  struct addrinfo *res = NULL;
+
+  hints.ai_family = AF_INET;
+  hints.ai_socktype = SOCK_STREAM;
+  hints.ai_flags = AI_NUMERICSERV;
+
+  int status = getaddrinfo(ip_address.c_str(), port_num.c_str(), &hints, &res);
+  if (status == 0 && res != NULL)
+    *socket_addr = *(struct sockaddr_in *)res->ai_addr;
+  freeaddrinfo(res);
+  return (status == 0 ? true : false);
+}
+
+int getSocketAddress(int socket, struct sockaddr_in *addr) {
+  socklen_t len = sizeof *addr;
+  return (getsockname(socket, (struct sockaddr *)addr, &len));
+}
+
+void printSocketAddress(struct sockaddr_in &_socketAddr) {
+  char s[INET_ADDRSTRLEN] = {};
+
+  inet_ntop(AF_INET, (void *)&_socketAddr.sin_addr, s, INET_ADDRSTRLEN);
+  std::cout << s << ":" << ntohs(_socketAddr.sin_port) << std::endl;
 }
 
 }; // namespace server_utils

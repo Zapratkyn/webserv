@@ -3,133 +3,35 @@
 using namespace server_utils;
 
 Server::Server()
-    : _host(""), _server_name(""), _root(""), _index(""),
-      _client_max_body_size(-1) {
-  return;
-}
-Server::~Server() { return; }
+    : _host(""), _root(""), _index(""), _client_max_body_size(-1) {}
 
-bool Server::setHost(const std::string &host) {
-  if (_host != "") {
-    ft_error(0, host, "host");
-    return false;
+Server::~Server() {
+  std::vector<int>::const_iterator it;
+  for (it = _sockets.begin(); it != _sockets.end(); ++it) {
+    close(*it);
   }
-  _host = host;
-  return true;
-}
-bool Server::setServerName(const std::string &name) {
-  if (_server_name != "") {
-    ft_error(0, name, "server_name");
-    return false;
-  }
-  _server_name = name;
-  return true;
-}
-bool Server::setRoot(std::string &root) {
-  std::string slash = "/";
-
-  if (_root != "") {
-    ft_error(0, root, "root");
-    return false;
-  }
-  // We need root path to start with "/"
-  if (root[0] != '/')
-    root = slash.append(root);
-  if (root[root.size() - 1] != '/')
-    root.append("/");
-  if (root == "/")
-    root = "/www/";
-  _root = root;
-  return true;
-}
-bool Server::setBodySize(const std::string &size) {
-  if (_client_max_body_size >= 0 ||
-      size.find_first_not_of(DIGITS) != size.npos) {
-    ft_error(2, size, "client_max_body_size");
-    return false;
-  }
-  _client_max_body_size = ft_stoi(size);
-  return true;
-}
-bool Server::setIndex(const std::string &index) {
-  if (_index != "") {
-    ft_error(0, index, "index");
-    return false;
-  }
-  _index = index;
-  return true;
-}
-bool Server::addPort(const std::string &value, std::vector<int> &port_list) {
-  int iValue;
-
-  if (value.find_first_not_of(DIGITS) != value.npos) {
-    ft_error(2, value, "port");
-    return false;
-  }
-  iValue = ft_stoi(value);
-  if (!port_list.empty()) {
-    for (std::vector<int>::iterator it = port_list.begin();
-         it != port_list.end(); it++) {
-      if (*it == iValue) {
-        ft_error(0, value, "port");
-        return false;
-      }
-    }
-  }
-  _ports.push_back(iValue);
-  port_list.push_back(iValue);
-  return true;
-}
-bool Server::addLocation(std::stringstream &ifs, std::string &value) {
-  std::string location_block, slash = "/";
-
-  if (!_location_list.empty()) {
-    if (_location_list.find(value) != _location_list.end()) {
-      ft_error(0, value, "location");
-      return false;
-    }
-  }
-  location_block = getLocationBlock(ifs);
-  if (location_block.size()) {
-    value = slash.append(value);
-    _location_list[value] = newLocation(value, location_block);
-    if (!_location_list[value].valid)
-      return false;
-  }
-  return true;
-}
-void Server::addSocket(int &socket) {
-  _sockets.push_back(socket);
-  return;
-}
-void Server::addDefaultLocation() {
-  t_location default_location;
-
-  if (_index != "")
-    default_location.index = _index;
-  else
-    default_location.index = "pages/index.html";
-  if (_root != "")
-    default_location.root = _root;
-  else
-    default_location.root = "/www/";
-  default_location.location = "/";
-  default_location.autoindex = "on";
-  default_location.methods.push_back("GET");
-
-  _location_list["/"] = default_location;
 }
 
 std::string Server::getHost() const { return _host; }
-std::string Server::getServerName() const { return _server_name; }
+
+std::vector<std::string> Server::getServerNames() const {
+  return _server_names;
+}
 std::string Server::getRoot() const { return _root; }
+
 std::string Server::getIndex() const { return _index; }
+
 int Server::getBodySize() const { return _client_max_body_size; }
-std::vector<int> Server::getPorts() const { return _ports; }
+
 std::map<std::string, t_location> Server::getLocationlist() const {
   return _location_list;
 }
+
 std::vector<int> Server::getSockets() const { return _sockets; }
+
+std::vector<Server::host_port_type> Server::getEndpoints() const {
+  return _endpoints;
+}
 
 /*
 In the 2 functions below :
@@ -138,15 +40,15 @@ attributes If an option doesn't exist or is in double, we throw an error and
 stop the program If a line doesn't start with "location" and doesn't end with a
 ';' or a bracket, we throw an error and stop the program There can be several
 ports and locations (structures) in a server There can be several methods in a
-location Location names are used to make sure a same location is not used more
+location. Location names are used to make sure a same location is not used more
 than once
 */
 bool Server::parseOption(const int &option, std::string &value,
-                         std::stringstream &ifs, const std::string &server_name,
-                         std::vector<int> &port_list) {
+                         std::stringstream &ifs,
+                         const std::string &server_name) {
   switch (option) {
   case 0:
-    if (!addPort(value, port_list))
+    if (!addEndpoint(value))
       return false;
     break;
   case 1:
@@ -154,7 +56,7 @@ bool Server::parseOption(const int &option, std::string &value,
       return false;
     break;
   case 2:
-    if (!setServerName(server_name))
+    if (!addServerName(server_name))
       return false;
     break;
   case 3:
@@ -179,7 +81,6 @@ bool Server::parseOption(const int &option, std::string &value,
 
 bool Server::parseServer(const std::string &server_block,
                          const std::string &server_name,
-                         std::vector<int> &port_list,
                          std::vector<std::string> &folder_list) {
   std::string buffer, name, value,
       option_list[7] = {
@@ -216,11 +117,11 @@ bool Server::parseServer(const std::string &server_block,
       ft_error(4, name, "");
       return false;
     }
-    if (!parseOption(option, value, ifs, server_name, port_list))
+    if (!parseOption(option, value, ifs, server_name))
       return false;
   }
-  if (_ports.empty()) {
-    std::cerr << server_name << " needs at least one port" << std::endl;
+  if (_endpoints.empty()) {
+    std::cerr << server_name << " needs at least one endpoint" << std::endl;
     return false;
   }
   if (_client_max_body_size == -1)
@@ -234,6 +135,41 @@ bool Server::parseServer(const std::string &server_block,
     folder.root = *it;
     folder.location = *it;
     _location_list[*it] = folder;
+  }
+  return true;
+}
+
+bool Server::initServer() {
+  int socket_fd;
+  int reuse = true;
+
+  std::vector<host_port_type>::const_iterator it;
+  for (it = _endpoints.begin(); it != _endpoints.end(); ++it) {
+
+    struct sockaddr_in addr = {};
+    int status = setSocketAddress(it->first, it->second, &addr);
+    if (!setSocketAddress(it->first, it->second, &addr))
+      throw std::runtime_error(std::string(gai_strerror(status)) + " for " +
+                               it->first + ":" + it->second);
+
+    if ((socket_fd = socket(addr.sin_family, SOCK_STREAM, 0)) < 0)
+      throw std::runtime_error(std::string(strerror(errno)) + " for " +
+                               it->first + ":" + it->second);
+    _sockets.push_back(socket_fd);
+
+    if (setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) <
+        0)
+      throw std::runtime_error(std::string(strerror(errno)) + " for " +
+                               it->first + ":" + it->second);
+
+    socklen_t addr_len = sizeof addr;
+    if (bind(socket_fd, (struct sockaddr *)&addr, addr_len) < 0)
+      throw std::runtime_error(std::string(strerror(errno)) + " for " +
+                               it->first + ":" + it->second);
+
+    if (listen(socket_fd, MAX_LISTEN) < 0)
+      throw std::runtime_error(std::string(strerror(errno)) + " for " +
+                               it->first + ":" + it->second);
   }
   return true;
 }

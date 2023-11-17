@@ -3,6 +3,7 @@
 
 #include "../Server.hpp"
 #include "utils.hpp"
+#include "parse_utils.hpp"
 #include <ctime>
 #include <netinet/ip.h>
 #include <sys/select.h>

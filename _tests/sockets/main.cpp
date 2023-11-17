@@ -1,3 +1,4 @@
+#include <arpa/inet.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <iostream>
@@ -8,7 +9,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#define PORT 8080
+#define PORT 8084
 #define BACKLOG 10 // max number of connection requests in queue
 
 int oneConnection();
@@ -95,7 +96,7 @@ int multiplexingWithSelect() {
   // For server sockets
   struct sockaddr_in addr = {};
   addr.sin_family = AF_INET;
-  addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+  addr.sin_addr.s_addr = htonl(INADDR_ANY);
   addr.sin_port = htons(PORT);
 
   // Create server socket and listen to port via socket
@@ -131,7 +132,7 @@ int multiplexingWithSelect() {
       std::cerr << "Error: " << strerror(errno) << std::endl;
       continue;
     } else if (status == 0) {
-      // No socket fd is ready to read
+      // No socket fd is ready to read or write
       std::cout << "Server is waiting ..." << std::endl;
       continue;
     }
@@ -176,8 +177,13 @@ int initServer(const struct sockaddr *addr, socklen_t addrlen, int backlog) {
     errno = err;
     return (-1);
   } else {
-    std::cout << "Bound socket to localhost port: "
-              << ntohs(((struct sockaddr_in *)addr)->sin_port) << std::endl;
+    char str[INET_ADDRSTRLEN] = {};
+    std::cout << "Bound socket_fd to address: "
+              << inet_ntop(addr->sa_family,
+                           &((struct sockaddr_in *)addr)->sin_addr, str,
+                           INET_ADDRSTRLEN)
+              << " and port: " << ntohs(((struct sockaddr_in *)addr)->sin_port)
+              << std::endl;
   }
   if (listen(fd, backlog) < 0) {
     err = errno;
@@ -216,7 +222,7 @@ void getRequest(int client_fd, fd_set *all_read, fd_set *all_write,
     close(client_fd);
     FD_CLR(client_fd, all_read); // Remove socket from the set
     if (client_fd == *fd_max)
-      (*fd_max)--;                 // Update the highest socket
+      (*fd_max)--; // Update the highest socket
   } else if (bytes_received < 0) {
     std::cerr << "Error: " << strerror(errno) << std::endl;
     close(client_fd);
@@ -224,7 +230,8 @@ void getRequest(int client_fd, fd_set *all_read, fd_set *all_write,
     if (client_fd == *fd_max)
       (*fd_max)--; // Update the highest socket
   } else {
-    std::cout << "Message received from client socket fd: " << client_fd << ":\n"
+    std::cout << "Message received from client socket fd: " << client_fd
+              << ":\n"
               << buffer << std::endl;
     FD_CLR(client_fd, all_read); // Remove socket from the set
     FD_SET(client_fd, all_write);
@@ -248,7 +255,8 @@ void sendResponse(int client_fd, fd_set *all_read, fd_set *all_write,
     FD_CLR(client_fd, all_write); // Remove socket from the set
     FD_SET(client_fd, all_read);
   } else {
-    std::cout << "Sent partial message to client socket fd: " << client_fd << ":\n"
+    std::cout << "Sent partial message to client socket fd: " << client_fd
+              << ":\n"
               << bytes_sent << " bytes_sent" << std::endl;
   }
 }
