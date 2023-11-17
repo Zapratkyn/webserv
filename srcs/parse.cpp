@@ -61,6 +61,10 @@ bool Server::addEndpoint(const std::string &value) {
   std::string ip_address;
   std::string port_num;
 
+  if (value.empty()) {
+    ft_error(6, "\"\"", "listen");
+    return false;
+  }
   size_t pos = value.find(':');
   if (pos != std::string::npos) {
     ip_address = value.substr(0, pos);

@@ -147,9 +147,9 @@ bool Server::initServer() {
   for (it = _endpoints.begin(); it != _endpoints.end(); ++it) {
 
     struct sockaddr_in addr = {};
-    int status = setSocketAddress(it->first, it->second, &addr);
-    if (!setSocketAddress(it->first, it->second, &addr))
-      throw std::runtime_error(std::string(gai_strerror(status)) + " for " +
+    int err = setSocketAddress(it->first, it->second, &addr);
+    if (err)
+      throw std::runtime_error(std::string(gai_strerror(err)) + " for " +
                                it->first + ":" + it->second);
 
     if ((socket_fd = socket(addr.sin_family, SOCK_STREAM, 0)) < 0)

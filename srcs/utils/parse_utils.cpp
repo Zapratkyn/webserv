@@ -20,6 +20,8 @@ void ft_error(int type, std::string value, std::string option) {
     break;
   case 5:
     std::cerr << value << ": no host" << std::endl;
+  case 6:
+    std::cerr << value << ": no host or port" << std::endl;
   }
 }
 
@@ -161,4 +163,3 @@ t_location newLocation(const std::string &location_name,
   loc.valid = true;
   return loc;
 }
-

@@ -165,7 +165,8 @@ void displayServers(std::map<std::string, Server *> &server_list) {
       std::cout << "Client max body size : " << iValue << std::endl;
     endpoints = it->second->getEndpoints();
     if (!endpoints.empty()) {
-      for (std::vector<Server::host_port_type>::const_iterator its = endpoints.begin();
+      for (std::vector<Server::host_port_type>::const_iterator its =
+               endpoints.begin();
            its != endpoints.end(); ++its) {
         std::cout << "  - " + its->first + ":" + its->second << std::endl;
       }

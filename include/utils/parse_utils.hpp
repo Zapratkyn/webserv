@@ -1,18 +1,17 @@
 #ifndef __PARSE_UTILS_HPP__
 #define __PARSE_UTILS_HPP__
 
+#include "utils.hpp"
 #include <arpa/inet.h>
 #include <fstream>
 #include <iostream>
 #include <netdb.h>
+#include <sstream>
 #include <string>
 #include <utility>
 #include <vector>
-#include <sstream>
-#include "utils.hpp"
 
 #define DIGITS "0123456789"
-
 
 struct t_location {
 
@@ -30,6 +29,5 @@ std::string getOptionName(const std::string &);
 std::string getOptionValue(const std::string &);
 std::string getLocationBlock(std::stringstream &);
 t_location newLocation(const std::string &, const std::string &);
-
 
 #endif

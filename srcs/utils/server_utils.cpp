@@ -186,9 +186,8 @@ void addLinkList(std::string &html, std::string location) {
   closedir(dir);
 }
 
-bool setSocketAddress(const std::string &ip_address,
-                      const std::string &port_num,
-                      struct sockaddr_in *socket_addr) {
+int setSocketAddress(const std::string &ip_address, const std::string &port_num,
+                     struct sockaddr_in *socket_addr) {
   struct addrinfo hints = {};
   struct addrinfo *res = NULL;
 
@@ -200,7 +199,7 @@ bool setSocketAddress(const std::string &ip_address,
   if (status == 0 && res != NULL)
     *socket_addr = *(struct sockaddr_in *)res->ai_addr;
   freeaddrinfo(res);
-  return (status == 0 ? true : false);
+  return (status);
 }
 
 int getSocketAddress(int socket, struct sockaddr_in *addr) {

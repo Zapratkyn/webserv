@@ -1,14 +1,14 @@
 #ifndef __SERVER_HPP__
 #define __SERVER_HPP__
 
-#include "utils/server_utils.hpp"
 #include "utils/parse_utils.hpp"
+#include "utils/server_utils.hpp"
 #include "utils/utils.hpp"
+#include <algorithm>
 #include <arpa/inet.h>
 #include <fstream>
 #include <netinet/in.h>
 #include <sys/types.h>
-#include <algorithm>
 
 #define MAX_LISTEN 1000
 
@@ -18,7 +18,7 @@ public:
 
 private:
   std::string _host;
-  //std::string _server_name;
+  // std::string _server_name;
   std::vector<std::string> _server_names;
   std::string _root;
   std::string _index;

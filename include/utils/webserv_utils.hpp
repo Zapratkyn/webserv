@@ -2,8 +2,8 @@
 #define __WEBSERV_UTILS_HPP__
 
 #include "../Server.hpp"
-#include "utils.hpp"
 #include "parse_utils.hpp"
+#include "utils.hpp"
 #include <ctime>
 #include <netinet/ip.h>
 #include <sys/select.h>

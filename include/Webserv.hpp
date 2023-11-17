@@ -1,11 +1,11 @@
 #ifndef __WEBSERV_HPP__
 #define __WEBSERV_HPP__
 
-#include "utils/utils.hpp"
 #include "utils/parse_utils.hpp"
+#include "utils/utils.hpp"
 #include "utils/webserv_utils.hpp"
-#include <fcntl.h>
 #include <cstdlib>
+#include <fcntl.h>
 
 #define DISPLAY_URL true
 #define DISPLAY_SERVERS true
