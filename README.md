@@ -1,6 +1,6 @@
 # webserv
 
-Naming convention :
+Naming conventions :
 
 - Variables, structures, namespaces : snake_case
 - Functions : camelCase
