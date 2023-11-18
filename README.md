@@ -59,15 +59,13 @@ Edit 13 Nov : I tried and it works just fine !
 
 - Instead of displaying messages on the terminal for every request received/handled, we could create a log file somewhere and write everything in it, with the time, the ip's, the server name and any other relevant information. > Done. But for some reason, I cannot add an ofstream to the Webserv class and keep it open always. It broke the program. Instead, I open and close the file each time a log needs to be done.
 
+- If you try to open the root file (/) twice in a row, the opening operation fails.
+
 ================================
 
 TO DO :
 
-- Implement the timeout for select(). Meaning, if a problem occurs and client is stuck in loading, send a error (500) to every waiting client, clear the request list, unblock everything and wait for new connexions.
-
 - Throw an error if a location name has an extension (Like .html)
-
-- I need to find a way to apply the favicon (works on Firefox, not on Chrome) and the stylesheet to the displayed pages
 
 - I'm not sure about the allowed methods for the locations. Either I won't let the user look for direct url or I'll update any page linked to a location if methods other than GET are specified in the location block.
 

@@ -91,7 +91,10 @@ void sendUrl(t_request &request)
 	std::string 	result = "HTTP/1.1 ";
 
 	result.append(request.code);
-	result.append("\nContent-Type: text/html\nContent-Length: ");
+	if (request.url == "./stylesheet.css")
+		result.append("\nContent-Type: text/css\nContent-Length: ");
+	else
+		result.append("\nContent-Type: text/html\nContent-Length: ");
 
 	while (!ifs.eof())
 	{

@@ -5,6 +5,7 @@ using namespace webserv_utils;
 Webserv::Webserv(const std::string &conf_file) : _socketAddrLen(sizeof(_socketAddr)), _conf(conf_file)
 {
 	_folder_list.push_back("/www/");
+	_url_list.push_back("./stylesheet.css");
 	parseUrl("./www/", _url_list, _folder_list);
 	if (DISPLAY_URL)
 	{
@@ -103,7 +104,7 @@ void Webserv::startServer()
 			if (bind(listen_socket, (sockaddr *)&_socketAddr, _socketAddrLen) < 0)
 				throw bindException();
 
-			if (listen(listen_socket, MAX_LISTEN) < 0) // The second argument is the max number of connections the socket can take at a time
+			if (listen(listen_socket, MAX_LISTEN + 1) < 0) // The second argument is the max number of connections the socket can take at a time
 				throw listenException();
 		}
 	}
@@ -193,6 +194,7 @@ void Webserv::acceptNewConnections(int &max_fds, fd_set &readfds)
 					new_request.url = "./www/errors/500.html";
 					new_request.code = "500 Internal Server Error";
 					sendUrl(new_request);
+					close(new_socket);
 					continue;
 				}
 				new_request.server = getServer(_server_list, socket);

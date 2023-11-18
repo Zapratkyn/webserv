@@ -292,7 +292,7 @@ namespace server_utils {
 		ifs.close();
 
 		html.insert(html.find("</title>"), request.server);
-		html.insert(html.find("</h2>"), request.location);
+		html.insert(html.find("</caption>"), request.location);
 
 		if (root != "/www/")
 			addParentDirectory(html, root);
@@ -308,18 +308,18 @@ namespace server_utils {
 
 	void addParentDirectory(std::string &html, std::string location)
 	{
-		int spot = html.rfind("</table>");
+		int spot = html.rfind("</tbody>");
 		std::string loc = location.substr(0, location.find_last_of("/"));
 
 		loc = loc.substr(0, loc.find_last_of("/"));
 
-		html.insert(spot, "\t<tr>\n\t\t<td></td>\n\t\t<td><a href=");
-		spot = html.rfind("</table>");
+		html.insert(spot, "\t\t<tr>\n\t\t\t<td></td>\n\t\t\t<td><a href=");
+		spot = html.rfind("</tbody>");
 		html.insert(spot++, 1, '"');
 		html.insert(spot, loc);
-		spot = html.rfind("</table>");
+		spot = html.rfind("</tbody>");
 		html.insert(spot++, 1, '"');
-		html.insert(spot, ">Parent directory</a></td>\n\t\t<td>Directory</td>\n\t</tr>\n");
+		html.insert(spot, ">Parent directory</a></td>\n\t\t\t<td>Directory</td>\n\t\t</tr>\n");
 
 	}
 
@@ -341,29 +341,29 @@ namespace server_utils {
 	            file = readdir(dir);
 	            continue; 
 	        }
-			spot = html.rfind("</table>");
-			html.insert(spot, "\t<tr>\n\t\t<td></td>\n\t\t<td><a href=");
-			spot = html.rfind("</table>");
+			spot = html.rfind("</tbody>");
+			html.insert(spot, "\t\t<tr>\n\t\t\t<td></td>\n\t\t\t<td><a href=");
+			spot = html.rfind("</tbody>");
 			html.insert(spot++, 1, '"');
 			url_copy = location;
 			url_copy.append(file_name);
 			html.insert(spot, url_copy);
-			spot = html.rfind("</table>");
+			spot = html.rfind("</tbody>");
 			html.insert(spot++, 1, '"');
 			html.insert(spot++, 1, '>');
 			html.insert(spot, file_name);
-			spot = html.rfind("</table>");
-			html.insert(spot, "</a></td>\n\t\t<td>");
-			spot = html.rfind("</table>");
+			spot = html.rfind("</tbody>");
+			html.insert(spot, "</a></td>\n\t\t\t<td>");
+			spot = html.rfind("</tbody>");
 			extension = &url_copy[url_copy.find_last_of(".")];
 			if (extension == ".html" || extension == ".htm" || extension == ".php")
 				html.insert(spot, "Web page");
-			else if (extension == ".file")
+			else if (extension != "")
 				html.insert(spot, "File");
 			else
 				html.insert(spot, "Directory");
-			spot = html.rfind("</table>");
-			html.insert(spot, "</td>\n\t</tr>\n");
+			spot = html.rfind("</tbody>");
+			html.insert(spot, "</td>\n\t\t</tr>\n");
 			file = readdir(dir);
 		}
 		closedir(dir);

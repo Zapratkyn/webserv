@@ -233,7 +233,7 @@ namespace webserv_utils {
 		request.header = "";
 		request.client = "";
 		request.code = "200 OK";
-		request.location = "/";
+		request.location = "";
 		request.method = "";
 		request.url = "";
 		request.server = "";
