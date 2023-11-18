@@ -46,7 +46,7 @@ Current state of the branch :
 
 - Searching for localhost:[any_set_port]/kill properly stops the server, frees what needs to be freed, displays a message in the terminal and in the log and shows a relevant page to the user in the browser
 
-- In any of those cases, the code and the message will be correct ("200 OK" if page found, "404 Not found" if not)
+- In any of those cases, the code and the message will be correct ("200 OK" if page found, "404 Not found" if not), the favicon will be used in the thumbnail and the stylesheet will be applied to the current page
 
 ================================
 
@@ -63,11 +63,11 @@ Edit 13 Nov : I tried and it works just fine !
 
 - The browser keeps the favicon associated the the url in cache. Meaning it will not request it to the server again. The same is not true for the stylesheet.
 
+- The icons don't work if you get to a directory from a "Parent directory" link
+
 ================================
 
 TO DO :
-
-- Add the icons for dir.html (A curved arrow for Parent Directory, a folder for a common directory and ... something for a file)
 
 - Throw an error if a location name has an extension (Like .html)
 

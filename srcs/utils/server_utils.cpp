@@ -318,7 +318,13 @@ namespace server_utils {
 
 		loc = loc.substr(0, loc.find_last_of("/"));
 
-		html.insert(spot, "\t\t<tr>\n\t\t\t<td></td>\n\t\t\t<td><a href=");
+		html.insert(spot, "\n\t\t<tr>\n\t\t\t<td><img src=");
+		spot = html.rfind("</tbody>");
+		html.insert(spot++, 1, '"');
+		html.insert(spot, "icons/parentDirectory.png");
+		spot = html.rfind("</tbody>");
+		html.insert(spot++, 1, '"');
+		html.insert(spot, " ../></td>\n\t\t\t<td><a href=");
 		spot = html.rfind("</tbody>");
 		html.insert(spot++, 1, '"');
 		html.insert(spot, loc);
@@ -346,12 +352,26 @@ namespace server_utils {
 	            file = readdir(dir);
 	            continue; 
 	        }
-			spot = html.rfind("</tbody>");
-			html.insert(spot, "\t\t<tr>\n\t\t\t<td></td>\n\t\t\t<td><a href=");
-			spot = html.rfind("</tbody>");
-			html.insert(spot++, 1, '"');
 			url_copy = location;
 			url_copy.append(file_name);
+			extension = &url_copy[url_copy.find_last_of(".")];
+			spot = html.rfind("</tbody>");
+			html.insert(spot, "\t\t<tr>\n\t\t\t<td><img src=");
+			spot = html.rfind("</tbody>");
+			html.insert(spot++, 1, '"');
+			html.insert(spot, "icons/");
+			spot = html.rfind("</tbody>");
+			if (extension == ".html" || extension == ".htm" || extension == ".php")
+				html.insert(spot, "webPage.png");
+			else if (extension != "")
+				html.insert(spot, "file.png");
+			else
+				html.insert(spot, "directory.png");
+			spot = html.rfind("</tbody>");
+			html.insert(spot++, 1, '"');
+			html.insert(spot, " ../></td>\n\t\t\t<td><a href=");
+			spot = html.rfind("</tbody>");
+			html.insert(spot++, 1, '"');
 			html.insert(spot, url_copy);
 			spot = html.rfind("</tbody>");
 			html.insert(spot++, 1, '"');
@@ -360,7 +380,6 @@ namespace server_utils {
 			spot = html.rfind("</tbody>");
 			html.insert(spot, "</a></td>\n\t\t\t<td>");
 			spot = html.rfind("</tbody>");
-			extension = &url_copy[url_copy.find_last_of(".")];
 			if (extension == ".html" || extension == ".htm" || extension == ".php")
 				html.insert(spot, "Web page");
 			else if (extension != "")

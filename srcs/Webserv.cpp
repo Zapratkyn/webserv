@@ -7,6 +7,7 @@ Webserv::Webserv(const std::string &conf_file) : _socketAddrLen(sizeof(_socketAd
 	_folder_list.push_back("/www/");
 	_url_list.push_back("./stylesheet.css");
 	_url_list.push_back("./favicon.ico");
+	_url_list.push_back("./parentDirectory.png");
 	parseUrl("./www/", _url_list, _folder_list);
 	if (DISPLAY_URL)
 	{

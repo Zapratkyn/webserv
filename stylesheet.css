@@ -10,7 +10,8 @@ body {
 }
 table {
     table-layout: fixed;
-    width: 100%;
+    width: 95%;
+    margin-right: 20px;
 }
 caption {
     text-align: left;
@@ -26,6 +27,11 @@ td, th {
 }
 tbody tr:nth-child(odd) {
     background-color: #BCF2FF;
+}
+tr td:nth-child(1) {
+    background-color: #fff;
+    text-align: right;
+    padding-top: 5px;
 }
 thead th:nth-child(1) {
     width: 5%;
