@@ -193,7 +193,7 @@ namespace server_utils {
 		{
 			request.url = "./www/errors/400.html";
 			request.code = "400 Bad Request";
-			sendUrl(request);
+			sendText(request);
 			throw invalidMethodException();
 		}
 		first_line = &first_line[first_line.find_first_of(" \t")];
@@ -211,7 +211,7 @@ namespace server_utils {
 		{
 			kill = true;
 			request.url = "./kill.html";
-			sendUrl(request);
+			sendText(request);
 		}
 	}
 
@@ -239,7 +239,7 @@ namespace server_utils {
 					request.url = *it;
 					extension = &request.url[request.url.find_last_of(".")];
 					if (extension == ".html" || extension == ".htm" || extension == ".php" || extension == ".css")
-						sendUrl(request);
+						sendText(request);
 					else
 						sendFile(request);
 					return;
@@ -247,7 +247,7 @@ namespace server_utils {
 			}
 			request.url = "./www/errors/404.html";
 			request.code = "404 Not found";
-			sendUrl(request);
+			sendText(request);
 		}
 
 		if (request.location[request.location.size() - 1] != '/')
@@ -266,7 +266,7 @@ namespace server_utils {
 				{
 					request.url = it->second.root.append(it->second.index);
 					request.url = dot.append(request.url);
-					sendUrl(request);
+					sendText(request);
 					return;
 				}
 				else if (it->second.autoindex == "on")
@@ -279,7 +279,7 @@ namespace server_utils {
 		}
 		request.url = "./www/errors/404.html";
 		request.code = "404 Not found";
-		sendUrl(request);
+		sendText(request);
 	}
 
 	void sendTable(struct t_request &request, std::string root)

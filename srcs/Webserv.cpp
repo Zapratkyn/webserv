@@ -109,20 +109,6 @@ void Webserv::startServer()
 				throw listenException();
 		}
 	}
-	// if (!defaultPortIsSet(full_port_list)) // I chose to use a default port to access things like files, stylesheets and favicons...
-	// {
-	// 	listen_socket = socket(AF_INET, SOCK_STREAM, 0);
-	// 	if (listen_socket < 0)
-	// 		throw openSocketException();
-	// 	fcntl(listen_socket, F_SETFL, O_NONBLOCK);
-	// 	_listen_socket_list.push_back(listen_socket);
-	// 	_server_list.begin()->second->addSocket(listen_socket);
-	// 	_socketAddr.sin_port = htons(8080); // The default port
-	// 	if (bind(listen_socket, (sockaddr *)&_socketAddr, _socketAddrLen) < 0)
-	// 		throw bindException();
-	// 	if (listen(listen_socket, MAX_LISTEN) < 0)
-	// 		throw listenException();
-	// }
 }
 
 void Webserv::startListen()
@@ -194,7 +180,7 @@ void Webserv::acceptNewConnections(int &max_fds, fd_set &readfds)
 				{
 					new_request.url = "./www/errors/500.html";
 					new_request.code = "500 Internal Server Error";
-					sendUrl(new_request);
+					sendText(new_request);
 					close(new_socket);
 					continue;
 				}

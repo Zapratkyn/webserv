@@ -83,18 +83,17 @@ void log(std::string line, std::string client, std::string server, std::string u
 	log_file.close();
 }
 
-void sendUrl(t_request &request)
+void sendText(t_request &request)
 {
 	std::ifstream 	ifs(request.url.c_str());
-	std::string		html = "", buffer;
+	std::string		html = "", buffer, extension = &request.url[request.url.find_last_of(".") + 1];
 	// We start our response by the http header with the right code
 	std::string 	result = "HTTP/1.1 ";
 
 	result.append(request.code);
-	if (request.url == "./stylesheet.css")
-		result.append("\nContent-Type: text/css\nContent-Length: ");
-	else
-		result.append("\nContent-Type: text/html\nContent-Length: ");
+	result.append("\nContent-Type: text/");
+	result.append(getContentType(extension));
+	result.append("\nContent-Length: ");
 
 	while (!ifs.eof())
 	{
@@ -117,8 +116,11 @@ void sendUrl(t_request &request)
 void sendFile(t_request &request)
 {
 	std::ifstream 	ifs(request.url.c_str(), std::ifstream::binary);
-	std::string		file = "", buffer;
-	std::string 	result = "HTTP/1.1 200 OK\nContent-Type: image/x-icon\nContent-Length: ";
+	std::string		file = "", buffer, extension = &request.url[request.url.find_last_of(".") + 1];
+	std::string 	result = "HTTP/1.1 200 OK\nContent-Type: ";
+
+	result.append(getContentType(extension));
+	result.append("\nContent-Length: ");
 
 	while (!ifs.eof())
 	{
@@ -133,4 +135,15 @@ void sendFile(t_request &request)
 	write(request.socket, result.c_str(), result.size());
 
 	ifs.close();
+}
+
+std::string getContentType(std::string extension)
+{
+	if (extension == "css")
+		return "css";
+	else if (extension == "html" || extension == "htm")
+		return "html";
+	else if (extension == "ico")
+		return ("image/x-icon");
+	return "";
 }

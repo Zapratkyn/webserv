@@ -61,7 +61,7 @@ Edit 13 Nov : I tried and it works just fine !
 
 - If you try to open the root file (/) twice in a row, the opening operation fails.
 
-- Chrome (and maybe other browsers) keep the favicon in cache as long as it's not rebooted. Therefore, it will not request it to the server again. The same is not true for the stylesheet.
+- The browser keeps the favicon associated the the url in cache. Meaning it will not request it to the server again. The same is not true for the stylesheet.
 
 ================================
 
