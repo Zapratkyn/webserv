@@ -5,7 +5,7 @@ body {
 	background-color: #fff;
 	color: #000;
 	font-family: "Century Gothic", helvetica, arial, sans-serif;
-	font-size: 1.4em; /* equiv 14px */
+	font-size: 18px; /* equiv 14px */
 	line-height: 1.5; /* adapt to your design */
 }
 table {
@@ -35,4 +35,14 @@ thead th:nth-child(2) {
 }
 thead th:nth-child(3) {
     width: 25%;
+}
+.err-page-container {
+    text-align: center;
+    margin-top: 200px;
+}
+.err-page-container h1 {
+    font-size: 45px;
+}
+.err-page-container h3 {
+    font-size: 30px;
 }
