@@ -5,8 +5,8 @@ body {
 	background-color: #fff;
 	color: #000;
 	font-family: "Century Gothic", helvetica, arial, sans-serif;
-	font-size: 18px; /* equiv 14px */
-	line-height: 1.5; /* adapt to your design */
+	font-size: 18px;
+	line-height: 1.5;
 }
 table {
     table-layout: fixed;
