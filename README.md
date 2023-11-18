@@ -65,7 +65,7 @@ Edit 13 Nov : I tried and it works just fine !
 
 TO DO :
 
-- Add the icons for dir.html (An curved arrow for Parent Directory, a folder for a common directory and ... somethinf for a file)
+- Add the icons for dir.html (An curved arrow for Parent Directory, a folder for a common directory and ... something for a file)
 
 - Throw an error if a location name has an extension (Like .html)
 
