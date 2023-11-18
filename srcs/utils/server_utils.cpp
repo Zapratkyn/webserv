@@ -221,7 +221,7 @@ namespace server_utils {
 		
 		std::string extension = &request.location[request.location.find_last_of(".")];
 
-		if (request.location != "/stylesheet.css")
+		if (extension != ".css" && extension != ".ico")
 			log("", request.client, request.server, request.location, 2);
 
 		if (extension != "")
@@ -237,7 +237,11 @@ namespace server_utils {
 				if (*it == request.location)
 				{
 					request.url = *it;
-					sendUrl(request);
+					extension = &request.url[request.url.find_last_of(".")];
+					if (extension == ".html" || extension == ".htm" || extension == ".php" || extension == ".css")
+						sendUrl(request);
+					else
+						sendFile(request);
 					return;
 				}
 			}

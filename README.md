@@ -61,11 +61,13 @@ Edit 13 Nov : I tried and it works just fine !
 
 - If you try to open the root file (/) twice in a row, the opening operation fails.
 
+- Chrome (and maybe other browsers) keep the favicon in cache as long as it's not rebooted. Therefore, it will not request it to the server again. The same is not true for the stylesheet.
+
 ================================
 
 TO DO :
 
-- Add the icons for dir.html (An curved arrow for Parent Directory, a folder for a common directory and ... something for a file)
+- Add the icons for dir.html (A curved arrow for Parent Directory, a folder for a common directory and ... something for a file)
 
 - Throw an error if a location name has an extension (Like .html)
 

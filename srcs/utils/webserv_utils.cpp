@@ -238,7 +238,6 @@ namespace webserv_utils {
 		request.url = "";
 		request.server = "";
 		request.is_url = false;
-		request.is_dir = false;
 	}
 
 	void getRequest(int max_body_size, struct t_request &request)

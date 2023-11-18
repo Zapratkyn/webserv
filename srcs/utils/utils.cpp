@@ -117,18 +117,18 @@ void sendUrl(t_request &request)
 void sendFile(t_request &request)
 {
 	std::ifstream 	ifs(request.url.c_str(), std::ifstream::binary);
-	std::string		html = "", buffer;
-	std::string 	result = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: ";
+	std::string		file = "", buffer;
+	std::string 	result = "HTTP/1.1 200 OK\nContent-Type: image/x-icon\nContent-Length: ";
 
 	while (!ifs.eof())
 	{
 		getline(ifs, buffer);
-		html.append(buffer);
-		html.append("\n");
+		file.append(buffer);
+		file.append("\n");
 	}
-	result.append(ft_to_string(html.size()));
+	result.append(ft_to_string(file.size()));
 	result.append("\n\n");
-	result.append(html);
+	result.append(file);
 
 	write(request.socket, result.c_str(), result.size());
 
