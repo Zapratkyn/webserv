@@ -270,6 +270,6 @@ void Server::handleRequest(struct t_request &request, std::vector<std::string> &
 		log(e.what(), request.client, "", "", 1);
 	}
 
-	if (!kill && request.url != "./favicon.ico")
+	if (!kill && request.url != "./favicon.ico" && request.url != "./stylesheet.css")
 		log("", request.client, request.server, request.url, 3);
 }

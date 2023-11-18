@@ -221,7 +221,8 @@ namespace server_utils {
 		
 		std::string extension = &request.location[request.location.find_last_of(".")];
 
-		log("", request.client, request.server, request.location, 2);
+		if (request.location != "/stylesheet.css")
+			log("", request.client, request.server, request.location, 2);
 
 		if (extension != "")
 		{
