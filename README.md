@@ -65,6 +65,8 @@ Edit 13 Nov : I tried and it works just fine !
 
 TO DO :
 
+- Add the icons for dir.html (An curved arrow for Parent Directory, a folder for a common directory and ... somethinf for a file)
+
 - Throw an error if a location name has an extension (Like .html)
 
 - I'm not sure about the allowed methods for the locations. Either I won't let the user look for direct url or I'll update any page linked to a location if methods other than GET are specified in the location block.
