@@ -250,6 +250,7 @@ bool Server::parseServer(const std::string &server_block, const std::string &ser
 
 void Server::handleRequest(struct t_request &request, std::vector<std::string> &url_list, bool &kill)
 {
+	std::string extension;
 	try
 	{
 		setRequest(request, kill); // Gets the method and the location from the request
@@ -270,6 +271,8 @@ void Server::handleRequest(struct t_request &request, std::vector<std::string> &
 		log(e.what(), request.client, "", "", 1);
 	}
 
-	if (!kill && request.url != "./favicon.ico" && request.url != "./stylesheet.css")
+	extension = &request.url[request.url.find_last_of(".") + 1];
+
+	if (!kill && extension != "ico" && extension != "css" && extension != "png")
 		log("", request.client, request.server, request.url, 3);
 }

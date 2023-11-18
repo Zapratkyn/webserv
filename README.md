@@ -59,11 +59,11 @@ Edit 13 Nov : I tried and it works just fine !
 
 - Instead of displaying messages on the terminal for every request received/handled, we could create a log file somewhere and write everything in it, with the time, the ip's, the server name and any other relevant information. > Done. But for some reason, I cannot add an ofstream to the Webserv class and keep it open always. It broke the program. Instead, I open and close the file each time a log needs to be done.
 
-- If you try to open the root file (/) twice in a row, the opening operation fails.
+- Sometimes, the server blocks, not always at the same point. Maybe select can do something about it.
 
 - The browser keeps the favicon associated the the url in cache. Meaning it will not request it to the server again. The same is not true for the stylesheet.
 
-- The icons don't work if you get to a directory from a "Parent directory" link
+- The icons don't always work > It comes from a redirection I don't really get. I'll put those at the root and use absolute paths
 
 ================================
 

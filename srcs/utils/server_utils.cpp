@@ -221,7 +221,7 @@ namespace server_utils {
 		
 		std::string extension = &request.location[request.location.find_last_of(".")];
 
-		if (extension != ".css" && extension != ".ico")
+		// if (extension != ".css" && extension != ".ico" && extension != ".png")
 			log("", request.client, request.server, request.location, 2);
 
 		if (extension != "")
@@ -321,10 +321,10 @@ namespace server_utils {
 		html.insert(spot, "\n\t\t<tr>\n\t\t\t<td><img src=");
 		spot = html.rfind("</tbody>");
 		html.insert(spot++, 1, '"');
-		html.insert(spot, "icons/parentDirectory.png");
+		html.insert(spot, "./www/icons/parentDirectory.png");
 		spot = html.rfind("</tbody>");
 		html.insert(spot++, 1, '"');
-		html.insert(spot, " ../></td>\n\t\t\t<td><a href=");
+		html.insert(spot, "></td>\n\t\t\t<td><a href=");
 		spot = html.rfind("</tbody>");
 		html.insert(spot++, 1, '"');
 		html.insert(spot, loc);
@@ -359,7 +359,7 @@ namespace server_utils {
 			html.insert(spot, "\t\t<tr>\n\t\t\t<td><img src=");
 			spot = html.rfind("</tbody>");
 			html.insert(spot++, 1, '"');
-			html.insert(spot, "icons/");
+			html.insert(spot, "./www/icons/");
 			spot = html.rfind("</tbody>");
 			if (extension == ".html" || extension == ".htm" || extension == ".php")
 				html.insert(spot, "webPage.png");
@@ -369,7 +369,7 @@ namespace server_utils {
 				html.insert(spot, "directory.png");
 			spot = html.rfind("</tbody>");
 			html.insert(spot++, 1, '"');
-			html.insert(spot, " ../></td>\n\t\t\t<td><a href=");
+			html.insert(spot, "></td>\n\t\t\t<td><a href=");
 			spot = html.rfind("</tbody>");
 			html.insert(spot++, 1, '"');
 			html.insert(spot, url_copy);
