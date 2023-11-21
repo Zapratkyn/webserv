@@ -156,8 +156,17 @@ void Webserv::startListen()
 		select_return = pselect(max_fds, &readfds, &writefds, NULL, &ts, &sigmask);
 		if (select_return == 0)
 		{
-			// std::cout << select_return << std::endl;
-			// ft_error(0, "");
+			if (!_request_list.empty())
+			{
+				for (std::map<int, t_request>::iterator it = _request_list.begin(); it != _request_list.end(); it++)
+				{
+					it->second.url = "./www/errors/500.html";
+					it->second.code = "500 Internal Server Error";
+					sendText(it->second);
+				}
+				_request_list.clear();
+			}
+			step = 1;
 			continue;
 		}
 		if (step == 1)
