@@ -2,15 +2,34 @@
 
 namespace webserv_utils {
 	
-	// bool defaultPortIsSet(std::vector<int> &port_list)
-	// {
-	// 	for (std::vector<int>::iterator it = port_list.begin(); it != port_list.end(); it++)
-	// 	{
-	// 		if (*it == 8080)
-	// 			return true;
-	// 	}
-	// 	return false;
-	// }
+	bool checkRedirectionList(std::vector<std::string> &url_list)
+	{
+		std::ifstream	list("./redirections.list");
+		std::string		buffer, url, dot;
+		bool			is_url;
+
+		while (!list.eof())
+		{
+			is_url = false;
+			dot = ".";
+			getline(list, buffer);
+			url = dot.append(buffer.substr(buffer.find_first_of(":") + 1));
+			for (std::vector<std::string>::iterator it = url_list.begin(); it != url_list.end(); it++)
+			{
+				if (url == *it)
+				{
+					is_url = true;
+					break;
+				}
+			}
+			if (!is_url)
+			{
+				ft_error(2, url);
+				return false;
+			}
+		}
+		return true;
+	}
 	
 	std::string getServerName(const std::string &server_block, int &default_name_index, std::map<std::string, Server*> &server_list)
 	{
@@ -79,7 +98,7 @@ namespace webserv_utils {
 	}
 
 	// Namespaces allow us to use the same function name in different contexts
-	void ft_error(int type)
+	void ft_error(int type, std::string value)
 	{
 		switch (type) {
 			case 0:
@@ -88,6 +107,8 @@ namespace webserv_utils {
 			case 1:
 				std::cerr << "Server failed to accept incoming connection from ADDRESS: ";
 				break;
+			case 2:
+				std::cerr << "ERROR\nredirection: " << &value[1] << ": no matching file" << std::endl;
 		}
 	}
 

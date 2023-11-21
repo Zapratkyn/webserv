@@ -52,18 +52,13 @@ Current state of the branch :
 
 NOTES :
 
-- I'm quite satisfied with my select() implementation. No operation can be done unless select() said so. The program should be able to handle [ports * MAX_LISTEN] connections without failing. It will listen to the first pending request of each listening port, parse the whole request (header and body) and send it to the corresponding server. It will go through select() before any of those operations.
+- The select implementation could be improved even more.
 
-NB : For some reason, the previous implementation worked on my linux but not on the school's MAC's (There was nothing to read on the sockets created by accept()). I didn't go to school since my last modification. Therefore, I cannot guarantee it will work this time. I hope it will though...
-Edit 13 Nov : I tried and it works just fine !
-
-- Instead of displaying messages on the terminal for every request received/handled, we could create a log file somewhere and write everything in it, with the time, the ip's, the server name and any other relevant information. > Done. But for some reason, I cannot add an ofstream to the Webserv class and keep it open always. It broke the program. Instead, I open and close the file each time a log needs to be done.
+- The start/stop messages and the requests in/out are logged in the webserv.log file
 
 - Sometimes, the server blocks, not always at the same point. Maybe select can do something about it.
 
 - The browser keeps the favicon associated the the url in cache. Meaning it will not request it to the server again. The same is not true for the stylesheet.
-
-- The icons don't always work > It comes from a redirection I don't really get. I'll put those at the root and use absolute paths
 
 ================================
 

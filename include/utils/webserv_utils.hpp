@@ -7,11 +7,11 @@
 
 namespace webserv_utils {
 
-    bool        default_port_is_set(std::vector<int>);
+    bool        checkRedirectionList(std::vector<std::string> &);
     std::string getServerName(const std::string &, int &, std::map<std::string, Server*>&);
     std::string getServerBlock(std::ifstream &);
     void        initSockaddr(struct sockaddr_in &);
-    void        ft_error(int);
+    void        ft_error(int, std::string);
 	void		listenLog(struct sockaddr_in&, std::map<std::string, Server*>&);
 	std::string	getServer(std::map<std::string, Server*>&, int&);
 	void		displayServers(std::map<std::string, Server*>&);

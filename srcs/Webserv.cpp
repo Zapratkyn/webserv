@@ -82,6 +82,9 @@ void Webserv::startServer()
 
 	initSockaddr(_socketAddr);
 
+	if (!checkRedirectionList(_url_list))
+		throw redirectionListException();
+
 
 	/*
 	Each port in the conf file is used to make an individual listening socket
@@ -152,7 +155,7 @@ void Webserv::startListen()
 		if (select_return < 0)
 		{
 			std::cout << select_return << std::endl;
-			// ft_error(0);
+			// ft_error(0, "");
 			continue;
 		}
 		if (step == 1)

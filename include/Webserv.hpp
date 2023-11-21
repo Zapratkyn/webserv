@@ -36,6 +36,7 @@ public:
 	class listenException : public std::exception { public: virtual const char *what() const throw() { return "ERROR\nCouldn't start listening"; } };
 	class confFailureException : public std::exception { public: virtual const char *what() const throw() { return "Configuration failure. Program stopped."; } };
 	class logError : public std::exception { public: virtual const char *what() const throw() { return "LOG ERROR."; } };
+	class redirectionListException : public std::exception { public: virtual const char *what() const throw() { return "Redirection list failure. Program stopped."; } };
 
 };
 
