@@ -321,7 +321,7 @@ namespace server_utils {
 		html.insert(spot, "\n\t\t<tr>\n\t\t\t<td><img src=");
 		spot = html.rfind("</tbody>");
 		html.insert(spot++, 1, '"');
-		html.insert(spot, "./www/icons/parentDirectory.png");
+		html.insert(spot, "/parentDirectory.png");
 		spot = html.rfind("</tbody>");
 		html.insert(spot++, 1, '"');
 		html.insert(spot, "></td>\n\t\t\t<td><a href=");
@@ -359,17 +359,15 @@ namespace server_utils {
 			html.insert(spot, "\t\t<tr>\n\t\t\t<td><img src=");
 			spot = html.rfind("</tbody>");
 			html.insert(spot++, 1, '"');
-			html.insert(spot, "./www/icons/");
-			spot = html.rfind("</tbody>");
 			if (extension == ".html" || extension == ".htm" || extension == ".php")
-				html.insert(spot, "webPage.png");
+				html.insert(spot, "/webPage.png");
 			else if (extension != "")
-				html.insert(spot, "file.png");
+				html.insert(spot, "/file.png");
 			else
-				html.insert(spot, "directory.png");
+				html.insert(spot, "/directory.png");
 			spot = html.rfind("</tbody>");
 			html.insert(spot++, 1, '"');
-			html.insert(spot, "></td>\n\t\t\t<td><a href=");
+			html.insert(spot, " /></td>\n\t\t\t<td><a href=");
 			spot = html.rfind("</tbody>");
 			html.insert(spot++, 1, '"');
 			html.insert(spot, url_copy);

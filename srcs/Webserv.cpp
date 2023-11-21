@@ -8,6 +8,9 @@ Webserv::Webserv(const std::string &conf_file) : _socketAddrLen(sizeof(_socketAd
 	_url_list.push_back("./stylesheet.css");
 	_url_list.push_back("./favicon.ico");
 	_url_list.push_back("./parentDirectory.png");
+	_url_list.push_back("./directory.png");
+	_url_list.push_back("./file.png");
+	_url_list.push_back("./webPage.png");
 	parseUrl("./www/", _url_list, _folder_list);
 	if (DISPLAY_URL)
 	{
