@@ -130,11 +130,13 @@ void Webserv::startListen()
 	int 			max_fds = _listen_socket_list.size() + 3, step = 1, select_return;
 	fd_set			readfds, writefds;
 	bool			kill = false;
-	// sigset_t		sigmask;
+	struct timespec	ts;
+	sigset_t		sigmask;
+
+	ts.tv_sec = 2;
 	
 	while (!kill)
 	{
-		_tv.tv_usec = 2;;
 		if (step == 1)
 		{
 			FD_ZERO(&readfds);
@@ -151,10 +153,10 @@ void Webserv::startListen()
 		Reset the readfds with the listening sockets (see above)
 		Go through the whole process again
 		*/
-		select_return = select(max_fds, &readfds, &writefds, NULL, &_tv);
-		if (select_return < 0)
+		select_return = pselect(max_fds, &readfds, &writefds, NULL, &ts, &sigmask);
+		if (select_return == 0)
 		{
-			std::cout << select_return << std::endl;
+			// std::cout << select_return << std::endl;
 			// ft_error(0, "");
 			continue;
 		}

@@ -94,13 +94,14 @@ void sendText(t_request &request)
 	result.append("\nContent-Type: text/");
 	result.append(getContentType(extension));
 	result.append("\nContent-Length: ");
-
+	
 	while (!ifs.eof())
 	{
 		getline(ifs, buffer);
 		html.append(buffer);
 		html.append("\n");
 	}
+	ifs.close();
 	result.append(ft_to_string(html.size())); // We append the size of the html page to the http response
 	result.append("\n\n"); // The http response's header stops here
 	result.append(html); // The http reponse body (html page)
@@ -109,8 +110,6 @@ void sendText(t_request &request)
 		std::cout << result << std::endl;
 
 	write(request.socket, result.c_str(), result.size());
-
-	ifs.close();
 }
 
 void sendFile(t_request &request)

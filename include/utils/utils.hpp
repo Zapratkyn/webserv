@@ -16,7 +16,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/select.h>
-// #include <signal.h>
+#include <signal.h>
 
 # define DISPLAY_HTML false
 # define DISPLAY_METHOD_AND_LOCATION false

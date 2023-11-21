@@ -259,7 +259,7 @@ namespace server_utils {
 
 	void checkLocation(struct t_request &request, std::map<std::string, struct t_location> &location_list)
 	{
-		std::string dot = ".";
+		std::string dot = ".", root_copy;
 
 		for (std::map<std::string, struct t_location>::iterator it = location_list.begin(); it != location_list.end(); it ++)
 		{
@@ -267,7 +267,8 @@ namespace server_utils {
 			{
 				if (it->second.index != "")
 				{
-					request.url = it->second.root.append(it->second.index);
+					root_copy = it->second.root;
+					request.url = root_copy.append(it->second.index);
 					request.url = dot.append(request.url);
 					sendText(request);
 					return;

@@ -56,8 +56,6 @@ NOTES :
 
 - The start/stop messages and the requests in/out are logged in the webserv.log file
 
-- Sometimes, the server blocks, not always at the same point. Maybe select can do something about it.
-
 - The browser keeps the favicon associated the the url in cache. Meaning it will not request it to the server again. The same is not true for the stylesheet.
 
 ================================
