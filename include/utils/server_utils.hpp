@@ -25,6 +25,7 @@ namespace server_utils {
 	void		setRequest(t_request &, bool &);
 	void		checkUrl(struct t_request &, std::vector<std::string> &);
 	void		checkLocation(struct t_request &, std::map<std::string, struct t_location> &);
+	bool		checkRedirection(struct t_request &);
 	void		sendTable(struct t_request &, std::string);
 	void		addParentDirectory(std::string &, std::string);
 	void		addLinkList(std::string &, std::string);

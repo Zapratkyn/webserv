@@ -245,9 +245,12 @@ namespace server_utils {
 					return;
 				}
 			}
-			request.url = "./www/errors/404.html";
-			request.code = "404 Not found";
-			sendText(request);
+			if (!checkRedirection(request))
+			{
+				request.url = "./www/errors/404.html";
+				request.code = "404 Not found";
+				sendText(request);
+			}
 		}
 
 		if (request.location[request.location.size() - 1] != '/')
@@ -277,9 +280,42 @@ namespace server_utils {
 				}
 			}
 		}
-		request.url = "./www/errors/404.html";
-		request.code = "404 Not found";
-		sendText(request);
+		if (!checkRedirection(request))
+		{
+			request.url = "./www/errors/404.html";
+			request.code = "404 Not found";
+			sendText(request);
+		}
+	}
+
+	bool checkRedirection(struct t_request &request)
+	{
+		std::ifstream	list("./redirections.list");
+		std::string		in, out, buffer, dot = ".";
+		int				sep;
+
+		if (request.location[0] != '.')
+			request.location = dot.append(request.location);
+
+		while(!list.eof())
+		{
+			dot = ".";
+			getline(list, buffer);
+			sep = buffer.find_first_of(":");
+			in = dot.append(buffer.substr(0, sep++));
+			out = buffer.substr(sep);
+			if (request.location == in)
+			{
+				dot = ".";
+				request.url = dot.append(out);
+				request.code = "308 Permanent Redirect";
+				sendText(request);
+				list.close();
+				return true;
+			}
+		}
+		list.close();
+		return false;
 	}
 
 	void sendTable(struct t_request &request, std::string root)
