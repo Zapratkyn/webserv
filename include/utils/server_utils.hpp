@@ -1,17 +1,7 @@
 #ifndef __SERVER_UTILS_HPP__
 # define __SERVER_UTILS_HPP__
 
-#include <sstream>
-#include <vector>
-#include <iostream>
-#include <map>
-#include <unistd.h>
-#include <dirent.h>
 #include "utils.hpp"
-
-# define DISPLAY_METHOD_AND_LOCATION false
-
-# define DIGITS "0123456789"
 
 struct t_location {
 

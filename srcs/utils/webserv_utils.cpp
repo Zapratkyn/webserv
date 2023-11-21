@@ -78,12 +78,6 @@ namespace webserv_utils {
 		socketAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
 	}
 
-	void initTimeval(struct timeval &tv)
-	{
-		tv.tv_sec = 5;
-		tv.tv_usec = 0;
-	}
-
 	// Namespaces allow us to use the same function name in different contexts
 	void ft_error(int type)
 	{

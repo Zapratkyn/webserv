@@ -81,7 +81,6 @@ void Webserv::startServer()
 	int listen_socket;
 
 	initSockaddr(_socketAddr);
-	initTimeval(_tv);
 
 
 	/*
@@ -109,7 +108,7 @@ void Webserv::startServer()
 			if (bind(listen_socket, (sockaddr *)&_socketAddr, _socketAddrLen) < 0)
 				throw bindException();
 
-			if (listen(listen_socket, MAX_LISTEN + 1) < 0) // The second argument is the max number of connections the socket can take at a time
+			if (listen(listen_socket, MAX_LISTEN) < 0) // The second argument is the max number of connections the socket can take at a time
 				throw listenException();
 		}
 	}
@@ -125,14 +124,17 @@ void Webserv::startListen()
 	Since fd 0, 1 and 2 are already taken (STD_IN and STD_OUT and STD_ERR), our list begins at 3
 	Therefore, max_fds = total_number_of_sockets + STD_IN + STD_OUT + STD_ERR
 	*/
-	int 			max_fds = _listen_socket_list.size() + 3, step = 1;
+	int 			max_fds = _listen_socket_list.size() + 3, step = 1, select_return;
 	fd_set			readfds, writefds;
 	bool			kill = false;
+	// sigset_t		sigmask;
 	
 	while (!kill)
 	{
+		_tv.tv_usec = 2;;
 		if (step == 1)
 		{
+			FD_ZERO(&readfds);
 			for (std::vector<int>::iterator it = _listen_socket_list.begin(); it != _listen_socket_list.end(); it++)
 				FD_SET(*it, &readfds);
 		}
@@ -146,9 +148,11 @@ void Webserv::startListen()
 		Reset the readfds with the listening sockets (see above)
 		Go through the whole process again
 		*/
-		if (select(max_fds, &readfds, &writefds, NULL, NULL) < 0)
+		select_return = select(max_fds, &readfds, &writefds, NULL, &_tv);
+		if (select_return < 0)
 		{
-			ft_error(0);
+			std::cout << select_return << std::endl;
+			// ft_error(0);
 			continue;
 		}
 		if (step == 1)
@@ -156,16 +160,18 @@ void Webserv::startListen()
 		else if (step == 2 && !_request_list.empty())
 			readRequests(readfds, writefds);
 		else if (step == 3 && !_request_list.empty())
-			sendRequests(kill, writefds);
+			sendRequests(kill, writefds, max_fds);
 		if (++step == 4)
 			step = 1;
 	}
+	FD_ZERO(&readfds);
+	FD_ZERO(&writefds);
 	log("Webserv stopped", "", "", "", 0);
 }
 
 void Webserv::acceptNewConnections(int &max_fds, fd_set &readfds)
 {
-	int new_socket, listen;
+	int new_socket;
 	struct t_request new_request;
 	std::vector<int> new_socket_list;
 
@@ -173,28 +179,18 @@ void Webserv::acceptNewConnections(int &max_fds, fd_set &readfds)
 	{
 		if (FD_ISSET(socket, &readfds))
 		{
-			listen = 1;
 			while (true)
 			{
 				initRequest(new_request);
 				new_socket = accept(socket, (sockaddr *)&_socketAddr, &_socketAddrLen);
 				if (new_socket < 0)
 					break;
-				if (listen > MAX_LISTEN)
-				{
-					new_request.url = "./www/errors/500.html";
-					new_request.code = "500 Internal Server Error";
-					sendText(new_request);
-					close(new_socket);
-					continue;
-				}
 				new_request.server = getServer(_server_list, socket);
 				new_request.client = inet_ntoa(_socketAddr.sin_addr);
 				new_request.socket = new_socket;
 				_request_list[new_socket] = new_request;
 				max_fds++;
 				new_socket_list.push_back(new_socket);
-				listen++;
 			}
 		}
 	}
@@ -225,7 +221,7 @@ void Webserv::readRequests(fd_set &readfds, fd_set &writefds)
 	FD_ZERO(&readfds);
 }
 
-void Webserv::sendRequests(bool &kill, fd_set &writefds)
+void Webserv::sendRequests(bool &kill, fd_set &writefds, int &max_fds)
 {
 	std::map<int, struct t_request>::iterator tmp;
 
@@ -239,6 +235,7 @@ void Webserv::sendRequests(bool &kill, fd_set &writefds)
 			close(it->first); // Closes the socket so it can be used again later
 			tmp = it++; // If I erase an iterator while itering on a std::map, I get a SEGFAULT
 			_request_list.erase(tmp);
+			max_fds--;
 		}
 	}
 	// We don't want select() to test this fd_set anymore

@@ -1,17 +1,8 @@
 #ifndef __WEBSERV_HPP__
 # define __WEBSERV_HPP__
 
-#include <fcntl.h>
 #include "utils/webserv_utils.hpp"
 #include "utils/utils.hpp"
-
-# define EXIT_SUCCESS 0
-# define EXIT_FAILURE 1
-
-# define DISPLAY_URL false
-# define DISPLAY_SERVERS false
-
-# define MAX_LISTEN 1000
 
 class Webserv {
 
@@ -27,7 +18,7 @@ private:
 
 	void								acceptNewConnections(int &, fd_set &);
 	void								readRequests(fd_set &, fd_set &);
-	void								sendRequests(bool &, fd_set &);
+	void								sendRequests(bool &, fd_set &, int &);
 
 	std::string							_conf;
 	std::map<std::string, Server*>		_server_list;
