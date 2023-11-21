@@ -221,7 +221,7 @@ namespace server_utils {
 		
 		std::string extension = &request.location[request.location.find_last_of(".")];
 
-		// if (extension != ".css" && extension != ".ico" && extension != ".png")
+		if (extension != ".css" && extension != ".ico")
 			log("", request.client, request.server, request.location, 2);
 
 		if (extension != "")
