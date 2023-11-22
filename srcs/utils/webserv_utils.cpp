@@ -108,7 +108,7 @@ namespace webserv_utils {
 				std::cerr << "Server failed to accept incoming connection from ADDRESS: ";
 				break;
 			case 2:
-				std::cerr << "ERROR\nredirection: " << &value[1] << ": no matching file" << std::endl;
+				std::cerr << "ERROR\nRedirection: " << &value[1] << ": no matching file" << std::endl;
 		}
 	}
 
