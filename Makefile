@@ -3,16 +3,13 @@ NAME		=	webserv
 SRCS		=	srcs/main.cpp \
                 srcs/Server.cpp \
                 srcs/Webserv.cpp \
-                srcs/parse.cpp \
 				srcs/utils/webserv_utils.cpp \
 				srcs/utils/server_utils.cpp \
-				srcs/utils/parse_utils.cpp \
 				srcs/utils/utils.cpp
 HEADERS		=	include/Webserv.hpp \
 				include/Server.hpp \
 				include/utils/webserv_utils.hpp \
 				include/utils/server_utils.hpp \
-				include/utils/parse_utils.hpp \
 				include/utils/utils.hpp
 
 # Compiler flags

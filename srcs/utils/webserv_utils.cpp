@@ -2,13 +2,33 @@
 
 namespace webserv_utils {
 
-bool defaultPortIsSet(std::vector<int> &port_list) {
-  for (std::vector<int>::iterator it = port_list.begin(); it != port_list.end();
-       it++) {
-    if (*it == 8080)
-      return true;
+bool checkRedirectionList(std::vector<std::string> &url_list)
+{
+  std::ifstream	list("./redirections.list");
+  std::string		buffer, url, dot;
+  bool			is_url;
+
+  while (!list.eof())
+  {
+    is_url = false;
+    dot = ".";
+    getline(list, buffer);
+    url = dot.append(buffer.substr(buffer.find_first_of(":") + 1));
+    for (std::vector<std::string>::iterator it = url_list.begin(); it != url_list.end(); it++)
+    {
+      if (url == *it)
+      {
+        is_url = true;
+        break;
+      }
+    }
+    if (!is_url)
+    {
+      ft_error(2, url);
+      return false;
+    }
   }
-  return false;
+  return true;
 }
 
 std::string getServerName(const std::string &server_block,
@@ -239,7 +259,6 @@ void initRequest(struct t_request &request) {
   request.url = "./hello.html";
   request.server = "";
   request.is_url = false;
-  request.is_dir = false;
 }
 
 void getRequest(int max_body_size, struct t_request &request) {

@@ -2,36 +2,31 @@
 #define __WEBSERV_UTILS_HPP__
 
 #include "../Server.hpp"
-#include "parse_utils.hpp"
 #include "utils.hpp"
-#include <ctime>
-#include <netinet/ip.h>
-#include <sys/select.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-
-#define DISPLAY_REQUEST true
-
-#define BUFFER_SIZE 10000
+// #include <ctime>
+// #include <netinet/ip.h>
+// #include <sys/select.h>
+// #include <sys/socket.h>
+// #include <sys/types.h>
 
 namespace webserv_utils {
 
-bool default_port_is_set(std::vector<int>);
+bool checkRedirectionList(std::vector<std::string> &);
 std::string getServerName(const std::string &, int &,
                           std::map<std::string, Server *> &);
 std::string getServerBlock(std::ifstream &);
 void initSockaddr(struct sockaddr_in &);
-void initTimeval(struct timeval &);
-void ft_error(int);
+void ft_error(int, std::string);
 void listenLog(struct sockaddr_in &, std::map<std::string, Server *> &);
 std::string getServer(std::map<std::string, Server *> &, int &);
 void displayServers(std::map<std::string, Server *> &);
 void parseUrl(std::string, std::vector<std::string> &,
               std::vector<std::string> &);
+void readRequests(std::map<std::string, Server *> &, std::map<int, t_request> &,
+                  fd_set &);
 void getRequest(int, struct t_request &);
 bool validMethod(std::string &);
 void initRequest(struct t_request &);
-bool defaultPortIsSet(std::vector<int> &);
 
 class readRequestException : public std::exception {
 public:

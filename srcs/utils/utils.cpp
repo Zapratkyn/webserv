@@ -83,27 +83,67 @@ void log(std::string line, std::string client, std::string server,
   log_file.close();
 }
 
-void sendUrl(t_request &request) {
-  std::ifstream ifs(request.url.c_str());
-  std::string html = "", buffer;
+
+void sendText(t_request &request)
+{
+  std::ifstream 	ifs(request.url.c_str());
+  std::string		html = "", buffer, extension = &request.url[request.url.find_last_of(".") + 1];
   // We start our response by the http header with the right code
-  std::string result = "HTTP/1.1 ";
+  std::string 	result = "HTTP/1.1 ";
 
   result.append(request.code);
-  result.append("\nContent-Type: text/html\nContent-Length: ");
+  result.append("\nContent-Type: text/");
+  result.append(getContentType(extension));
+  result.append("\nContent-Length: ");
 
-  while (!ifs.eof()) {
+  while (!ifs.eof())
+  {
     getline(ifs, buffer);
     html.append(buffer);
     html.append("\n");
   }
-  result.append(ft_to_string(
-      html.size())); // We append the size of the html page to the http response
+  ifs.close();
+  result.append(ft_to_string(html.size())); // We append the size of the html page to the http response
   result.append("\n\n"); // The http response's header stops here
-  result.append(html);   // The http reponse body (html page)
+  result.append(html); // The http reponse body (html page)
 
   if (DISPLAY_HTML)
     std::cout << result << std::endl;
 
   write(request.socket, result.c_str(), result.size());
+}
+
+void sendFile(t_request &request)
+{
+  std::ifstream 	ifs(request.url.c_str(), std::ifstream::binary);
+  std::string		file = "", buffer, extension = &request.url[request.url.find_last_of(".") + 1];
+  std::string 	result = "HTTP/1.1 200 OK\nContent-Type: ";
+
+  result.append(getContentType(extension));
+  result.append("\nContent-Length: ");
+
+  while (!ifs.eof())
+  {
+    getline(ifs, buffer);
+    file.append(buffer);
+    file.append("\n");
+  }
+  result.append(ft_to_string(file.size()));
+  result.append("\n\n");
+  result.append(file);
+
+  write(request.socket, result.c_str(), result.size());
+
+  ifs.close();
+}
+
+std::string getContentType(std::string extension)
+{
+  if (extension == "css")
+    return "css";
+  else if (extension == "html" || extension == "htm")
+    return "html";
+  else if (extension == "ico")
+    return ("image/x-icon");
+  return "";
 }
