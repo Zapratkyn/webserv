@@ -61,7 +61,7 @@ public:
   bool addEndpoint(const std::string &); // replaces  bool addPort(const
                                          // std::string &, std::vector<int> &);
   bool addLocation(std::stringstream &, std::string &value);
-  void addSocket(int );
+  void addSocket(int);
 
   bool parseServer(const std::string &, const std::string &,
                    std::vector<std::string> &);

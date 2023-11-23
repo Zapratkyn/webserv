@@ -2,28 +2,24 @@
 
 namespace webserv_utils {
 
-bool checkRedirectionList(std::vector<std::string> &url_list)
-{
-  std::ifstream	list("./redirections.list");
-  std::string		buffer, url, dot;
-  bool			is_url;
+bool checkRedirectionList(std::vector<std::string> &url_list) {
+  std::ifstream list("./redirections.list");
+  std::string buffer, url, dot;
+  bool is_url;
 
-  while (!list.eof())
-  {
+  while (!list.eof()) {
     is_url = false;
     dot = ".";
     getline(list, buffer);
     url = dot.append(buffer.substr(buffer.find_first_of(":") + 1));
-    for (std::vector<std::string>::iterator it = url_list.begin(); it != url_list.end(); it++)
-    {
-      if (url == *it)
-      {
+    for (std::vector<std::string>::iterator it = url_list.begin();
+         it != url_list.end(); it++) {
+      if (url == *it) {
         is_url = true;
         break;
       }
     }
-    if (!is_url)
-    {
+    if (!is_url) {
       ft_error(2, url);
       return false;
     }

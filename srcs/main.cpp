@@ -14,9 +14,10 @@ int main(int argc, char **argv) {
 
   try {
     webserver.parse();
-//    webserver.init();
+    //    webserver.init();
 
-    //webserver.parseConf(); // Using the configuration file to fill the Webserv's list of servers
+    // webserver.parseConf(); // Using the configuration file to fill the
+    // Webserv's list of servers
     webserver.startServer(); // Create the listening sockets
     webserver.startListen(); // Actual main loop
   } catch (const std::exception &e) {

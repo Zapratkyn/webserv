@@ -3,16 +3,14 @@
 
 #include "utils.hpp"
 
-
 struct t_location {
 
-  std::string					location;
-  std::string					root;
-  std::string					index;
-  std::vector<std::string>	methods;
-  std::string					autoindex;
-  bool						valid;
-
+  std::string location;
+  std::string root;
+  std::string index;
+  std::vector<std::string> methods;
+  std::string autoindex;
+  bool valid;
 };
 
 namespace server_utils {

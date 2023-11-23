@@ -18,10 +18,9 @@
 #include <unistd.h>
 #include <vector>
 
-//#include <arpa/inet.h>
-//#include <dirent.h>
+// #include <arpa/inet.h>
+// #include <dirent.h>
 #include <netdb.h>
-
 
 #define DISPLAY_HTML false
 #define DISPLAY_METHOD_AND_LOCATION false
@@ -52,8 +51,8 @@ int ft_stoi(std::string);
 std::string ft_to_string(int);
 std::string trim(const std::string &);
 void log(std::string, std::string, std::string, std::string, int);
-void		sendText(struct t_request &);
-void		sendFile(struct t_request &);
+void sendText(struct t_request &);
+void sendFile(struct t_request &);
 std::string getContentType(std::string);
 
 #endif
