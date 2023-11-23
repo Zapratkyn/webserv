@@ -39,7 +39,7 @@ bool Server::setRoot(std::string &root) {
     ft_error(0, root, "root");
     return false;
   }
-  // We need root path to start with "/"
+  // We need root path to start and end with '/'
   if (root[0] != '/')
     root = slash.append(root);
   if (root[root.size() - 1] != '/')
@@ -66,6 +66,28 @@ bool Server::setIndex(const std::string &index) {
     return false;
   }
   _index = index;
+  return true;
+}
+
+bool Server::addPort(const std::string &value, std::vector<int> &port_list) {
+  int iValue;
+
+  if (value.find_first_not_of(DIGITS) != value.npos) {
+    ft_error(2, value, "port");
+    return false;
+  }
+  iValue = ft_stoi(value);
+  if (!port_list.empty()) {
+    for (std::vector<int>::iterator it = port_list.begin();
+         it != port_list.end(); it++) {
+      if (*it == iValue) {
+        ft_error(0, value, "port");
+        return false;
+      }
+    }
+  }
+  _ports.push_back(iValue);
+  port_list.push_back(iValue);
   return true;
 }
 
@@ -148,16 +170,13 @@ void Server::addDefaultLocation() {
 }
 
 std::string Server::getHost() const { return _host; }
-
-std::vector<std::string> Server::getServerNames() const {
-  return _server_names;
-}
+std::string Server::getServerName() const { return _server_name; }
 std::string Server::getRoot() const { return _root; }
 
 std::string Server::getIndex() const { return _index; }
 
 int Server::getBodySize() const { return _client_max_body_size; }
-
+std::vector<int> Server::getPorts() const { return _ports; }
 std::map<std::string, t_location> Server::getLocationlist() const {
   return _location_list;
 }
@@ -311,6 +330,7 @@ bool Server::initServer() {
 
 void Server::handleRequest(struct t_request &request,
                            std::vector<std::string> &url_list, bool &kill) {
+  std::string extension;
   try {
     setRequest(request,
                kill); // Gets the method and the location from the request
@@ -328,6 +348,10 @@ void Server::handleRequest(struct t_request &request,
     log(e.what(), request.client, "", "", 1);
   }
 
-  if (!kill)
+  extension = request.url.substr(request.url.find_last_of("."));
+
+  // if (!kill && (request.url == "./dir.html" || request.url.substr(0, 6) ==
+  // "./www/"))
+  if (!kill && extension != ".css" && extension != ".ico")
     log("", request.client, request.server, request.url, 3);
 }

@@ -52,15 +52,13 @@ std::string getServerName(const std::string &server_block,
         result = ft_pop_back(result);
       // If the new server's name is already set for another server, it will be
       // called webserv_42_[default_name_index] instead
-      (void)server_list;
-      //      for (std::map<std::string, Server *>::iterator it =
-      //      server_list.begin();
-      //           it != server_list.end(); it++) {
-      //        if (it->second->getServerName() == result) {
-      //          default_name.append(ft_to_string(default_name_index++));
-      //          return default_name;
-      //        }
-      //      }
+      for (std::map<std::string, Server *>::iterator it = server_list.begin();
+           it != server_list.end(); it++) {
+        if (it->second->getServerName() == result) {
+          default_name.append(ft_to_string(default_name_index++));
+          return default_name;
+        }
+      }
       return (result);
     }
   }
@@ -96,14 +94,8 @@ void initSockaddr(struct sockaddr_in &socketAddr) {
   socketAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
 }
 
-// void initTimeval(struct timeval &tv)
-// {
-// 	tv.tv_sec = 1;
-// 	tv.tv_usec = 0;
-// }
-
 // Namespaces allow us to use the same function name in different contexts
-void ft_error(int type) {
+void ft_error(int type, std::string value) {
   switch (type) {
   case 0:
     std::cerr << "Select error" << std::endl;
@@ -111,6 +103,9 @@ void ft_error(int type) {
   case 1:
     std::cerr << "Server failed to accept incoming connection from ADDRESS: ";
     break;
+  case 2:
+    std::cerr << "ERROR\nRedirection: " << &value[1] << ": no matching file"
+              << std::endl;
   }
 }
 
@@ -128,7 +123,7 @@ void listenLog(struct sockaddr_in &socketAddr,
   for (std::map<std::string, Server *>::iterator server_it =
            server_list.begin();
        server_it != server_list.end(); server_it++) {
-    // port_list = server_it->second->getPorts();
+    port_list = server_it->second->getPorts();
     for (std::vector<int>::iterator port_it = port_list.begin();
          port_it != port_list.end(); port_it++)
       ss << " - " << *port_it << "\n";
@@ -137,23 +132,23 @@ void listenLog(struct sockaddr_in &socketAddr,
   std::cout << ss.str() << std::endl;
 }
 
-// std::string getServer(std::map<std::string, Server *> &server_list,
-//                       int &socket) {
-//   std::vector<int> socket_list;
-//   std::string result = "";
-//
-//   for (std::map<std::string, Server *>::iterator server_it =
-//            server_list.begin();
-//        server_it != server_list.end(); server_it++) {
-//     socket_list = server_it->second->getSockets();
-//     for (std::vector<int>::iterator socket_it = socket_list.begin();
-//          socket_it != socket_list.end(); socket_it++) {
-//       if (*socket_it == socket)
-//         return server_it->second->getServerName();
-//     }
-//   }
-//   return result;
-// }
+std::string getServer(std::map<std::string, Server *> &server_list,
+                      int &socket) {
+  std::vector<int> socket_list;
+  std::string result = "";
+
+  for (std::map<std::string, Server *>::iterator server_it =
+           server_list.begin();
+       server_it != server_list.end(); server_it++) {
+    socket_list = server_it->second->getSockets();
+    for (std::vector<int>::iterator socket_it = socket_list.begin();
+         socket_it != socket_list.end(); socket_it++) {
+      if (*socket_it == socket)
+        return server_it->second->getServerName();
+    }
+  }
+  return result;
+}
 
 void displayServers(std::map<std::string, Server *> &server_list) {
   std::string value;
@@ -228,8 +223,7 @@ void parseUrl(std::string folder, std::vector<std::string> &url_list,
       continue;
     }
     extension = &file_name[file_name.find_last_of(".")];
-    if (extension != ".html" && extension != ".htm" && extension != ".php" &&
-        extension != ".file") {
+    if (extension == "") {
       sub_folder = folder_cpy.append(file_name);
       folder_cpy = folder;
       sub_folder.append("/");
@@ -250,9 +244,9 @@ void initRequest(struct t_request &request) {
   request.header = "";
   request.client = "";
   request.code = "200 OK";
-  request.location = "/";
+  request.location = "";
   request.method = "";
-  request.url = "./hello.html";
+  request.url = "";
   request.server = "";
   request.is_url = false;
 }
