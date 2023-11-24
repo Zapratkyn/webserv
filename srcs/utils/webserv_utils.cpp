@@ -51,11 +51,6 @@ std::string getServerBlock(std::ifstream &ifs) {
   return server_block;
 }
 
-void initSockaddr(struct sockaddr_in &socketAddr) {
-  socketAddr.sin_family = AF_INET;
-  socketAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
-}
-
 // Namespaces allow us to use the same function name in different contexts
 void ft_error(int type, std::string value) {
   switch (type) {
