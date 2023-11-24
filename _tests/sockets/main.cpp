@@ -9,7 +9,8 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#define PORT 8084
+#define PORT1 8084
+#define PORT2 8085
 #define BACKLOG 10 // max number of connection requests in queue
 
 int oneConnection();
@@ -33,7 +34,7 @@ int oneConnection() {
   struct sockaddr_in addr = {};
   addr.sin_family = AF_INET;
   addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-  addr.sin_port = htons(PORT);
+  addr.sin_port = htons(PORT1);
 
   int server_fd = initServer((struct sockaddr *)&addr, sizeof addr, BACKLOG);
   if (server_fd < 0) {
@@ -94,14 +95,20 @@ int oneConnection() {
 int multiplexingWithSelect() {
 
   // For server sockets
-  struct sockaddr_in addr = {};
-  addr.sin_family = AF_INET;
-  addr.sin_addr.s_addr = htonl(INADDR_ANY);
-  addr.sin_port = htons(PORT);
+  struct sockaddr_in addr1 = {};
+  addr1.sin_family = AF_INET;
+  addr1.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+  addr1.sin_port = htons(PORT1);
+  struct sockaddr_in addr2 = {};
+  addr2.sin_family = AF_INET;
+  addr2.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+  addr2.sin_port = htons(PORT2);
 
   // Create server socket and listen to port via socket
-  int server_fd = initServer((struct sockaddr *)&addr, sizeof addr, BACKLOG);
-  fcntl(server_fd, F_SETFL, O_NONBLOCK);
+  int server_fd1 = initServer((struct sockaddr *)&addr1, sizeof addr1, BACKLOG);
+  fcntl(server_fd1, F_SETFL, O_NONBLOCK);
+  int server_fd2 = initServer((struct sockaddr *)&addr2, sizeof addr2, BACKLOG);
+  fcntl(server_fd2, F_SETFL, O_NONBLOCK);
 
   // To monitor socket fds:
   fd_set all_read;  // Set for all sockets connected to server
@@ -116,8 +123,9 @@ int multiplexingWithSelect() {
   FD_ZERO(&all_write);
   FD_ZERO(&read_fds);
   FD_ZERO(&write_fds);
-  FD_SET(server_fd, &all_read); // Add listener socket to set
-  fd_max = server_fd;           // Highest fd is necessarily our socket
+  FD_SET(server_fd1, &all_read); // Add listener socket to set
+  FD_SET(server_fd2, &all_read); // Add listener socket to set
+  fd_max = server_fd2;           // Highest fd is necessarily our socket
 
   while (true) {
     // Copy all socket set since select() will modify monitored set
@@ -141,13 +149,13 @@ int multiplexingWithSelect() {
       if (FD_ISSET(i, &read_fds)) {
         // Fd i is not a socket to monitor
         // stop here and continue the loop
-        if (i == server_fd) {
+        if (i == server_fd1 || i == server_fd2) {
           // Socket is our server's listener socket
-          acceptNewConnection(server_fd, &all_read, &fd_max);
+          acceptNewConnection((i == server_fd1) ? server_fd1 : server_fd2, &all_read, &fd_max);
         } else {
           getRequest(i, &all_read, &all_write, &fd_max);
         }
-      } else if (FD_ISSET(i, &write_fds) && i != server_fd) {
+      } else if (FD_ISSET(i, &write_fds) && (i != server_fd1 || i != server_fd2)) {
         sendResponse(i, &all_read, &all_write, &fd_max);
       }
     }
@@ -175,6 +183,7 @@ int initServer(const struct sockaddr *addr, socklen_t addrlen, int backlog) {
     err = errno;
     close(fd);
     errno = err;
+    std::cout << "Error binding socket" << std::endl;
     return (-1);
   } else {
     char str[INET_ADDRSTRLEN] = {};

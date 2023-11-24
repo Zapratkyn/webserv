@@ -13,8 +13,6 @@ int main(int argc, char **argv) {
   Webserv webserver(conf_file);
 
   try {
-    webserver.parse();
-    webserver.init();
     webserver.run(); // Actual main loop
   } catch (const std::exception &e) {
     std::cerr << "Error : " << e.what() << std::endl;

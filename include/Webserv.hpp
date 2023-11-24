@@ -3,6 +3,7 @@
 
 #include "utils/utils.hpp"
 #include "utils/webserv_utils.hpp"
+#include <algorithm>
 
 class Webserv {
 
@@ -19,12 +20,21 @@ private:
 
   std::map<int, Server *> _server_list;
 
+  void _init();
+  void _parse();
+  void _acceptNewConnection(int server_fd, fd_set *all_read, int *fd_max);
+  void _getRequest(int client_fd, fd_set *all_read, fd_set *all_write,
+                   int *fd_max);
+  void _sendResponse(int client_fd, fd_set *all_read, fd_set *all_write,
+                              int *fd_max);
+  bool _isListeningSocket(int fd);
+
 public:
   Webserv(const std::string &);
   ~Webserv();
   void run();
-  void init();
-  void parse(); // replaces parseConf();
+
+
 
 
   class openSocketException : public std::exception {

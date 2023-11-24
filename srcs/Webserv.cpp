@@ -2,8 +2,7 @@
 
 using namespace webserv_utils;
 
-Webserv::Webserv(const std::string &conf_file)
-    : _conf(conf_file) {
+Webserv::Webserv(const std::string &conf_file) : _conf(conf_file) {
   _folder_list.push_back("/www/");
   _url_list.push_back("./stylesheet.css");
   _url_list.push_back("./favicon.ico");
@@ -59,7 +58,7 @@ static bool validFile(const std::string &file) {
   return true;
 }
 
-void Webserv::parse() {
+void Webserv::_parse() {
   if (!validFile(_conf))
     throw confFailureException();
   std::ifstream infile(_conf.c_str());
@@ -89,151 +88,140 @@ void Webserv::parse() {
     displayServers(_server_list);
 }
 
-void Webserv::init() {
-  try {
-    std::map<int, Server *>::const_iterator it;
-    for (it = _server_list.begin(); it != _server_list.end(); ++it) {
-      it->second->initServer(_sock_addrs, _listen_socket_list);
-    }
-  } catch (const std::exception &e) {
-    throw;
+void Webserv::_init() {
+  std::map<int, Server *>::const_iterator it;
+  for (it = _server_list.begin(); it != _server_list.end(); ++it) {
+    it->second->initServer(_sock_addrs, _listen_socket_list);
   }
 }
 
-void Webserv::run() {
-  listenLog(_server_list);
-  log("Webserv started", "", "", "", 0);
+bool Webserv::_isListeningSocket(int fd) {
+  std::vector<int>::const_iterator it = find (_listen_socket_list.begin(), _listen_socket_list.end(), fd);
+  return (it != _listen_socket_list.end());
 }
 
+void Webserv::run() {
+  _parse();
+  _init();
+  listenLog(_server_list);
+  log("Webserv started", "", "", "", 0);
 
+  // To monitor socket fds:
+  fd_set all_read;  // Set for all sockets connected to server
+  fd_set all_write; // Set for all sockets connected to server
+  fd_set read_fds;  // Temporary set for select()
+  fd_set write_fds; // Temporary set for select()
+  int fd_max;
+  struct timeval timer = {};
 
-//void Webserv::startListen() {
-//  listenLog(_server_list);
-//  log("Webserv started", "", "", "", 0);
-//
-//  /*
-//  Select() needs the biggest fd + 1 from all the fd_sets
-//  Since fd 0, 1 and 2 are already taken (STD_IN and STD_OUT and STD_ERR), our
-//  list begins at 3 Therefore, max_fds = total_number_of_sockets + STD_IN +
-//  STD_OUT + STD_ERR
-//  */
-//  int max_fds = _listen_socket_list.size() + 3, step = 1, select_return;
-//  fd_set readfds, writefds;
-//  bool kill = false;
-//  struct timespec ts;
-//  sigset_t sigmask;
-//
-//  ts.tv_sec = 2;
-//
-//  while (!kill) {
-//    if (step == 1) {
-//      FD_ZERO(&readfds);
-//      for (std::vector<int>::iterator it = _listen_socket_list.begin();
-//           it != _listen_socket_list.end(); it++)
-//        FD_SET(*it, &readfds);
-//    }
-//    /*
-//    Select blocks until a new request is received
-//    It then sets the request receiving sockets to 1 and unblocks
-//    acceptNewConnections() will create new sockets and add them to the readfds
-//    fd_set After a 2nd select(), we read from the newly created sockets and
-//    parse the requests' headers and bodies Go through select() again before
-//    handling the stacked requests Then handle all the stacked requests Reset the
-//    readfds with the listening sockets (see above) Go through the whole process
-//    again
-//    */
-//    select_return = pselect(max_fds, &readfds, &writefds, NULL, &ts, &sigmask);
-//    if (select_return == 0) {
-//      if (!_request_list.empty()) {
-//        for (std::map<int, t_request>::iterator it = _request_list.begin();
-//             it != _request_list.end(); it++) {
-//          it->second.url = "./www/errors/500.html";
-//          it->second.code = "500 Internal Server Error";
-//          sendText(it->second);
-//        }
-//        _request_list.clear();
-//      }
-//      step = 1;
-//      continue;
-//    }
-//    if (step == 1)
-//      acceptNewConnections(max_fds, readfds);
-//    else if (step == 2 && !_request_list.empty())
-//      readRequests(readfds, writefds);
-//    else if (step == 3 && !_request_list.empty())
-//      sendRequests(kill, writefds, max_fds);
-//    if (++step == 4)
-//      step = 1;
-//  }
-//  FD_ZERO(&readfds);
-//  FD_ZERO(&writefds);
-//  log("Webserv stopped", "", "", "", 0);
-//}
+  // Prepare socket sets for select()
+  FD_ZERO(&all_read);
+  FD_ZERO(&all_write);
+  FD_ZERO(&read_fds);
+  FD_ZERO(&write_fds);
+  // Add listener sockets to set
+  std::vector<int>::const_iterator it = _listen_socket_list.begin();
+  for (; it != _listen_socket_list.end(); ++it) {
+    FD_SET(*it, &all_read);
+  }
+  // Set highest fd
+  fd_max =
+      *std::max_element(_listen_socket_list.begin(), _listen_socket_list.end());
 
+  while (true) {
+    // Copy all socket set since select() will modify monitored set
+    FD_COPY(&all_read, &read_fds);
+    FD_COPY(&all_write, &write_fds);
+    // 2 second timeout for select()
+    timer.tv_sec = 2;
+    timer.tv_usec = 0;
+    // Monitor sockets ready for reading
+    int status = select(fd_max + 1, &read_fds, &write_fds, NULL, &timer);
+    if (status < 0) {
+      std::cerr << "Error: " << strerror(errno) << std::endl;
+      continue;
+    } else if (status == 0) {
+      // No socket fd is ready to read or write
+      //std::cout << "Server is waiting ..." << std::endl;
+      continue;
+    }
+    // Loop over our sockets
+    for (int i = 0; i <= fd_max; ++i) {
+      if (FD_ISSET(i, &read_fds)) {
+        if (_isListeningSocket(i)) {
+          // Socket is a server's listener socket
+          _acceptNewConnection(i, &all_read, &fd_max);
+        } else {
+          _getRequest(i, &all_read, &all_write, &fd_max);
+        }
+      } else if (FD_ISSET(i, &write_fds) && !_isListeningSocket(i)) {
+        _sendResponse(i, &all_read, &all_write, &fd_max);
+      }
+    }
+  }
+}
 
-//void Webserv::acceptNewConnections(int &max_fds, fd_set &readfds) {
-//  int new_socket;
-//  struct t_request new_request;
-//  std::vector<int> new_socket_list;
-//
-//  for (int socket = 3; socket < max_fds; socket++) {
-//    if (FD_ISSET(socket, &readfds)) {
-//      while (true) {
-//        initRequest(new_request);
-//        new_socket = accept(socket, (sockaddr *)&_socketAddr, &_socketAddrLen);
-//        if (new_socket < 0)
-//          break;
-//        new_request.server = getServer(_server_list, socket);
-//        new_request.client = inet_ntoa(_socketAddr.sin_addr);
-//        new_request.socket = new_socket;
-//        _request_list[new_socket] = new_request;
-//        max_fds++;
-//        new_socket_list.push_back(new_socket);
-//      }
-//    }
-//  }
-//  // We keep only the new sockets to avoid having select() applied on the same
-//  // sockets several times
-//  FD_ZERO(&readfds);
-//  for (std::vector<int>::iterator it = new_socket_list.begin();
-//       it != new_socket_list.end(); it++)
-//    FD_SET(*it, &readfds);
-//}
+void Webserv::_acceptNewConnection(int server_fd, fd_set *all_read, int *fd_max) {
+  int client_fd = accept(server_fd, NULL, NULL);
+  if (client_fd < 0) {
+    std::cerr << "Error: " << strerror(errno) << std::endl;
+  } else {
+    std::cout << "Accepted new connection on client socket fd: " << client_fd
+              << std::endl;
+    fcntl(client_fd, F_SETFL, O_NONBLOCK);
+    FD_SET(client_fd, all_read); // Add the new client socket to the set
+    if (client_fd > *fd_max)
+      *fd_max = client_fd; // Update the highest socket
+  }
+}
 
-//void Webserv::readRequests(fd_set &readfds, fd_set &writefds) {
-//  for (std::map<int, t_request>::iterator it = _request_list.begin();
-//       it != _request_list.end(); it++) {
-//    if (FD_ISSET(it->first, &readfds)) {
-//      try {
-//        getRequest(_server_list[it->second.server]->getBodySize(), it->second);
-//        FD_SET(it->first, &writefds);
-//      } catch (const std::exception &e) {
-//        log(e.what(), it->second.client, "", "", 1);
-//      }
-//    }
-//  }
-//  // We don't need to read the requesting sockets anymore
-//  FD_ZERO(&readfds);
-//}
-//
-//void Webserv::sendRequests(bool &kill, fd_set &writefds, int &max_fds) {
-//  std::map<int, struct t_request>::iterator tmp;
-//
-//  for (std::map<int, struct t_request>::iterator it = _request_list.begin();
-//       it != _request_list.end();) {
-//    if (FD_ISSET(it->first, &writefds)) {
-//      _server_list[it->second.server]->handleRequest(it->second, _url_list,
-//                                                     kill);
-//      if (kill)
-//        break;
-//      close(it->first); // Closes the socket so it can be used again later
-//      tmp = it++; // If I erase an iterator while itering on a std::map, I get a
-//                  // SEGFAULT
-//      _request_list.erase(tmp);
-//      max_fds--;
-//    }
-//  }
-//  // We don't want select() to test this fd_set anymore
-//  FD_ZERO(&writefds);
-//  _request_list.clear();
-//}
+void Webserv::_getRequest(int client_fd, fd_set *all_read, fd_set *all_write,
+                int *fd_max) {
+  char buffer[BUFSIZ] = {};
+  std::cout << "Reading client socket " << client_fd << std::endl;
+  ssize_t bytes_received = recv(client_fd, buffer, BUFSIZ, 0);
+  if (bytes_received == 0) {
+    std::cout << "Client socket " << client_fd << ": closed connection"
+              << std::endl;
+    close(client_fd);
+    FD_CLR(client_fd, all_read); // Remove socket from the set
+    if (client_fd == *fd_max)
+      (*fd_max)--; // Update the highest socket
+  } else if (bytes_received < 0) {
+    std::cerr << "Error: " << strerror(errno) << std::endl;
+    close(client_fd);
+    FD_CLR(client_fd, all_read); // Remove socket from the set
+    if (client_fd == *fd_max)
+      (*fd_max)--; // Update the highest socket
+  } else {
+    std::cout << "Message received from client socket fd: " << client_fd
+              << ":\n"
+              << buffer << std::endl;
+    FD_CLR(client_fd, all_read); // Remove socket from the set
+    FD_SET(client_fd, all_write);
+  }
+}
+
+void Webserv::_sendResponse(int client_fd, fd_set *all_read, fd_set *all_write,
+                  int *fd_max) {
+  std::string msg("HTTP/1.1 200 OK\r\nContent-Type: "
+                  "text/plain\r\nContent-Length: 12\r\n\nHello world!");
+  ssize_t bytes_sent = send(client_fd, msg.c_str(), msg.size(), 0);
+  if (bytes_sent < 0) {
+    std::cerr << "Error: " << strerror(errno) << std::endl;
+    close(client_fd);
+    FD_CLR(client_fd, all_write); // Remove socket from the set
+    if (client_fd == *fd_max)
+      (*fd_max)--; // Update the highest socket
+  } else if (bytes_sent == static_cast<ssize_t>(msg.size())) {
+    std::cout << "Sent full message to client socket fd: " << client_fd << ":\n"
+              << msg << std::endl;
+    FD_CLR(client_fd, all_write); // Remove socket from the set
+    FD_SET(client_fd, all_read);
+  } else {
+    std::cout << "Sent partial message to client socket fd: " << client_fd
+              << ":\n"
+              << bytes_sent << " bytes_sent" << std::endl;
+  }
+}
+
