@@ -151,6 +151,9 @@ bool Server::addLocation(std::stringstream &ifs, std::string &value) {
 
 void Server::addSocket(int socket) { _sockets.push_back(socket); }
 
+
+void Server::addSocketAddress(struct sockaddr_in &addr) { _sock_addrs.push_back(addr); }
+
 void Server::addDefaultLocation() {
   t_location default_location;
 
@@ -183,6 +186,10 @@ std::map<std::string, t_location> Server::getLocationlist() const {
 
 std::vector<int> Server::getSockets() const { return _sockets; }
 
+std::vector<struct sockaddr_in> Server::getSocketAddresses() const {
+  return _sock_addrs;
+}
+
 std::vector<Server::host_port_type> Server::getEndpoints() const {
   return _endpoints;
 }
@@ -194,6 +201,7 @@ attributes If an option doesn't exist or is in double, we throw an error and
 stop the program If a line doesn't start with "location" and doesn't end with a
 ';' or a bracket, we throw an error and stop the program There can be several
 ports and locations (structures) in a server There can be several methods in a
+<<<<<<< HEAD
 location. Location names are used to make sure a same location is not used more
 than once
 */
@@ -324,6 +332,7 @@ bool Server::initServer() {
     if (listen(socket_fd, MAX_LISTEN) < 0)
       throw std::runtime_error(std::string(strerror(errno)) + " for " +
                                it->first + ":" + it->second);
+    _sock_addrs.push_back(addr);
   }
   return true;
 }

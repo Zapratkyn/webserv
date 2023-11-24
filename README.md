@@ -24,7 +24,9 @@ Tasks:
 
 Current state of the branch :
 
-- The Webserv class parses the path to all the files in the www folder and its subfolders
+- The Webserv class parses the path to all the files and folders in the www folder and its subfolders
+
+- It also parse the various icons used for dir.html and the favicon
 
 - Then it parses all the servers, using the options in the configuration file and giving each server a unique name
 
@@ -32,39 +34,40 @@ Current state of the branch :
 
 - The main loop starts and waits for new connections
 
+- All pending requests are stacked in a list.
+
+- The webserv identify the requested server and the client for each request
+
 - The Webserv splits the request into header and body
 
-- The server uses the header to identify the requested location and method
+- The corresponding server uses the header to identify the requested location and method
+
+- If pselect() fails at step 2 or 3, it will send a error (500) to all the clients in the request list. It will go back to step 1 in any case
 
 - If the location is a url (ending with .html/.htm/.php), the server checks the url list and sends either the corresponding page or the 404 page, then goes back to the main loop
 
-- Searching for localhost:[any_set_port]/kill properly stops the server, frees what needs to be freed, displays a message in the terminal and show a relevant page to the user in the browser
+- If the location is directory or a location with autoindex setup, the server sends ./dir.html to the client, filled with links to any file or folder found in the directory
 
-- If you look for a set location (example, localhost:8083/loc, with the custom.conf file), you get a directory page. The links don't work yet.
+- If the requested url doesn't match a file nor a location, it will check the redirection list and change the http code accordingly (308)
 
-- In any of those cases, the code and the message will be correct ("200 OK" if page found, "404 Not found" if not)
+- Searching for localhost:[any_set_port]/kill properly stops the server, frees what needs to be freed, displays a message in the terminal and in the log and shows a relevant page to the user in the browser
+
+- In any of those cases, the code and the message will be correct ("200 OK" if page found, "404 Not found" if not), the favicon will be used in the thumbnail and the stylesheet will be applied to the current page
 
 ================================
 
 NOTES :
 
-- I'm quite satisfied with my select() implementation. No operation can be done unless select() said so. The program should be able to handle [ports * MAX_LISTEN] connections without failing. It will listen to the first pending request of each listening port, parse the whole request (header and body) and send it to the corresponding server. It will go through select() before any of those operations.
+- The select implementation could be improved even more.
 
-NB : For some reason, the previous implementation worked on my linux but not on the school's MAC's (There was nothing to read on the sockets created by accept()). I didn't go to school since my last modification. Therefore, I cannot guarantee it will work this time. I hope it will though...
-Edit 13 Nov : I tried and it works just fine !
+- The start/stop messages and the requests in/out are logged in the webserv.log file
 
-- Instead of displaying messages on the terminal for every request received/handled, we could create a log file somewhere and write everything in it, with the time, the ip's, the server name and any other relevant information. > Done. But for some reason, I cannot add an ofstream to the Webserv class and keep it open always. It broke the program. Instead, I open and close the file each time a log needs to be done.
+- The browser keeps the favicon associated with the url in cache. Meaning it will not request it to the server again. The same is not true for the stylesheet.
 
 ================================
 
 TO DO :
 
-- Throw an error if a location name has an extension (Like .html)
-
-- I need to find a way to apply the favicon and the stylesheet to the displayed pages
-
 - I'm not sure about the allowed methods for the locations. Either I won't let the user look for direct url or I'll update any page linked to a location if methods other than GET are specified in the location block.
-
-- Redirections
 
 - CGI !!!

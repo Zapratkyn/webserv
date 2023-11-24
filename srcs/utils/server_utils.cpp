@@ -113,7 +113,7 @@ t_location newLocation(const std::string &location_name,
       break;
     case 3:
       if (value != "on" && value != "off") {
-        ft_error(5, value, "");
+        ft_error(7, value, "");
         return loc;
       }
       loc.autoindex = value;
@@ -151,6 +151,8 @@ void ft_error(int type, std::string value, std::string option) {
     std::cerr << value << ": no host" << std::endl;
   case 6:
     std::cerr << value << ": no host or port" << std::endl;
+  case 7:
+    std::cerr << "autoindex " << value << ": invalid value" << std::endl;
   }
 }
 
@@ -423,7 +425,13 @@ void printSocketAddress(struct sockaddr_in &_socketAddr) {
   char s[INET_ADDRSTRLEN] = {};
 
   inet_ntop(AF_INET, (void *)&_socketAddr.sin_addr, s, INET_ADDRSTRLEN);
-  std::cout << s << ":" << ntohs(_socketAddr.sin_port) << std::endl;
+  std::cout << s << ":" << ntohs(_socketAddr.sin_port);
 }
 
-}; // namespace server_utils
+std::ostream &operator<<(std::ostream &o, const struct sockaddr_in &rhs) {
+  char s[INET_ADDRSTRLEN] = {};
+  inet_ntop(AF_INET, (void *)&rhs.sin_addr, s, INET_ADDRSTRLEN);
+  o << s << ":" << ntohs(rhs.sin_port);
+  return o;
+}
+} // namespace server_utils

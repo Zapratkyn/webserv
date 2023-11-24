@@ -29,10 +29,13 @@ bool checkRedirection(struct t_request &);
 void sendTable(struct t_request &, std::string);
 void addParentDirectory(std::string &, std::string);
 void addLinkList(std::string &, std::string);
+
 int setSocketAddress(const std::string &ip_address, const std::string &port_num,
                      struct sockaddr_in *socket_addr);
 int getSocketAddress(int socket, struct sockaddr_in *addr);
-void printSocketAddress(struct sockaddr_in &_socketAddr);
+void printSocketAddress(struct sockaddr_in &addr);
+std::ostream &operator<<(std::ostream &o, const struct sockaddr_in &rhs);
+
 
 class invalidMethodException : public std::exception {
 public:

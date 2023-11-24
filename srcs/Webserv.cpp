@@ -110,8 +110,8 @@ void Webserv::startServer() {
 
   initSockaddr(_socketAddr);
 
-  if (!checkRedirectionList(_url_list))
-    throw redirectionListException();
+//  if (!checkRedirectionList(_url_list))
+//    throw redirectionListException();
 
   /*
   Each port in the conf file is used to make an individual listening socket
@@ -212,6 +212,40 @@ void Webserv::startListen() {
   FD_ZERO(&readfds);
   FD_ZERO(&writefds);
   log("Webserv stopped", "", "", "", 0);
+}
+
+void Webserv::parseConf() {
+  /*
+  We already know the file exists and is valid from the valid_file function in
+  main.cpp So we can open it at construction without checking for fail()
+  */
+  std::ifstream infile(_conf.c_str());
+  std::string buffer, server_block, server_name;
+  int default_name = 1;
+  Server *server;
+  std::vector<int> port_list;
+
+  while (!infile.eof()) {
+    getline(infile, buffer);
+    if (buffer == "server {") {
+      server_block = getServerBlock(infile);
+      server = new Server;
+      server_name = getServerName(server_block, default_name, _server_list);
+      if (!server->parseServer(server_block, server_name,
+                               _folder_list)) {
+        /*
+        If an error occurs, the server will not be added to the webserv's list
+        of servers Therefore, we need to delete it here to avoid leaks
+        */
+        delete server;
+        throw confFailureException();
+      }
+      _server_list[server_name] = server;
+    }
+  }
+  infile.close();
+  if (DISPLAY_SERVERS)
+    displayServers(_server_list);
 }
 
 void Webserv::acceptNewConnections(int &max_fds, fd_set &readfds) {

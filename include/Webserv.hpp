@@ -31,6 +31,7 @@ public:
   void init();
   void parse(); // replaces parseConf();
 
+
   class openSocketException : public std::exception {
   public:
     virtual const char *what() const throw() {

@@ -109,27 +109,28 @@ void ft_error(int type, std::string value) {
   }
 }
 
+// TODO adapt to show all port and addresses
 void listenLog(struct sockaddr_in &socketAddr,
                std::map<std::string, Server *> &server_list) {
   std::ostringstream ss;
-  std::vector<int> port_list;
+  std::vector<struct sockaddr_in> sock_addrs;
 
-  ss << "\n\n### Webserv started ###\n\n"
-     << "\n***\n\nListening on ADDRESS: "
-     << inet_ntoa(
-            socketAddr.sin_addr) // inet_ntoa converts the Internet Host address
-                                 // to an IPv4 address (xxx.xxx.xxx.xxx)
-     << " (localhost)\n\nLISTENING PORTS:\n\n";
+  (void) socketAddr;
+
+  std::cout << "\n\n### Webserv started ###\n\n"
+     << "\n***\n\nListening on:\n\n";
   for (std::map<std::string, Server *>::iterator server_it =
            server_list.begin();
        server_it != server_list.end(); server_it++) {
-    port_list = server_it->second->getPorts();
-    for (std::vector<int>::iterator port_it = port_list.begin();
-         port_it != port_list.end(); port_it++)
-      ss << " - " << *port_it << "\n";
+    sock_addrs = server_it->second->getSocketAddresses();
+    for (std::vector<struct sockaddr_in>::iterator addr_it = sock_addrs.begin();
+         addr_it != sock_addrs.end(); addr_it++) {
+      using server_utils::operator<<;
+      std::cout << " - " << *addr_it << std::endl;
+    }
+
   }
-  ss << "\n***\n";
-  std::cout << ss.str() << std::endl;
+  std::cout << "\n***\n";
 }
 
 std::string getServer(std::map<std::string, Server *> &server_list,
@@ -156,7 +157,6 @@ void displayServers(std::map<std::string, Server *> &server_list) {
   std::map<std::string, t_location> location_list;
   std::vector<std::string> method_list;
   std::vector<Server::host_port_type> endpoints;
-
   std::cout << std::endl;
 
   for (std::map<std::string, Server *>::iterator it = server_list.begin();
@@ -176,6 +176,7 @@ void displayServers(std::map<std::string, Server *> &server_list) {
       std::cout << "Client max body size : " << iValue << std::endl;
     endpoints = it->second->getEndpoints();
     if (!endpoints.empty()) {
+      std::cout << "Listen on : " << std::endl;
       for (std::vector<Server::host_port_type>::const_iterator its =
                endpoints.begin();
            its != endpoints.end(); ++its) {

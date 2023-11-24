@@ -28,8 +28,6 @@ std::string ft_to_string(int nb) {
 
 // A function to delete any white space before and after a line in the
 // configuration file
-// TODO heap-buffer-overflow in result = &str[str.find_first_not_of(" \t")];
-//  DONE added npos check
 std::string trim(const std::string &str) {
   std::string result;
 

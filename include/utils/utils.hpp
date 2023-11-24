@@ -17,16 +17,13 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <vector>
-
-// #include <arpa/inet.h>
-// #include <dirent.h>
 #include <netdb.h>
 
 #define DISPLAY_HTML false
 #define DISPLAY_METHOD_AND_LOCATION false
 #define DISPLAY_REQUEST false
 #define DISPLAY_URL false
-#define DISPLAY_SERVERS false
+#define DISPLAY_SERVERS true
 
 #define DIGITS "0123456789"
 #define BUFFER_SIZE 10000

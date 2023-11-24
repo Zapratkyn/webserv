@@ -21,6 +21,7 @@ private:
       _ports; // replaced by std::vector<host_port_type> _endpoints;
   std::vector<host_port_type> _endpoints; // replaces std::vector<int> _ports;
   std::vector<int> _sockets;
+  std::vector<struct sockaddr_in> _sock_addrs;
   std::map<std::string, t_location> _location_list;
 
   bool parseOption(const int &, std::string &, std::stringstream &,
@@ -45,6 +46,7 @@ public:
   getEndpoints() const; // replaces std::vector<int> getPorts() const;
   std::map<std::string, t_location> getLocationlist() const;
   std::vector<int> getSockets() const;
+  std::vector<struct sockaddr_in> getSocketAddresses() const;
 
   bool setHost(const std::string &);
   bool
@@ -62,10 +64,13 @@ public:
                                          // std::string &, std::vector<int> &);
   bool addLocation(std::stringstream &, std::string &value);
   void addSocket(int);
+  void addSocketAddress(struct sockaddr_in &addr);
 
-  bool parseServer(const std::string &, const std::string &,
-                   std::vector<std::string> &);
   bool initServer();
+
+  bool parseServer(const std::string &server_block,
+                           const std::string &server_name,
+                           std::vector<std::string> &folder_list);
 
   void handleRequest(struct t_request &, std::vector<std::string> &, bool &);
 };
