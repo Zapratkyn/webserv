@@ -12,9 +12,9 @@ std::string getServerName(const std::string &, int &,
 std::string getServerBlock(std::ifstream &);
 void initSockaddr(struct sockaddr_in &);
 void ft_error(int, std::string);
-void listenLog(struct sockaddr_in &, std::map<std::string, Server *> &);
+void listenLog(std::map<int, Server *> &);
 std::string getServer(std::map<std::string, Server *> &, int &);
-void displayServers(std::map<std::string, Server *> &);
+void displayServers(std::map<int, Server *> &);
 void parseUrl(std::string, std::vector<std::string> &,
               std::vector<std::string> &);
 void readRequests(std::map<std::string, Server *> &, std::map<int, t_request> &,

@@ -8,25 +8,20 @@ class Webserv {
 
 private:
   std::vector<int> _listen_socket_list;
+  std::vector<struct sockaddr_in> _sock_addrs;
+
   std::map<int, struct t_request> _request_list;
-  struct sockaddr_in _socketAddr;
-  unsigned int _socketAddrLen;
+
   std::vector<std::string> _url_list;
   std::vector<std::string> _folder_list;
 
-  void acceptNewConnections(int &, fd_set &);
-  void readRequests(fd_set &, fd_set &);
-  void sendRequests(bool &, fd_set &, int &);
-
   std::string _conf;
-  std::map<std::string, Server *> _server_list;
+
+  std::map<int, Server *> _server_list;
 
 public:
   Webserv(const std::string &);
   ~Webserv();
-  void startListen();
-  void startServer();
-  void parseConf();
   void run();
   void init();
   void parse(); // replaces parseConf();

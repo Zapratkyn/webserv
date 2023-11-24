@@ -27,44 +27,6 @@ bool checkRedirectionList(std::vector<std::string> &url_list) {
   return true;
 }
 
-std::string getServerName(const std::string &server_block,
-                          int &default_name_index,
-                          std::map<std::string, Server *> &server_list) {
-  std::stringstream ifs(server_block);
-  std::string buffer, name, result, default_name = "webserv_42_";
-
-  while (!ifs.eof()) {
-    getline(ifs, buffer);
-    name = buffer.substr(0, buffer.find_first_of(" \t"));
-    if (name == "server_name") {
-      buffer = &buffer[buffer.find_first_of(" \t")];
-      buffer = &buffer[buffer.find_first_not_of(" \t")];
-      if (!buffer[0] || buffer.substr(0, 11) == "webserv_42;" ||
-          buffer.substr(0, 12) == "webserv_42_;") {
-        default_name.append(ft_to_string(default_name_index++));
-        return default_name;
-      }
-      result = buffer.substr(0);
-      while (result[result.size() - 1] == ' ' ||
-             result[result.size() - 1] == '\t' ||
-             result[result.size() - 1] == ';' ||
-             result[result.size() - 1] == '}')
-        result = ft_pop_back(result);
-      // If the new server's name is already set for another server, it will be
-      // called webserv_42_[default_name_index] instead
-      for (std::map<std::string, Server *>::iterator it = server_list.begin();
-           it != server_list.end(); it++) {
-        if (it->second->getServerName() == result) {
-          default_name.append(ft_to_string(default_name_index++));
-          return default_name;
-        }
-      }
-      return (result);
-    }
-  }
-  default_name.append(ft_to_string(default_name_index++));
-  return default_name;
-}
 
 std::string getServerBlock(std::ifstream &ifs) {
   int brackets = 1;
@@ -109,62 +71,56 @@ void ft_error(int type, std::string value) {
   }
 }
 
-// TODO adapt to show all port and addresses
-void listenLog(struct sockaddr_in &socketAddr,
-               std::map<std::string, Server *> &server_list) {
+void listenLog(std::map<int, Server *> &server_list) {
   std::ostringstream ss;
   std::vector<struct sockaddr_in> sock_addrs;
 
-  (void) socketAddr;
-
   std::cout << "\n\n### Webserv started ###\n\n"
      << "\n***\n\nListening on:\n\n";
-  for (std::map<std::string, Server *>::iterator server_it =
+  for (std::map<int, Server *>::iterator server_it =
            server_list.begin();
        server_it != server_list.end(); server_it++) {
     sock_addrs = server_it->second->getSocketAddresses();
     for (std::vector<struct sockaddr_in>::iterator addr_it = sock_addrs.begin();
          addr_it != sock_addrs.end(); addr_it++) {
       using server_utils::operator<<;
-      std::cout << " - " << *addr_it << std::endl;
+      std::cout << " - " << *addr_it << " (server " << server_it->first << ")" << std::endl;
     }
 
   }
   std::cout << "\n***\n";
 }
 
-std::string getServer(std::map<std::string, Server *> &server_list,
-                      int &socket) {
-  std::vector<int> socket_list;
-  std::string result = "";
+//int getServer(std::map<std::int, Server *> &server_list,
+//                      int &socket) {
+//  std::vector<int> socket_list;
+//  std::string result = "";
+//
+//  for (std::map<std::string, Server *>::iterator server_it =
+//           server_list.begin();
+//       server_it != server_list.end(); server_it++) {
+//    socket_list = server_it->second->getSockets();
+//    for (std::vector<int>::iterator socket_it = socket_list.begin();
+//         socket_it != socket_list.end(); socket_it++) {
+//      if (*socket_it == socket)
+//        return server_it->second->getServerNames();
+//    }
+//  }
+//  return result;
+//}
 
-  for (std::map<std::string, Server *>::iterator server_it =
-           server_list.begin();
-       server_it != server_list.end(); server_it++) {
-    socket_list = server_it->second->getSockets();
-    for (std::vector<int>::iterator socket_it = socket_list.begin();
-         socket_it != socket_list.end(); socket_it++) {
-      if (*socket_it == socket)
-        return server_it->second->getServerName();
-    }
-  }
-  return result;
-}
-
-void displayServers(std::map<std::string, Server *> &server_list) {
+void displayServers(std::map<int, Server *> &server_list) {
   std::string value;
   int iValue;
   std::map<std::string, t_location> location_list;
   std::vector<std::string> method_list;
   std::vector<Server::host_port_type> endpoints;
+  std::vector<std::string> server_names;
   std::cout << std::endl;
 
-  for (std::map<std::string, Server *>::iterator it = server_list.begin();
+  for (std::map<int, Server *>::iterator it = server_list.begin();
        it != server_list.end(); it++) {
-    std::cout << "### " << it->first << " ###\n" << std::endl;
-    value = it->second->getHost();
-    if (value != "")
-      std::cout << "Host : " << value << std::endl;
+    std::cout << "### " << "server " <<  it->first << " ###\n" << std::endl;
     value = it->second->getIndex();
     if (value != "")
       std::cout << "Index : " << value << std::endl;
@@ -181,6 +137,14 @@ void displayServers(std::map<std::string, Server *> &server_list) {
                endpoints.begin();
            its != endpoints.end(); ++its) {
         std::cout << "  - " + its->first + ":" + its->second << std::endl;
+      }
+    }
+    server_names = it->second->getServerNames();
+    if (!server_names.empty()) {
+      std::cout << "Server names : " << std::endl;
+      for (std::vector<std::string>::const_iterator its = server_names.begin();
+           its != server_names.end(); ++its) {
+        std::cout << "  - " + *its << std::endl;
       }
     }
     location_list = it->second->getLocationlist();

@@ -14,8 +14,8 @@ int main(int argc, char **argv) {
 
   try {
     webserver.parse();
-   webserver.init();
-    webserver.startListen(); // Actual main loop
+    webserver.init();
+    webserver.run(); // Actual main loop
   } catch (const std::exception &e) {
     std::cerr << "Error : " << e.what() << std::endl;
     return EXIT_FAILURE;

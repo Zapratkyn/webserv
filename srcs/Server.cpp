@@ -2,8 +2,10 @@
 
 using namespace server_utils;
 
+int Server::ID = 0;
+
 Server::Server()
-    : _host(""), _root(""), _index(""), _client_max_body_size(-1) {}
+    : _serverID(ID++), _root(""), _index(""), _client_max_body_size(-1) {}
 
 Server::~Server() {
   std::vector<int>::const_iterator it;
@@ -12,24 +14,20 @@ Server::~Server() {
   }
 }
 
-bool Server::setHost(const std::string &host) {
-  if (_host != "") {
-    ft_error(0, host, "host");
-    return false;
-  }
-  _host = host;
-  return true;
-}
-
+//TODO check if server_name is valid
 bool Server::addServerName(const std::string &name) {
-  if (std::find(_server_names.begin(), _server_names.end(), name) ==
-      _server_names.end()) {
-    _server_names.push_back(name);
-    return true;
-  } else {
-    ft_error(0, name, "server_name");
-    return false;
+  std::istringstream ss(name);
+  std::string token;
+  while (ss >> token) {
+    if (std::find(_server_names.begin(), _server_names.end(), name) !=
+        _server_names.end()) {
+      ft_error(0, token, "server_name");
+      return false;
+    } else {
+      _server_names.push_back(token);
+    }
   }
+  return true;
 }
 
 bool Server::setRoot(std::string &root) {
@@ -66,28 +64,6 @@ bool Server::setIndex(const std::string &index) {
     return false;
   }
   _index = index;
-  return true;
-}
-
-bool Server::addPort(const std::string &value, std::vector<int> &port_list) {
-  int iValue;
-
-  if (value.find_first_not_of(DIGITS) != value.npos) {
-    ft_error(2, value, "port");
-    return false;
-  }
-  iValue = ft_stoi(value);
-  if (!port_list.empty()) {
-    for (std::vector<int>::iterator it = port_list.begin();
-         it != port_list.end(); it++) {
-      if (*it == iValue) {
-        ft_error(0, value, "port");
-        return false;
-      }
-    }
-  }
-  _ports.push_back(iValue);
-  port_list.push_back(iValue);
   return true;
 }
 
@@ -151,9 +127,6 @@ bool Server::addLocation(std::stringstream &ifs, std::string &value) {
 
 void Server::addSocket(int socket) { _sockets.push_back(socket); }
 
-
-void Server::addSocketAddress(struct sockaddr_in &addr) { _sock_addrs.push_back(addr); }
-
 void Server::addDefaultLocation() {
   t_location default_location;
 
@@ -172,8 +145,8 @@ void Server::addDefaultLocation() {
   _location_list["/"] = default_location;
 }
 
-std::string Server::getHost() const { return _host; }
-std::string Server::getServerName() const { return _server_name; }
+int Server::getServerID() const { return _serverID; }
+std::vector<std::string> Server::getServerNames() const { return _server_names; }
 std::string Server::getRoot() const { return _root; }
 
 std::string Server::getIndex() const { return _index; }
@@ -206,34 +179,29 @@ location. Location names are used to make sure a same location is not used more
 than once
 */
 bool Server::parseOption(const int &option, std::string &value,
-                         std::stringstream &ifs,
-                         const std::string &server_name) {
+                         std::stringstream &ifs) {
   switch (option) {
   case 0:
     if (!addEndpoint(value))
       return false;
     break;
   case 1:
-    if (!setHost(value))
+    if (!addServerName(value))
       return false;
     break;
   case 2:
-    if (!addServerName(server_name))
-      return false;
-    break;
-  case 3:
     if (!setBodySize(value))
       return false;
     break;
-  case 4:
+  case 3:
     if (!setRoot(value))
       return false;
     break;
-  case 5:
+  case 4:
     if (!setIndex(value))
       return false;
     break;
-  case 6:
+  case 5:
     if (!addLocation(ifs, value))
       return false;
     break;
@@ -242,11 +210,10 @@ bool Server::parseOption(const int &option, std::string &value,
 }
 
 bool Server::parseServer(const std::string &server_block,
-                         const std::string &server_name,
                          std::vector<std::string> &folder_list) {
   std::string buffer, name, value,
-      option_list[7] = {
-          "listen", "host",  "server_name", "client_max_body_size",
+      option_list[6] = {
+          "listen", "server_name", "client_max_body_size",
           "root",   "index", "location"};
   std::stringstream ifs(
       server_block); // std::stringstream works the same as a std::ifstream but
@@ -279,11 +246,11 @@ bool Server::parseServer(const std::string &server_block,
       ft_error(4, name, "");
       return false;
     }
-    if (!parseOption(option, value, ifs, server_name))
+    if (!parseOption(option, value, ifs))
       return false;
   }
   if (_endpoints.empty()) {
-    std::cerr << server_name << " needs at least one endpoint" << std::endl;
+    std::cerr << "server " << _serverID << " needs at least one endpoint" << std::endl;
     return false;
   }
   if (_client_max_body_size == -1)
@@ -301,38 +268,71 @@ bool Server::parseServer(const std::string &server_block,
   return true;
 }
 
-bool Server::initServer() {
+static bool addrIsEqual(const struct sockaddr_in &addr1,
+                        const struct sockaddr_in &addr2) {
+  return (addr1.sin_addr.s_addr == addr2.sin_addr.s_addr &&
+          addr1.sin_port == addr2.sin_port &&
+          addr1.sin_family == addr2.sin_family);
+}
+
+static bool addrIsUsed(const std::vector<struct sockaddr_in> &addrs,
+                       const struct sockaddr_in &addr) {
+  std::vector<struct sockaddr_in>::const_iterator it = addrs.begin();
+  for (; it != addrs.end(); ++it) {
+    if (addrIsEqual(*it, addr))
+      return true;
+  }
+  return false;
+}
+
+// TODO is it ok to have a new fd if the addr is already in use by another
+//  server or is it better to reuse the fd the addr is already bound to?
+bool Server::initServer(std::vector<struct sockaddr_in> &webserv_sock_addrs,
+                        std::vector<int> &webserv_sockets) {
   int socket_fd;
   int reuse = true;
 
   std::vector<host_port_type>::const_iterator it;
   for (it = _endpoints.begin(); it != _endpoints.end(); ++it) {
-
     struct sockaddr_in addr = {};
+    // Get the address based on ip_address and port.
     int err = setSocketAddress(it->first, it->second, &addr);
     if (err)
       throw std::runtime_error(std::string(gai_strerror(err)) + " for " +
                                it->first + ":" + it->second);
-
+    // Check if the address is a duplicate in the server block.
+    // A server block can not have 2 listen entries with the same host:port.
+    if (addrIsUsed(_sock_addrs, addr))
+      throw std::runtime_error("Duplicate of " + it->first + ":" + it->second);
+    // Get a socket fd for the address.
     if ((socket_fd = socket(addr.sin_family, SOCK_STREAM, 0)) < 0)
       throw std::runtime_error(std::string(strerror(errno)) + " for " +
                                it->first + ":" + it->second);
-    _sockets.push_back(socket_fd);
-
+    // This should prevent the error can't bind socket when quitting and
+    // restarting webserv.
     if (setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) <
         0)
       throw std::runtime_error(std::string(strerror(errno)) + " for " +
                                it->first + ":" + it->second);
-
-    socklen_t addr_len = sizeof addr;
-    if (bind(socket_fd, (struct sockaddr *)&addr, addr_len) < 0)
-      throw std::runtime_error(std::string(strerror(errno)) + " for " +
-                               it->first + ":" + it->second);
-
+    // Set the sockets to non-blocking
+    fcntl(socket_fd, F_SETFL, O_NONBLOCK);
+    // Only bind the socket to the address if it wasn't already bound by another
+    // server block. 2 server blocks can listen to the same host:port
+    if (!addrIsUsed(webserv_sock_addrs, addr)) {
+      socklen_t addr_len = sizeof addr;
+      if (bind(socket_fd, (struct sockaddr *)&addr, addr_len) < 0)
+        throw std::runtime_error(std::string(strerror(errno)) + " for " +
+                                 it->first + ":" + it->second);
+    }
+    // Add the fds and addresses to the server and to the webserv instance
+    _sockets.push_back(socket_fd);
+    webserv_sockets.push_back(socket_fd);
+    _sock_addrs.push_back(addr);
+    webserv_sock_addrs.push_back(addr);
+    // Listen to incoming connections
     if (listen(socket_fd, MAX_LISTEN) < 0)
       throw std::runtime_error(std::string(strerror(errno)) + " for " +
                                it->first + ":" + it->second);
-    _sock_addrs.push_back(addr);
   }
   return true;
 }
