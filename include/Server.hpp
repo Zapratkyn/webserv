@@ -15,13 +15,11 @@ protected:
   static int ID;
 private:
   int _serverID;
-  std::vector<std::string> _server_names; // replaces std::string _server_name;
+  std::vector<std::string> _server_names;
   std::string _root;
   std::string _index;
   int _client_max_body_size;
-  std::vector<int>
-      _ports; // replaced by std::vector<host_port_type> _endpoints;
-  std::vector<host_port_type> _endpoints; // replaces std::vector<int> _ports;
+  std::vector<host_port_type> _endpoints;
   std::vector<int> _sockets;
   std::vector<struct sockaddr_in> _sock_addrs;
   std::map<std::string, t_location> _location_list;
@@ -38,7 +36,6 @@ public:
   std::string getRoot() const;
   std::string getIndex() const;
   int getBodySize() const;
-  std::vector<int> getPorts() const;
   std::vector<host_port_type> getEndpoints() const;
   std::map<std::string, t_location> getLocationlist() const;
   std::vector<int> getSockets() const;

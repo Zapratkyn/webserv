@@ -152,7 +152,6 @@ std::string Server::getRoot() const { return _root; }
 std::string Server::getIndex() const { return _index; }
 
 int Server::getBodySize() const { return _client_max_body_size; }
-std::vector<int> Server::getPorts() const { return _ports; }
 std::map<std::string, t_location> Server::getLocationlist() const {
   return _location_list;
 }
