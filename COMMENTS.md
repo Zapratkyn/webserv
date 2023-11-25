@@ -39,7 +39,17 @@
     - redirects shouldn't be handled using a file, but as directive for a server in the config file according to the
       subject (sth like rewrite or return in nginx, but without the regex stuff to keep it simple)
 
+#### Error pages
+
+- The subject states that we need to have default error pages if none are provided. So we have to code them sth like
+  `buildErrorPage(int error_code);` and call that function if no default error pages are present in www
+
+#### Response and request messages
+
+- Can be chunked, which means a response or request can have to go to multiple recv and send (and thus select) before
+  being complete
 
 #### Links
+
 - [How nginx processes a request](http://nginx.org/en/docs/http/request_processing.html)
-  - How to decide if server_name or IP address and port define which server will process the request
+    - How to decide if server_name or IP address and port define which server will process the request
