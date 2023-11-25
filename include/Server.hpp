@@ -5,6 +5,8 @@
 #include "utils/utils.hpp"
 #include <algorithm>
 #include <netdb.h>
+#include <cstring>
+#include   <sys/time.h>
 
 class Server {
 public:

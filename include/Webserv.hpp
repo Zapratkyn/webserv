@@ -5,6 +5,11 @@
 #include "utils/webserv_utils.hpp"
 #include <algorithm>
 
+// For Linux
+#ifndef FD_COPY
+# define FD_COPY(from, to) bcopy(from, to, sizeof(*(from)));
+#endif
+
 class Webserv {
 
 private:
