@@ -22,8 +22,19 @@ bool Server::setServerName(const std::string &name)
 		ft_error(0, name, "server_name");
 		return false;
 	}
-	_server_name = name;
-	return true;
+  	std::istringstream ss(name);
+  	std::string token;
+  	while (ss >> token) 
+	{
+  		if (std::find(_server_name.begin(), _server_name.end(), name) != _server_name.end())
+		{
+  			ft_error(0, token, "server_name");
+  			return false;
+  		} 
+		else
+  		  _server_name.push_back(token);
+  	}
+  	return true;
 }
 bool Server::setRoot(std::string &root)
 {
@@ -166,7 +177,7 @@ bool Server::parseOption(const int &option, std::string &value, std::stringstrea
 				return false;
 			break;
 		case 2:
-			if (!setServerName(server_name))
+			if (!addServerName(server_name))
 				return false;
 			break;
 		case 3:
@@ -195,7 +206,7 @@ bool Server::parseServer(const std::string &server_block, const std::string &ser
 	std::stringstream	ifs(server_block); // std::stringstream works the same as a std::ifstream but is constructed from a string instead of a file
 	int					option;
 	t_location			folder;
-	
+
 	while (!ifs.eof())
 	{
 		getline(ifs, buffer);

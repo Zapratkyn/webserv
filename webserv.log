@@ -487,3 +487,5 @@ Mon Nov 27 11:44:35 2023 - My server: Reponse (/www/pages/test.html) sent to 127
 Mon Nov 27 11:44:36 2023 - My server: Request (/www/pages/index.html) received from 127.0.0.1
 Mon Nov 27 11:44:36 2023 - My server: Reponse (/www/pages/index.html) sent to 127.0.0.1
 Mon Nov 27 11:44:47 2023 - Webserv stopped
+Mon Nov 27 12:02:05 2023 - Webserv started
+Mon Nov 27 12:13:05 2023 - Webserv stopped

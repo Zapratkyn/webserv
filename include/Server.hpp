@@ -9,7 +9,7 @@ class Server {
 private:
 
 	std::string									_host;
-	std::string									_server_name;
+	std::vector<std::string>					_server_name;
 	std::string									_root;
 	std::string									_index;
 	int											_client_max_body_size;
@@ -35,7 +35,7 @@ public:
 	std::vector<int>							getSockets() const;
 
 	bool										setHost(const std::string&);
-	bool										setServerName(const std::string&);
+	bool										addServerName(const std::string&);
 	bool										setRoot(std::string&);
 	bool										setIndex(const std::string&);
 	bool										setBodySize(const std::string&);
@@ -43,7 +43,7 @@ public:
 	bool										addLocation(std::stringstream&, std::string &value);
 	void										addSocket(int&);
 
-	bool										parseServer(const std::string &, const std::string &, std::vector<int> &, std::vector<std::string> &);
+	bool										parseServer(const std::string &, const std::string &, std::vector<int> &, std::vector<std::string> &, int);
 	void										handleRequest(struct t_request &, std::vector<std::string> &, bool &);
 
 };

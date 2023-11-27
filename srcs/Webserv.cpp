@@ -22,9 +22,6 @@ Webserv::Webserv(const std::string &conf_file) : _socketAddrLen(sizeof(_socketAd
 
 Webserv::~Webserv() 
 {
-	// Since servers in the server list are dynamically allocated pointers, we delete each server one by one in the destructor at the end of the program
-	for (std::map<std::string, Server*>::iterator it = _server_list.begin(); it != _server_list.end(); it++)
-		delete it->second;
 	for (std::vector<int>::iterator it = _listen_socket_list.begin(); it != _listen_socket_list.end(); it++)
 		close(*it);
 	for (std::map<int, struct t_request>::iterator it = _request_list.begin(); it != _request_list.end(); it++)
@@ -46,8 +43,6 @@ void Webserv::parseConf()
 	*/
 	std::ifstream 			infile(_conf.c_str());
 	std::string				buffer, server_block, server_name;
-	int						default_name = 1;
-	Server					*server;
 	std::vector<int>		port_list;
 
 	while(!infile.eof())
@@ -56,18 +51,10 @@ void Webserv::parseConf()
 		if (buffer == "server {")
 		{
 			server_block = getServerBlock(infile);
-			server = new Server;
-			server_name = getServerName(server_block, default_name, _server_list);
+			Server server;
 			if (!server->parseServer(server_block, server_name, port_list, _folder_list))
-			{
-				/*
-				If an error occurs, the server will not be added to the webserv's list of servers
-				Therefore, we need to delete it here to avoid leaks
-				*/
-				delete server;
 				throw confFailureException();
-			}
-			_server_list[server_name] = server;
+			_server_list.push_back(server);
 		}
 	}
 	infile.close();

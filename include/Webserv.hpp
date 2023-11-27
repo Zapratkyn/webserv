@@ -20,7 +20,7 @@ private:
 	void								sendRequests(bool &, fd_set &, int &);
 
 	std::string							_conf;
-	std::map<std::string, Server*>		_server_list;
+	std::vector<Server>					_server_list;
 
 public:
 
