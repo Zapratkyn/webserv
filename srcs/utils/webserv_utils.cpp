@@ -54,12 +54,6 @@ namespace webserv_utils {
 		return server_block;
 	}
 
-	void initSockaddr(struct sockaddr_in &socketAddr)
-	{
-		socketAddr.sin_family = AF_INET;
-		socketAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
-	}
-
 	// Namespaces allow us to use the same function name in different contexts
 	void ft_error(int type, std::string value)
 	{
@@ -75,15 +69,29 @@ namespace webserv_utils {
 		}
 	}
 
+	static bool addrIsEqual(const struct sockaddr_in &addr1, const struct sockaddr_in &addr2)
+	{
+		return (addr1.sin_addr.s_addr == addr2.sin_addr.s_addr &&
+		        addr1.sin_port == addr2.sin_port &&
+		        addr1.sin_family == addr2.sin_family);
+	}
+
+	static bool addrIsUsed(const std::vector<struct sockaddr_in> &addrs, const struct sockaddr_in &addr) 
+	{
+		for (std::vector<struct sockaddr_in>::const_iterator it = addrs.begin(); it != addrs.end(); ++it)
+		{
+		  	if (addrIsEqual(*it, addr))
+		  	  	return true;
+		}
+		return false;
+	}
+
 	void listenLog(struct sockaddr_in &socketAddr, std::map<std::string, Server*> &server_list)
 	{
 		std::ostringstream 	ss;
 		std::vector<int>	port_list;
 
-	   	ss << "\n\n### Webserv started ###\n\n"
-		<< "\n***\n\nListening on ADDRESS: " 
-	    << inet_ntoa(socketAddr.sin_addr) // inet_ntoa converts the Internet Host address to an IPv4 address (xxx.xxx.xxx.xxx)
-	    << " (localhost)\n\nLISTENING PORTS:\n\n";
+	   	ss << "\n\n### Webserv started ###\n\nLISTENING PORTS:\n\n";
 		for (std::map<std::string, Server*>::iterator server_it = server_list.begin(); server_it != server_list.end(); server_it++)
 		{
 			port_list = server_it->second->getPorts();
@@ -94,12 +102,12 @@ namespace webserv_utils {
 		std::cout << ss.str() << std::endl;
 	}
 
-	std::string getServer(std::map<std::string, Server*> &server_list, int &socket)
+	std::string getServer(std::vector<Server> &server_list, int &socket)
 	{
 		std::vector<int> socket_list;
 		std::string result = "";
 
-		for (std::map<std::string, Server*>::iterator server_it = server_list.begin(); server_it != server_list.end(); server_it++)
+		for (std::vector<Server>::iterator server_it = server_list.begin(); server_it != server_list.end(); server_it++)
 		{
 			socket_list = server_it->second->getSockets();
 			for (std::vector<int>::iterator socket_it = socket_list.begin(); socket_it != socket_list.end(); socket_it++)
@@ -213,6 +221,7 @@ namespace webserv_utils {
 		request.code = "200 OK";
 		request.location = "";
 		request.method = "";
+		request.host = "";
 		request.url = "";
 		request.server = "";
 		request.is_url = false;
@@ -237,6 +246,11 @@ namespace webserv_utils {
 			{
 				request.header.append(oBuffer);
 				request.header.append("\n");
+			}
+			if (oBuffer.substr(0, oBuffer.find_first_of(" \t")) == "Host:")
+			{
+				oBuffer = &oBuffer(oBuffer.find_first_of(" \t"));
+				request.host = &oBuffer(oBuffer.find_first_not_of(" \t"));
 			}
 		}
 		while (!ifs.eof())

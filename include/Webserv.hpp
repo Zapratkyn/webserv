@@ -8,19 +8,19 @@ class Webserv {
 
 private:
 
-	std::vector<int>					_listen_socket_list;
-	std::map<int, struct t_request>		_request_list;
-	struct sockaddr_in 					_socketAddr;
-	unsigned int						_socketAddrLen;
-	std::vector<std::string>			_url_list;
-	std::vector<std::string>			_folder_list;
+	std::map<int, struct sockaddr_in>				_listen_socket_list;
+	std::vector<struct t_request>					_request_list;
+	struct sockaddr_in 								_socketAddr;
+	unsigned int									_socketAddrLen;
+	std::vector<std::string>						_url_list;
+	std::vector<std::string>						_folder_list;
 
-	void								acceptNewConnections(int &, fd_set &);
-	void								readRequests(fd_set &, fd_set &);
-	void								sendRequests(bool &, fd_set &, int &);
+	void											acceptNewConnections(int &, fd_set &);
+	void											readRequests(fd_set &, fd_set &);
+	void											sendRequests(bool &, fd_set &, int &);
 
-	std::string							_conf;
-	std::vector<Server>					_server_list;
+	std::string										_conf;
+	std::vector<struct sockaddr_in>					_address_list;
 
 public:
 

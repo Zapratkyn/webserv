@@ -29,6 +29,7 @@ namespace server_utils {
 	void		sendTable(struct t_request &, std::string);
 	void		addParentDirectory(std::string &, std::string);
 	void		addLinkList(std::string &, std::string);
+	int 		setSocketAddress(const std::string &ip_address, const std::string &port_num, struct sockaddr_in *socket_addr)
 
 	class invalidMethodException : public std::exception { public: virtual const char *what() const throw() { return "Invalid method"; } };
 

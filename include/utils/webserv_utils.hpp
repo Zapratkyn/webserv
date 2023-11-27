@@ -9,7 +9,6 @@ namespace webserv_utils {
 
     bool        checkRedirectionList(std::vector<std::string> &);
     std::string getServerBlock(std::ifstream &);
-    void        initSockaddr(struct sockaddr_in &);
     void        ft_error(int, std::string);
 	void		listenLog(struct sockaddr_in&, std::map<std::string, Server*>&);
 	std::string	getServer(std::map<std::string, Server*>&, int&);

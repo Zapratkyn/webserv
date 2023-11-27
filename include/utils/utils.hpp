@@ -17,6 +17,7 @@
 #include <sys/socket.h>
 #include <sys/select.h>
 #include <signal.h>
+#include <netdb.h>
 
 # define DISPLAY_HTML false
 # define DISPLAY_METHOD_AND_LOCATION false
@@ -41,6 +42,7 @@ struct t_request {
     std::string                 client;
     std::string                 header;
     std::string                 body;
+	std::string					host;
 	bool						is_url;
 	int							socket;
 

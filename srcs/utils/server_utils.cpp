@@ -165,6 +165,24 @@ namespace server_utils {
 		}
 	}
 
+	bool setSocketAddress(const std::string &ip_address, const std::string &port_num, struct sockaddr_in *socket_addr)
+	{
+  		struct addrinfo hints;
+  		struct addrinfo *res = NULL;
+		int status;
+
+  		hints.ai_family = AF_INET;
+  		hints.ai_socktype = SOCK_STREAM;
+  		hints.ai_flags = AI_NUMERICSERV;
+
+  		status = getaddrinfo(ip_address.c_str(), port_num.c_str(), &hints, &res);
+  		if (status != 0 || res == NULL)
+			return false;
+  		*socket_addr = *(struct sockaddr_in *)res->ai_addr;
+		freeaddrinfo(res);
+  		return true;
+	}
+
 	bool allowedMethod(std::string &method, std::vector<std::string> &list)
 	{
 		for (std::vector<std::string>::iterator it = list.begin(); it != list.end(); it++)

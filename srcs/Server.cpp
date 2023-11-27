@@ -15,7 +15,7 @@ bool Server::setHost(const std::string &host)
 	_host = host;
 	return true;
 }
-bool Server::setServerName(const std::string &name)
+bool Server::addServerName(const std::string &name)
 {
 	if (_server_name != "")
 	{
@@ -75,30 +75,54 @@ bool Server::setIndex(const std::string &index)
 	_index = index;
 	return true;
 }
-bool Server::addPort(const std::string &value, std::vector<int> &port_list)
+bool Server::addEndPoint(const std::string &value, std::vector<int> &port_list)
 {
-	int iValue;
+	std::string ip_address;
+  	std::string port_num;
+	struct sockaddr_in addr_in;
 
-	if (value.find_first_not_of(DIGITS) != value.npos)
+  	if (value.empty()) 
 	{
-		ft_error(2, value, "port");
-		return false;
-	}
-	iValue = ft_stoi(value);
-	if (!port_list.empty())
+  	  	ft_error(6, "\"\"", "listen");
+  	  	return false;
+  	}
+  	size_t pos = value.find(':');
+  	if (pos != std::string::npos) 
 	{
-		for (std::vector<int>::iterator it = port_list.begin(); it != port_list.end(); it++)
+  	  	ip_address = value.substr(0, pos++);
+  	  	if (ip_address.empty()) 
 		{
-			if (*it == iValue)
-			{
-				ft_error(0, value, "port");
-				return false;
-			}
-		}
-	}
-	_ports.push_back(iValue);
-	port_list.push_back(iValue);
-	return true;
+  	  	  	ft_error(5, value, "listen");
+  	  	  	return false;
+  	  	}
+  	  	if (ip_address == "*")
+  	  		ip_address = "0.0.0.0";
+  	  	port_num = value.substr(pos);
+  	}
+	else if (value.find('.') != std::string::npos || value.find_first_not_of(DIGITS) != std::string::npos) 
+	{
+  	  	ip_address = value;
+  	  	port_num = "80";
+  	}
+	else if (value.find_first_not_of(DIGITS) == std::string::npos)
+	{
+  	  	port_num = value;
+  	  	ip_address = "0.0.0.0";
+  	}
+
+	setSocketAddress(ip_address, port_num, &addr_in);
+
+  	std::vector<struct sockaddr_in>::const_iterator it;
+  	for (it = _end_points.begin(); it != _end_points.end(); ++it)
+	{
+  	  	if (it->sin_addr == addr_in.sin_addr && it->sin_port == addr_in.sin_port)
+		{
+  	  	  	ft_error(0, value, "listen");
+  	  	  	return false;
+  	  	}
+  	}
+  	_end_points.push_back(addr_in);
+  	return true;
 }
 bool Server::addLocation(std::stringstream &ifs, std::string &value)
 {
@@ -122,11 +146,6 @@ bool Server::addLocation(std::stringstream &ifs, std::string &value)
 	}
 	return true;
 }
-void Server::addSocket(int &socket)
-{
-	_sockets.push_back(socket);
-	return;
-}
 void Server::addDefaultLocation()
 {
 	t_location default_location;
@@ -147,14 +166,15 @@ void Server::addDefaultLocation()
 }
 
 
-std::string							Server::getHost() const { return _host; }
-std::string 						Server::getServerName() const { return _server_name; }
-std::string 						Server::getRoot() const { return _root; }
-std::string 						Server::getIndex() const { return _index; }
-int 								Server::getBodySize() const { return _client_max_body_size; }
-std::vector<int> 					Server::getPorts() const { return _ports; }
-std::map<std::string, t_location> 	Server::getLocationlist() const { return _location_list; }
-std::vector<int>					Server::getSockets() const { return _sockets; }
+std::string													Server::getHost() const { return _host; }
+std::string 												Server::getServerName() const { return _server_name; }
+std::string 												Server::getRoot() const { return _root; }
+std::string 												Server::getIndex() const { return _index; }
+int 														Server::getBodySize() const { return _client_max_body_size; }
+std::vector<int> 											Server::getPorts() const { return _ports; }
+std::map<std::string, t_location> 							Server::getLocationlist() const { return _location_list; }
+std::vector<int>											Server::getSockets() const { return _sockets; }
+std::vector<std::pair<struct sockaddr_in, std::string> > 	Server::getEndPoints() const { return _end_points; }
 
 /*
 In the 2 functions below :
@@ -169,7 +189,7 @@ bool Server::parseOption(const int &option, std::string &value, std::stringstrea
 {
 	switch (option) {
 		case 0:
-			if (!addPort(value, port_list))
+			if (!addEndpoint(value, port_list))
 				return false;
 			break;
 		case 1:
