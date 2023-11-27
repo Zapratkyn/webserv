@@ -34,7 +34,7 @@ std::string trim(const std::string &str)
 {
     std::string result;
 
-    if (str.size())
+    if (str.size() && str.find_first_not_of(" \t") != std::string::npos)
     {
         result = &str[str.find_first_not_of(" \t")];
         while (result[result.size() - 1] == ' ' || result[result.size() - 1] == '\t')

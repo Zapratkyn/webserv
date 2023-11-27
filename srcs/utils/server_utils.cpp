@@ -224,7 +224,7 @@ namespace server_utils {
 		if (extension != ".css" && extension != ".ico")
 			log("", request.client, request.server, request.location, 2);
 
-		if (extension != "")
+		if (extension[0] == '.')
 		{
 			request.is_url = true;
 			request.location = dot.append(request.location);
