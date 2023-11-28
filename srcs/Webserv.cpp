@@ -156,7 +156,6 @@ void Webserv::startListen()
 			std::cerr << "Select error" << std::endl;
 			continue;
 		}
-		std::cout << "OK" << std::endl;
 		if (step == 1)
 			acceptNewConnections(max_fds, readfds);
 		else if (step == 2 && !_request_list.empty())
