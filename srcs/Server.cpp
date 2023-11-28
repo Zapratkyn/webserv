@@ -2,7 +2,7 @@
 
 using namespace server_utils;
 
-Server::Server() : _host(""), _server_name(""), _root(""), _index(""), _client_max_body_size(-1) { return; }
+Server::Server() : _host(""), _root(""), _index(""), _client_max_body_size(-1) { return; }
 Server::~Server() { return; }
 
 bool Server::setHost(const std::string &host)
@@ -17,7 +17,7 @@ bool Server::setHost(const std::string &host)
 }
 bool Server::addServerName(const std::string &name)
 {
-	if (_server_name != "")
+	if (!_server_name.empty())
 	{
 		ft_error(0, name, "server_name");
 		return false;
@@ -75,7 +75,7 @@ bool Server::setIndex(const std::string &index)
 	_index = index;
 	return true;
 }
-bool Server::addEndPoint(const std::string &value, std::vector<int> &port_list)
+bool Server::addEndPoint(const std::string &value)
 {
 	std::string ip_address;
   	std::string port_num;
@@ -102,7 +102,7 @@ bool Server::addEndPoint(const std::string &value, std::vector<int> &port_list)
 	else if (value.find('.') != std::string::npos || value.find_first_not_of(DIGITS) != std::string::npos) 
 	{
   	  	ip_address = value;
-  	  	port_num = "80";
+  	  	port_num = "8080";
   	}
 	else if (value.find_first_not_of(DIGITS) == std::string::npos)
 	{
@@ -112,7 +112,7 @@ bool Server::addEndPoint(const std::string &value, std::vector<int> &port_list)
 
 	setSocketAddress(ip_address, port_num, &addr_in);
 
-  	std::vector<struct sockaddr_in>::const_iterator it;
+  	std::vector<struct sockaddr_in>::iterator it;
   	for (it = _end_points.begin(); it != _end_points.end(); ++it)
 	{
   	  	if (it->sin_addr == addr_in.sin_addr && it->sin_port == addr_in.sin_port)
@@ -122,6 +122,9 @@ bool Server::addEndPoint(const std::string &value, std::vector<int> &port_list)
   	  	}
   	}
   	_end_points.push_back(addr_in);
+	ip_address.append(":");
+	ip_address.append(port_num);
+	_hosts.push_back(ip_address);
   	return true;
 }
 bool Server::addLocation(std::stringstream &ifs, std::string &value)
@@ -166,15 +169,13 @@ void Server::addDefaultLocation()
 }
 
 
-std::string													Server::getHost() const { return _host; }
-std::string 												Server::getServerName() const { return _server_name; }
+std::vector<std::string>									Server::getHosts() const { return _hosts; }
+std::vector<std::string> 									Server::getServerNames() const { return _server_name; }
 std::string 												Server::getRoot() const { return _root; }
 std::string 												Server::getIndex() const { return _index; }
 int 														Server::getBodySize() const { return _client_max_body_size; }
-std::vector<int> 											Server::getPorts() const { return _ports; }
 std::map<std::string, t_location> 							Server::getLocationlist() const { return _location_list; }
-std::vector<int>											Server::getSockets() const { return _sockets; }
-std::vector<std::pair<struct sockaddr_in, std::string> > 	Server::getEndPoints() const { return _end_points; }
+std::vector<struct sockaddr_in> 							Server::getEndPoints() const { return _end_points; }
 
 /*
 In the 2 functions below :
@@ -185,11 +186,11 @@ There can be several ports and locations (structures) in a server
 There can be several methods in a location
 Location names are used to make sure a same location is not used more than once
 */
-bool Server::parseOption(const int &option, std::string &value, std::stringstream &ifs, const std::string &server_name, std::vector<int> &port_list)
+bool Server::parseOption(const int &option, std::string &value, std::stringstream &ifs)
 {
 	switch (option) {
 		case 0:
-			if (!addEndpoint(value, port_list))
+			if (!addEndPoint(value))
 				return false;
 			break;
 		case 1:
@@ -197,7 +198,7 @@ bool Server::parseOption(const int &option, std::string &value, std::stringstrea
 				return false;
 			break;
 		case 2:
-			if (!addServerName(server_name))
+			if (!addServerName(value))
 				return false;
 			break;
 		case 3:
@@ -220,7 +221,7 @@ bool Server::parseOption(const int &option, std::string &value, std::stringstrea
 	return true;
 }
 
-bool Server::parseServer(const std::string &server_block, const std::string &server_name, std::vector<int> &port_list, std::vector<std::string> &folder_list)
+bool Server::parseServer(const std::string &server_block, std::vector<std::string> &folder_list)
 {
 	std::string 		buffer, name, value, option_list[7] = {"listen", "host", "server_name", "client_max_body_size", "root", "index", "location"};
 	std::stringstream	ifs(server_block); // std::stringstream works the same as a std::ifstream but is constructed from a string instead of a file
@@ -257,13 +258,8 @@ bool Server::parseServer(const std::string &server_block, const std::string &ser
 			ft_error(4, name, "");
 			return false;
 		}
-		if (!parseOption(option, value, ifs, server_name, port_list))
+		if (!parseOption(option, value, ifs))
 			return false;
-	}
-	if (_ports.empty())
-	{
-		std::cerr << server_name << " needs at least one port" << std::endl;
-		return false;
 	}
 	if (_client_max_body_size == -1)
 		_client_max_body_size = 60000; // The PDF states we need to limit the client_max_body_size
@@ -299,12 +295,12 @@ void Server::handleRequest(struct t_request &request, std::vector<std::string> &
 	}
 	catch(const std::exception& e)
 	{
-		log(e.what(), request.client, "", "", 1);
+		log(e.what(), request.client, "", 1);
 	}
 
 	extension = request.url.substr(request.url.find_last_of("."));
 
 	// if (!kill && (request.url == "./dir.html" || request.url.substr(0, 6) == "./www/"))
 	if (!kill && extension != ".css" && extension != ".ico")
-		log("", request.client, request.server, request.url, 3);
+		log("", request.client, request.url, 3);
 }

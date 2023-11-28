@@ -18,6 +18,7 @@
 #include <sys/select.h>
 #include <signal.h>
 #include <netdb.h>
+#include "../Server.hpp"
 
 # define DISPLAY_HTML false
 # define DISPLAY_METHOD_AND_LOCATION false
@@ -32,13 +33,16 @@
 # define EXIT_SUCCESS 0
 # define EXIT_FAILURE 1
 
+class Server;
+
 struct t_request {
 
 	std::string					method;
 	std::string					location;
 	std::string					url;
 	std::string					code;
-    std::string                 server;
+	std::vector<Server*>		*potentialServers;
+    Server                 		*server;
     std::string                 client;
     std::string                 header;
     std::string                 body;
@@ -52,7 +56,7 @@ std::string ft_pop_back(std::string);
 int         ft_stoi(std::string);
 std::string ft_to_string(int);
 std::string trim(const std::string &);
-void        log(std::string, std::string, std::string, std::string, int);
+void        log(std::string, std::string, std::string, int);
 void		sendText(struct t_request &);
 void		sendFile(struct t_request &);
 std::string getContentType(std::string);

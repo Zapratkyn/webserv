@@ -54,7 +54,7 @@ int ft_stoi(std::string str)
 	return result;
 }
 
-void log(std::string line, std::string client, std::string server, std::string url, int type)
+void log(std::string line, std::string client, std::string url, int type)
 {
 	time_t tm = std::time(NULL);
 	char* dt = ctime(&tm);

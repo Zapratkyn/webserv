@@ -95,21 +95,27 @@ namespace webserv_utils {
 		std::cout << ss.str() << std::endl;
 	}
 
-	std::string getServer(std::vector<Server> &server_list, std::map<int, struct sockaddr_in> &socket_list)
+	void getPotentialServers(std::vector<Server> &server_list, struct sockaddr_in &addr, struct t_request &request)
 	{
-		std::vector<int> socket_list;
-		std::string result = "";
+		std::vector<struct sockaddr_in> end_points;
 
 		for (std::vector<Server>::iterator server_it = server_list.begin(); server_it != server_list.end(); server_it++)
 		{
-			socket_list = server_it->second->getSockets();
-			for (std::vector<int>::iterator socket_it = socket_list.begin(); socket_it != socket_list.end(); socket_it++)
+			end_points = server_it->getEndPoints();
+			for (std::vector<struct sockaddr_in>::iterator end_point_it = end_points.begin(); end_point_it != end_points.end(); end_point_it++)
 			{
-				if (*socket_it == socket)
-					return server_it->second->getServerName();
+				if (end_point_it->sin_addr.s_addr == addr.sin_addr.s_addr && end_point_it->sin_port == addr.sin_port)
+					*request.potentialServers.push_back(server_it);
 			}
 		}
-		return result;
+	}
+
+	void gerServer(std::vector<Server*> &server_list, std::string &host)
+	{
+		for (std::vector<Server*>::iterator it = server_list.begin(); it !=  server_list.end(); it++)
+		{
+			
+		}
 	}
 
 	void displayServers(std::map<std::string, Server*> &server_list)
@@ -220,7 +226,7 @@ namespace webserv_utils {
 		request.is_url = false;
 	}
 
-	void getRequest(int max_body_size, struct t_request &request)
+	void getRequest(struct t_request &request)
 	{
 		int bytesReceived;
 		char buffer[BUFFER_SIZE];

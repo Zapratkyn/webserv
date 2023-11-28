@@ -43,7 +43,6 @@ void Webserv::parseConf()
 	*/
 	std::ifstream 			infile(_conf.c_str());
 	std::string				buffer, server_block;
-	std::vector<int>		port_list;
 
 	while(!infile.eof())
 	{
@@ -52,7 +51,7 @@ void Webserv::parseConf()
 		{
 			server_block = getServerBlock(infile);
 			Server server;
-			if (!server->parseServer(server_block, port_list, _folder_list))
+			if (!server->parseServer(server_block, _folder_list))
 				throw confFailureException();
 			_server_list.push_back(server);
 			for(std::vector<struct sockaddr_in>::iterator it = server._end_points.begin(); it != server._end_points.end(); it++)
@@ -186,7 +185,7 @@ void Webserv::acceptNewConnections(int &max_fds, fd_set &readfds)
 				new_socket = accept(socket, (sockaddr *)&_socketAddr, &_socketAddrLen);
 				if (new_socket < 0)
 					break;
-				new_request.server = getServer(_server_list, _socket_list[socket]);
+				new_request.potentialServers = getPotentialServers(_server_list, _socket_list[socket], new_request);
 				new_request.client = _socketAddr.sin_addr;
 				new_request.socket = new_socket;
 				_request_list.push_back(new_request);
@@ -209,13 +208,14 @@ void Webserv::readRequests(fd_set &readfds, fd_set &writefds)
 		{
 			try
 			{
-				getRequest(it->server->getBodySize(), it);
+				getRequest(*it);
 				if (it->host == "")
 				{
 					it->code = "400 Bad Request";
 					it->url = "./www/errors/400.html";
 					sendText(it);
 				}
+				getServer(it->potentialServers, it->host);
 				FD_SET(it->socket, &writefds);
 			}
 			catch(const std::exception& e)

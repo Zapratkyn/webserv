@@ -14,8 +14,9 @@ private:
 	int															_client_max_body_size;
 	std::map<std::string, t_location>							_location_list;
 	std::vector<struct sockaddr_in>								_end_points;
+	std::vector<std::string>									_hosts;
 
-	bool 										parseOption(const int &, std::string &, std::stringstream &, const std::string &, std::vector<int> &);
+	bool 										parseOption(const int &, std::string &, std::stringstream &);
 	void										addDefaultLocation();
 
 public:
@@ -23,22 +24,23 @@ public:
 	Server();
 	~Server();
 
-	std::vector<std::string> 							getServerName() const;
+	std::vector<std::string> 							getServerNames() const;
 	std::string 										getRoot() const;
 	std::string 										getIndex() const;
 	int													getBodySize() const;
 	std::map<std::string, t_location> 					getLocationlist() const;
-	std::vector<std::pair<std::string, std::string> >	getEndPoints() const;
+	std::vector<struct sockaddr_in>						getEndPoints() const;
+	std::vector<std::string>							getHosts() const;
 
 	bool										setHost(const std::string&);
 	bool										addServerName(const std::string&);
 	bool										setRoot(std::string&);
 	bool										setIndex(const std::string&);
 	bool										setBodySize(const std::string&);
-	bool										addEndPoint(const std::string&, std::vector<int>&);
+	bool										addEndPoint(const std::string&);
 	bool										addLocation(std::stringstream&, std::string &value);
 
-	bool										parseServer(const std::string &, const std::string &, std::vector<int> &, std::vector<std::string> &, int);
+	bool										parseServer(const std::string &, std::vector<std::string> &);
 	void										handleRequest(struct t_request &, std::vector<std::string> &, bool &);
 
 };
