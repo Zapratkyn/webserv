@@ -22,10 +22,12 @@ Webserv::Webserv(const std::string &conf_file) : _socketAddrLen(sizeof(_socketAd
 
 Webserv::~Webserv() 
 {
+	for (std::vector<Server*>::iterator it = _server_list.begin(); it != _server_list.end(); it++)
+		delete (*it);
 	for (std::vector<int>::iterator it = _listen_socket_list.begin(); it != _listen_socket_list.end(); it++)
 		close(*it);
-	for (std::map<int, struct t_request>::iterator it = _request_list.begin(); it != _request_list.end(); it++)
-		close(it->first);
+	for (std::vector<struct t_request>::iterator it = _request_list.begin(); it != _request_list.end(); it++)
+		close(it->socket);
 	return;
 }
 
@@ -43,6 +45,7 @@ void Webserv::parseConf()
 	*/
 	std::ifstream 			infile(_conf.c_str());
 	std::string				buffer, server_block;
+	Server					*server;
 
 	while(!infile.eof())
 	{
@@ -50,12 +53,15 @@ void Webserv::parseConf()
 		if (buffer == "server {")
 		{
 			server_block = getServerBlock(infile);
-			Server server;
+			server = new Server;
 			if (!server->parseServer(server_block, _folder_list))
+			{
+				delete server;
 				throw confFailureException();
+			}
 			_server_list.push_back(server);
-			for(std::vector<struct sockaddr_in>::iterator it = server._end_points.begin(); it != server._end_points.end(); it++)
-				_address_list.push_back(*it);
+			// for(std::vector<struct sockaddr_in>::iterator it = server._end_points.begin(); it != server._end_points.end(); it++)
+			// 	_address_list.push_back(*it);
 		}
 	}
 	infile.close();
@@ -66,13 +72,14 @@ void Webserv::parseConf()
 void Webserv::startServer()
 {
 	std::vector<struct sockaddr_in> address_list;
+	struct sockaddr_in addr;
 	int listen_socket;
+	int reuse = true;
 
 	_socketAddr.sin_family = AF_INET;
 
 	if (!checkRedirectionList(_url_list))
 		throw redirectionListException();
-
 
 	/*
 	Each port in the conf file is used to make an individual listening socket
@@ -81,9 +88,9 @@ void Webserv::startServer()
 	and to the global socket_list (to reset the readfds fd_set in startListen() and to close everything at the end)
 	Bind() gives a "name" to each socket
 	*/
-	for (std::vector<Server>::iterator server_it = _server_list.begin(); server_it != _server_list.end(); server_it++)
+	for (std::vector<Server*>::iterator server_it = _server_list.begin(); server_it != _server_list.end(); server_it++)
 	{
-		address_list = server_it->getEndPoints();
+		address_list = (*server_it)->getEndPoints();
 		for (std::vector<struct sockaddr_in>::iterator addr_it = address_list.begin(); addr_it != address_list.end(); addr_it++)
 		{
 			if (!socketIsSet(_socket_list, *addr_it))
@@ -92,10 +99,14 @@ void Webserv::startServer()
 				if (listen_socket < 0)
 					throw openSocketException();
 
+				if (setsockopt(listen_socket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) < 0)
+					throw setSocketoptionException();
+
 				fcntl(listen_socket, F_SETFL, O_NONBLOCK); // Sets the sockets to non-blocking
 				_listen_socket_list.push_back(listen_socket);
 
-				if (bind(listen_socket, (sockaddr *)addr_it, sizeof(*addr_it)) < 0)
+				addr = *addr_it;
+				if (bind(listen_socket, (sockaddr *)&addr, sizeof(*addr_it)) < 0)
 					throw bindException();
 
 				if (listen(listen_socket, MAX_LISTEN) < 0) // The second argument is the max number of connections the socket can take at a time
@@ -108,8 +119,8 @@ void Webserv::startServer()
 
 void Webserv::startListen()
 {
-	listenLog(_socketAddr, _server_list); // Displays all the open ports to the user on the terminal
-	log("Webserv started", "", "", "", 0);
+	std::cout << "\n\n### Webserv started ###\n\n" << std::endl;
+	log("Webserv started", "", "", 0);
 
 	/*
 	Select() needs the biggest fd + 1 from all the fd_sets
@@ -140,21 +151,12 @@ void Webserv::startListen()
 		Go through the whole process again
 		*/
 		select_return = pselect(max_fds, &readfds, &writefds, NULL, NULL, &sigmask);
-		if (select_return == 0)
+		if (select_return < 0)
 		{
-			if (!_request_list.empty())
-			{
-				for (std::map<int, t_request>::iterator it = _request_list.begin(); it != _request_list.end(); it++)
-				{
-					it->second.url = "./www/errors/500.html";
-					it->second.code = "500 Internal Server Error";
-					sendText(it->second);
-				}
-				_request_list.clear();
-			}
-			step = 1;
+			std::cerr << "Select error" << std::endl;
 			continue;
 		}
+		std::cout << "OK" << std::endl;
 		if (step == 1)
 			acceptNewConnections(max_fds, readfds);
 		else if (step == 2 && !_request_list.empty())
@@ -166,7 +168,7 @@ void Webserv::startListen()
 	}
 	FD_ZERO(&readfds);
 	FD_ZERO(&writefds);
-	log("Webserv stopped", "", "", "", 0);
+	log("Webserv stopped", "", "", 0);
 }
 
 void Webserv::acceptNewConnections(int &max_fds, fd_set &readfds)
@@ -185,8 +187,8 @@ void Webserv::acceptNewConnections(int &max_fds, fd_set &readfds)
 				new_socket = accept(socket, (sockaddr *)&_socketAddr, &_socketAddrLen);
 				if (new_socket < 0)
 					break;
-				new_request.potentialServers = getPotentialServers(_server_list, _socket_list[socket], new_request);
-				new_request.client = _socketAddr.sin_addr;
+				getPotentialServers(_server_list, _socket_list[socket], new_request);
+				// new_request.client = _socketAddr.sin_addr;
 				new_request.socket = new_socket;
 				_request_list.push_back(new_request);
 				max_fds++;
@@ -213,14 +215,14 @@ void Webserv::readRequests(fd_set &readfds, fd_set &writefds)
 				{
 					it->code = "400 Bad Request";
 					it->url = "./www/errors/400.html";
-					sendText(it);
+					sendText(*it);
 				}
-				getServer(it->potentialServers, it->host);
+				// getServer(*it);
 				FD_SET(it->socket, &writefds);
 			}
 			catch(const std::exception& e)
 			{
-				log(e.what(), it->client, "", "", 1);
+				log(e.what(), it->client, "", 1);
 			}
 		}
 	}
@@ -234,7 +236,7 @@ void Webserv::sendRequests(bool &kill, fd_set &writefds, int &max_fds)
 	{
 		if (FD_ISSET(it->socket, &writefds))
 		{
-			it->server->handleRequest(it, _url_list, kill);
+			it->server->handleRequest(*it, _url_list, kill);
 			if (kill)
 				break;
 			close(it->socket); // Closes the socket so it can be used again later

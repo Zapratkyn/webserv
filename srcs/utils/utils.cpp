@@ -73,10 +73,10 @@ void log(std::string line, std::string client, std::string url, int type)
 		log_file << client << ": " << line << "\n";
 		break;
 	case 2:
-		log_file << server << ": Request (" << url << ") received from " << client << "\n";
+		log_file << ": Request (" << url << ") received from " << client << "\n";
 		break;
 	case 3:
-		log_file << server << ": Reponse (" << &url[1] << ") sent to " << client << "\n";
+		log_file << ": Reponse (" << &url[1] << ") sent to " << client << "\n";
 		break;
 	}
 	

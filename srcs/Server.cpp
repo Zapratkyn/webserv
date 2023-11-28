@@ -2,19 +2,9 @@
 
 using namespace server_utils;
 
-Server::Server() : _host(""), _root(""), _index(""), _client_max_body_size(-1) { return; }
+Server::Server() : _root(""), _index(""), _client_max_body_size(-1) { return; }
 Server::~Server() { return; }
 
-bool Server::setHost(const std::string &host)
-{
-	if (_host != "")
-	{
-		ft_error(0, host, "host");
-		return false;
-	}
-	_host = host;
-	return true;
-}
 bool Server::addServerName(const std::string &name)
 {
 	if (!_server_name.empty())
@@ -92,7 +82,7 @@ bool Server::addEndPoint(const std::string &value)
   	  	ip_address = value.substr(0, pos++);
   	  	if (ip_address.empty()) 
 		{
-  	  	  	ft_error(5, value, "listen");
+  	  	  	ft_error(7, value, "listen");
   	  	  	return false;
   	  	}
   	  	if (ip_address == "*")
@@ -110,12 +100,12 @@ bool Server::addEndPoint(const std::string &value)
   	  	ip_address = "0.0.0.0";
   	}
 
-	setSocketAddress(ip_address, port_num, &addr_in);
+	if (!setSocketAddress(ip_address, port_num, &addr_in))
+		return false;
 
-  	std::vector<struct sockaddr_in>::iterator it;
-  	for (it = _end_points.begin(); it != _end_points.end(); ++it)
+  	for (std::vector<struct sockaddr_in>::iterator it = _end_points.begin(); it != _end_points.end(); ++it)
 	{
-  	  	if (it->sin_addr == addr_in.sin_addr && it->sin_port == addr_in.sin_port)
+  	  	if (it->sin_addr.s_addr == addr_in.sin_addr.s_addr && it->sin_port == addr_in.sin_port)
 		{
   	  	  	ft_error(0, value, "listen");
   	  	  	return false;
@@ -194,26 +184,22 @@ bool Server::parseOption(const int &option, std::string &value, std::stringstrea
 				return false;
 			break;
 		case 1:
-			if (!setHost(value))
-				return false;
-			break;
-		case 2:
 			if (!addServerName(value))
 				return false;
 			break;
-		case 3:
+		case 2:
 			if (!setBodySize(value))
 				return false;
 			break;
-		case 4:
+		case 3:
 			if (!setRoot(value))
 				return false;
 			break;
-		case 5:
+		case 4:
 			if (!setIndex(value))
 				return false;
 			break;
-		case 6:
+		case 5:
 			if (!addLocation(ifs, value))
 				return false;
 			break;
@@ -223,7 +209,7 @@ bool Server::parseOption(const int &option, std::string &value, std::stringstrea
 
 bool Server::parseServer(const std::string &server_block, std::vector<std::string> &folder_list)
 {
-	std::string 		buffer, name, value, option_list[7] = {"listen", "host", "server_name", "client_max_body_size", "root", "index", "location"};
+	std::string 		buffer, name, value, option_list[7] = {"listen", "server_name", "client_max_body_size", "root", "index", "location"};
 	std::stringstream	ifs(server_block); // std::stringstream works the same as a std::ifstream but is constructed from a string instead of a file
 	int					option;
 	t_location			folder;
@@ -243,7 +229,7 @@ bool Server::parseServer(const std::string &server_block, std::vector<std::strin
 				return false;
 			}
 		}
-		for (int i = 0; i <= 7; i++)
+		for (int i = 0; i <= 6; i++)
 		{
 			option = i;
 			if (name == option_list[i])
@@ -253,7 +239,7 @@ bool Server::parseServer(const std::string &server_block, std::vector<std::strin
 		Thanks to the 'option == 7' condition, we don't need a default 
 		behavior for the switch statement in the parseOption() function
 		*/
-		if (option == 7)
+		if (option == 6)
 		{
 			ft_error(4, name, "");
 			return false;

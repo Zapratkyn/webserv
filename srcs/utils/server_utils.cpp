@@ -162,25 +162,31 @@ namespace server_utils {
 				break;
 			case 5:
 				std::cerr << "autoindex " << value << ": invalid value" << std::endl;
+				break;
+			case 6:
+				std::cerr << "Listen directive is empty" << std::endl;
+				break;
+			case 7:
+				std::cerr << "listen: invalid value" << std::endl;
+				break;
 		}
 	}
 
 	bool setSocketAddress(const std::string &ip_address, const std::string &port_num, struct sockaddr_in *socket_addr)
 	{
-  		struct addrinfo hints;
+  		struct addrinfo hints = {};
   		struct addrinfo *res = NULL;
 		int status;
 
   		hints.ai_family = AF_INET;
   		hints.ai_socktype = SOCK_STREAM;
-  		hints.ai_flags = AI_NUMERICSERV;
 
-  		status = getaddrinfo(ip_address.c_str(), port_num.c_str(), &hints, &res);
-  		if (status != 0 || res == NULL)
+		status = getaddrinfo(ip_address.c_str(), port_num.c_str(), &hints, &res);
+		if (status != 0 || !res)
 			return false;
   		*socket_addr = *(struct sockaddr_in *)res->ai_addr;
 		freeaddrinfo(res);
-  		return true;
+		return true;
 	}
 
 	bool allowedMethod(std::string &method, std::vector<std::string> &list)
@@ -240,7 +246,7 @@ namespace server_utils {
 		std::string extension = &request.location[request.location.find_last_of(".")];
 
 		if (extension != ".css" && extension != ".ico")
-			log("", request.client, request.server, request.location, 2);
+			log("", request.client,  request.location, 2);
 
 		if (extension[0] == '.')
 		{
@@ -351,7 +357,6 @@ namespace server_utils {
 		}
 		ifs.close();
 
-		html.insert(html.find("</title>"), request.server);
 		html.insert(html.find("</caption>"), request.location);
 
 		if (root != "/www/")
@@ -373,19 +378,11 @@ namespace server_utils {
 
 		loc = loc.substr(0, loc.find_last_of("/"));
 
-		html.insert(spot, "\n\t\t<tr>\n\t\t\t<td><img src=");
+		html.insert(spot, "\n\t\t<tr>\n\t\t\t<td><img src=\"/parentDirectory.png\"></td>\n\t\t\t<td><a href=\"");
 		spot = html.rfind("</tbody>");
-		html.insert(spot++, 1, '"');
-		html.insert(spot, "/parentDirectory.png");
-		spot = html.rfind("</tbody>");
-		html.insert(spot++, 1, '"');
-		html.insert(spot, "></td>\n\t\t\t<td><a href=");
-		spot = html.rfind("</tbody>");
-		html.insert(spot++, 1, '"');
 		html.insert(spot, loc);
 		spot = html.rfind("</tbody>");
-		html.insert(spot++, 1, '"');
-		html.insert(spot, ">Parent directory</a></td>\n\t\t\t<td>Directory</td>\n\t\t</tr>\n");
+		html.insert(spot, "\">Parent directory</a></td>\n\t\t\t<td>Directory</td>\n\t\t</tr>\n");
 
 	}
 
@@ -411,9 +408,8 @@ namespace server_utils {
 			url_copy.append(file_name);
 			extension = &url_copy[url_copy.find_last_of(".")];
 			spot = html.rfind("</tbody>");
-			html.insert(spot, "\t\t<tr>\n\t\t\t<td><img src=");
+			html.insert(spot, "\t\t<tr>\n\t\t\t<td><img src=\"");
 			spot = html.rfind("</tbody>");
-			html.insert(spot++, 1, '"');
 			if (extension == ".html" || extension == ".htm" || extension == ".php")
 				html.insert(spot, "/webPage.png");
 			else if (extension != "")
@@ -421,10 +417,8 @@ namespace server_utils {
 			else
 				html.insert(spot, "/directory.png");
 			spot = html.rfind("</tbody>");
-			html.insert(spot++, 1, '"');
-			html.insert(spot, " /></td>\n\t\t\t<td><a href=");
+			html.insert(spot, "\" /></td>\n\t\t\t<td><a href=\"");
 			spot = html.rfind("</tbody>");
-			html.insert(spot++, 1, '"');
 			html.insert(spot, url_copy);
 			spot = html.rfind("</tbody>");
 			html.insert(spot++, 1, '"');

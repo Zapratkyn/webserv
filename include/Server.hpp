@@ -4,6 +4,8 @@
 #include "utils/server_utils.hpp"
 #include "utils/utils.hpp"
 
+struct t_location;
+
 class Server {
 
 private:
@@ -31,8 +33,8 @@ public:
 	std::map<std::string, t_location> 					getLocationlist() const;
 	std::vector<struct sockaddr_in>						getEndPoints() const;
 	std::vector<std::string>							getHosts() const;
+	std::vector<int>									getPorts() const;
 
-	bool										setHost(const std::string&);
 	bool										addServerName(const std::string&);
 	bool										setRoot(std::string&);
 	bool										setIndex(const std::string&);

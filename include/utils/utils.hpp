@@ -22,7 +22,7 @@
 
 # define DISPLAY_HTML false
 # define DISPLAY_METHOD_AND_LOCATION false
-# define DISPLAY_REQUEST false
+# define DISPLAY_REQUEST true
 # define DISPLAY_URL false
 # define DISPLAY_SERVERS false
 
@@ -41,7 +41,7 @@ struct t_request {
 	std::string					location;
 	std::string					url;
 	std::string					code;
-	std::vector<Server*>		*potentialServers;
+	std::vector<Server*>		potentialServers;
     Server                 		*server;
     std::string                 client;
     std::string                 header;

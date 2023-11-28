@@ -69,7 +69,7 @@ namespace webserv_utils {
 		}
 	}
 
-	bool socketIsSet(std::map<int, struct sockaddr_in> &socket_list, struct sockaddr_in addr)
+	bool socketIsSet(std::map<int, struct sockaddr_in> &socket_list, struct sockaddr_in &addr)
 	{
 		for (std::map<int, struct sockaddr_in>::iterator it = socket_list.begin(); it != socket_list.end(); it++)
 		{
@@ -79,46 +79,30 @@ namespace webserv_utils {
 		return false;
 	}
 
-	void listenLog(struct sockaddr_in &socketAddr, std::map<std::string, Server*> &server_list)
-	{
-		std::ostringstream 	ss;
-		std::vector<int>	port_list;
-
-	   	ss << "\n\n### Webserv started ###\n\nLISTENING PORTS:\n\n";
-		for (std::map<std::string, Server*>::iterator server_it = server_list.begin(); server_it != server_list.end(); server_it++)
-		{
-			port_list = server_it->second->getPorts();
-			for (std::vector<int>::iterator port_it = port_list.begin(); port_it != port_list.end(); port_it++)
-				ss << " - " << *port_it << "\n";
-		}
-	    ss << "\n***\n";
-		std::cout << ss.str() << std::endl;
-	}
-
-	void getPotentialServers(std::vector<Server> &server_list, struct sockaddr_in &addr, struct t_request &request)
+	void getPotentialServers(std::vector<Server*> &server_list, struct sockaddr_in &addr, struct t_request &request)
 	{
 		std::vector<struct sockaddr_in> end_points;
 
-		for (std::vector<Server>::iterator server_it = server_list.begin(); server_it != server_list.end(); server_it++)
+		for (std::vector<Server*>::iterator server_it = server_list.begin(); server_it != server_list.end(); server_it++)
 		{
-			end_points = server_it->getEndPoints();
+			end_points = (*server_it)->getEndPoints();
 			for (std::vector<struct sockaddr_in>::iterator end_point_it = end_points.begin(); end_point_it != end_points.end(); end_point_it++)
 			{
 				if (end_point_it->sin_addr.s_addr == addr.sin_addr.s_addr && end_point_it->sin_port == addr.sin_port)
-					*request.potentialServers.push_back(server_it);
+					request.potentialServers.push_back(*server_it);
 			}
 		}
 	}
 
-	void gerServer(std::vector<Server*> &server_list, std::string &host)
+	void gerServer(struct t_request &request)
 	{
-		for (std::vector<Server*>::iterator it = server_list.begin(); it !=  server_list.end(); it++)
+		for (std::vector<Server*>::iterator it = request.potentialServers.begin(); it !=  request.potentialServers.end(); it++)
 		{
 			
 		}
 	}
 
-	void displayServers(std::map<std::string, Server*> &server_list)
+	void displayServers(std::vector<Server*> &server_list)
 	{
 		std::string 						value;
 		int									iValue;
@@ -128,29 +112,18 @@ namespace webserv_utils {
 
 		std::cout << std::endl;
 
-		for (std::map<std::string, Server*>::iterator it = server_list.begin(); it != server_list.end(); it++)
+		for (std::vector<Server*>::iterator it = server_list.begin(); it != server_list.end(); it++)
 		{
-			std::cout << "### " << it->first << " ###\n" << std::endl;
-			value = it->second->getHost();
-			if (value != "")
-				std::cout << "Host : " << value << std::endl;
-			value = it->second->getIndex();
+			value = (*it)->getIndex();
 			if (value != "")
 				std::cout << "Index : " << value << std::endl;
-			value = it->second->getRoot();
+			value = (*it)->getRoot();
 			if (value != "")
 				std::cout << "Root : " << value << std::endl;
-			iValue = it->second->getBodySize();
+			iValue = (*it)->getBodySize();
 			if (iValue >= 0)
 				std::cout << "Client max body size : " << iValue << std::endl;
-			port_list = it->second->getPorts();
-			if (!port_list.empty())
-			{
-				std::cout << "Ports :\n";
-				for (std::vector<int>::iterator it = port_list.begin(); it != port_list.end(); it++)
-					std::cout << "  - " << *it << std::endl;
-			}
-			location_list = it->second->getLocationlist();
+			location_list = (*it)->getLocationlist();
 			if (!location_list.empty())
 			{
 				std::cout << "Locations :\n";
@@ -222,7 +195,7 @@ namespace webserv_utils {
 		request.method = "";
 		request.host = "";
 		request.url = "";
-		request.server = "";
+		request.server = NULL;
 		request.is_url = false;
 	}
 
@@ -248,8 +221,8 @@ namespace webserv_utils {
 			}
 			if (oBuffer.substr(0, oBuffer.find_first_of(" \t")) == "Host:")
 			{
-				oBuffer = &oBuffer(oBuffer.find_first_of(" \t"));
-				request.host = &oBuffer(oBuffer.find_first_not_of(" \t"));
+				oBuffer = &oBuffer[oBuffer.find_first_of(" \t")];
+				request.host = &oBuffer[oBuffer.find_first_not_of(" \t")];
 			}
 		}
 		while (!ifs.eof())
@@ -258,8 +231,6 @@ namespace webserv_utils {
 			request.body.append(oBuffer);
 			request.body.append("\n");
 		}
-		if (request.body.size() > (size_t)max_body_size)
-			throw requestBodyTooBigException();
 		if (DISPLAY_REQUEST)
 			std::cout << request.header << "\n" << request.body << std::endl;
 	}
