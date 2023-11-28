@@ -67,7 +67,6 @@ void Webserv::parseConf()
 void Webserv::startServer()
 {
 	std::vector<struct sockaddr_in> address_list;
-	std::vector<struct sockaddr_in> duplicate_check;
 	int listen_socket;
 
 	_socketAddr.sin_family = AF_INET;
@@ -88,7 +87,7 @@ void Webserv::startServer()
 		address_list = server_it->getEndPoints();
 		for (std::vector<struct sockaddr_in>::iterator addr_it = address_list.begin(); addr_it != address_list.end(); addr_it++)
 		{
-			if (!isAlreadySet(duplicate_check, *addr_it))
+			if (!socketIsSet(_socket_list, *addr_it))
 			{
 				listen_socket = socket(AF_INET, SOCK_STREAM, 0);
 				if (listen_socket < 0)
@@ -102,7 +101,7 @@ void Webserv::startServer()
 
 				if (listen(listen_socket, MAX_LISTEN) < 0) // The second argument is the max number of connections the socket can take at a time
 					throw listenException();
-				duplicate_check.push_back();
+				_socket_list[listen_socket] = *addr_it;
 			}
 		}
 	}
@@ -187,7 +186,7 @@ void Webserv::acceptNewConnections(int &max_fds, fd_set &readfds)
 				new_socket = accept(socket, (sockaddr *)&_socketAddr, &_socketAddrLen);
 				if (new_socket < 0)
 					break;
-				new_request.server = getServer(_server_list, socket);
+				new_request.server = getServer(_server_list, _socket_list[socket]);
 				new_request.client = _socketAddr.sin_addr;
 				new_request.socket = new_socket;
 				_request_list.push_back(new_request);

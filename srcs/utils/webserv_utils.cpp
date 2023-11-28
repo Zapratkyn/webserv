@@ -69,19 +69,12 @@ namespace webserv_utils {
 		}
 	}
 
-	static bool addrIsEqual(const struct sockaddr_in &addr1, const struct sockaddr_in &addr2)
+	bool socketIsSet(std::map<int, struct sockaddr_in> &socket_list, struct sockaddr_in addr)
 	{
-		return (addr1.sin_addr.s_addr == addr2.sin_addr.s_addr &&
-		        addr1.sin_port == addr2.sin_port &&
-		        addr1.sin_family == addr2.sin_family);
-	}
-
-	static bool addrIsUsed(const std::vector<struct sockaddr_in> &addrs, const struct sockaddr_in &addr) 
-	{
-		for (std::vector<struct sockaddr_in>::const_iterator it = addrs.begin(); it != addrs.end(); ++it)
+		for (std::map<int, struct sockaddr_in>::iterator it = socket_list.begin(); it != socket_list.end(); it++)
 		{
-		  	if (addrIsEqual(*it, addr))
-		  	  	return true;
+			if (it->second.sin_port == addr.sin_port && it->second.sin_addr.s_addr == addr.sin_addr.s_addr)
+				return true;
 		}
 		return false;
 	}
@@ -102,7 +95,7 @@ namespace webserv_utils {
 		std::cout << ss.str() << std::endl;
 	}
 
-	std::string getServer(std::vector<Server> &server_list, int &socket)
+	std::string getServer(std::vector<Server> &server_list, std::map<int, struct sockaddr_in> &socket_list)
 	{
 		std::vector<int> socket_list;
 		std::string result = "";
