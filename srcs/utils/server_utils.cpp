@@ -217,7 +217,8 @@ namespace server_utils {
 		{
 			request.url = "./www/errors/400.html";
 			request.code = "400 Bad Request";
-			sendText(request);
+			if (!sendText(request))
+				sendError(400, request.socket);
 			throw invalidMethodException();
 		}
 		first_line = &first_line[first_line.find_first_of(" \t")];
@@ -273,7 +274,8 @@ namespace server_utils {
 			{
 				request.url = "./www/errors/404.html";
 				request.code = "404 Not found";
-				sendText(request);
+				if (!sendText(request))
+					sendError(404, request.socket);
 			}
 		}
 
@@ -309,7 +311,8 @@ namespace server_utils {
 		{
 			request.url = "./www/errors/404.html";
 			request.code = "404 Not found";
-			sendText(request);
+			if (!sendText(request))
+				sendError(404, request.socket);
 		}
 	}
 
@@ -388,13 +391,10 @@ namespace server_utils {
 
 	void addLinkList(std::string &html, std::string location)
 	{
-		DIR *dir;
-	    struct dirent *file;
 		std::string file_name, url_copy, extension, dot = ".";
+		DIR *dir = opendir(dot.append(location).c_str());
+	    struct dirent *file = readdir(dir);
 		int spot;
-
-		dir = opendir(dot.append(location).c_str());
-		file = readdir(dir);
 		
 		while (file)
 		{

@@ -83,12 +83,16 @@ void log(std::string line, std::string client, std::string url, int type)
 	log_file.close();
 }
 
-void sendText(t_request &request)
+bool sendText(t_request &request)
 {
-	std::ifstream 	ifs(request.url.c_str());
+	std::ifstream 	ifs;
 	std::string		html = "", buffer, extension = &request.url[request.url.find_last_of(".") + 1];
 	// We start our response by the http header with the right code
 	std::string 	result = "HTTP/1.1 ";
+
+	ifs.open(request.url.c_str());
+	if (ifs.fail())
+		return false;
 
 	result.append(request.code);
 	result.append("\nContent-Type: text/");
@@ -110,6 +114,7 @@ void sendText(t_request &request)
 		std::cout << result << std::endl;
 
 	write(request.socket, result.c_str(), result.size());
+	return true;
 }
 
 void sendFile(t_request &request)
@@ -134,6 +139,50 @@ void sendFile(t_request &request)
 	write(request.socket, result.c_str(), result.size());
 
 	ifs.close();
+}
+
+void sendError(int error, int socket)
+{
+	std::string 	header = "HTTP/1.1 \nContent-Type: text/html\nContent-Lenght: ";
+	std::string		body = "<!DOCTYPE html>\n", result;
+
+	body.append("<html lang=\"fr\">\n<head>\n\t<meta charset=\"UTF-8\">\n");
+	body.append("\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n");
+	body.append("\t<link rel=\"shortcut icon\" type=\"image/x-icon\" href=\"/icons/favicon.ico\">\n");
+	body.append("\t<link rel=\"stylesheet\" type=\"text/css\" href=\"/others/stylesheet.css\">\n");
+	body.append("\t<title>Bad Request</title>\n</head>\n\n<body>\n");
+	body.append("\t<section id=\"error-page-section\">\n");
+	body.append("\t\t<div class=\"err-page-container\">\n");
+	body.append("\t\t\t<h1></h1>\n\t\t\t<h3></h3>\n\t\t\t<p>Sorry, .</p>\n");
+	body.append("\t\t\t<p>Please return to the <a href=\"/www/pages/index.html\">home page</a>.</p>\n");
+	body.append("\t\t</div>\n\t</section>\n</body>\n</html>");
+
+	switch (error) {
+		case 400:
+			header.insert(header.find("\nContent-Type"), "400 Bad Request");
+			body.insert(body.find("</h1>"), "400");
+			body.insert(body.find("</h3>"), "Bad Request");
+			body.insert(body.rfind(',') + 2, "the request's syntax was incorrect");
+			break;
+		case 404:
+			header.insert(header.find("\nContent-Type"), "404 Not found");
+			body.insert(body.find("</h1>"), "404");
+			body.insert(body.find("</h3>"), "Not Found");
+			body.insert(body.rfind(',') + 2, "the page you are looking for was not found");
+			break;
+		case 500:
+			header.insert(header.find("\nContent-Type"), "500 Internal Server Error");
+			body.insert(body.find("</h1>"), "500");
+			body.insert(body.find("</h3>"), "Internal Server Error");
+			body.insert(body.rfind(',') + 2, "an internal error has occured");
+			break;
+	}
+
+	result = header.append(ft_to_string(body.size()));
+	result.append("\n\n");
+	result.append(body);
+
+	write(socket, result.c_str(), result.size());
 }
 
 std::string getContentType(std::string extension)

@@ -217,7 +217,8 @@ void Webserv::readRequests(fd_set &readfds, fd_set &writefds)
 				{
 					it->code = "400 Bad Request";
 					it->url = "./www/errors/400.html";
-					sendText(*it);
+					if (!sendText(*it))
+						sendError(400, it->socket);
 				}
 				getServer(*it);
 				FD_SET(it->socket, &writefds);
