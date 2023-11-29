@@ -4,7 +4,7 @@ namespace webserv_utils {
 	
 	bool checkRedirectionList(std::vector<std::string> &url_list)
 	{
-		std::ifstream	list("./redirections.list");
+		std::ifstream	list("./others/redirections.list");
 		std::string		buffer, url, dot;
 		bool			is_url;
 

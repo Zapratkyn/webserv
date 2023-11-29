@@ -315,7 +315,7 @@ namespace server_utils {
 
 	bool checkRedirection(struct t_request &request)
 	{
-		std::ifstream	list("./redirections.list");
+		std::ifstream	list("./others/redirections.list");
 		std::string		in, out, buffer, dot = ".";
 		int				sep;
 
