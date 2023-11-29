@@ -37,7 +37,7 @@ int main(int argc, char **argv)
 	}
 
 	// For an unknown reason, if I don't display something here, I get a SegFault error message...
-	std::cout << "Webserv stopped\n" << std::endl;
+	std::cout << "### Webserv stopped ###\n" << std::endl;
 
 	return EXIT_SUCCESS;
 }

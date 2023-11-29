@@ -33,7 +33,6 @@ public:
 	std::map<std::string, t_location> 					getLocationlist() const;
 	std::vector<struct sockaddr_in>						getEndPoints() const;
 	std::vector<std::string>							getHosts() const;
-	std::vector<int>									getPorts() const;
 
 	bool										addServerName(const std::string&);
 	bool										setRoot(std::string&);

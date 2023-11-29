@@ -94,12 +94,23 @@ namespace webserv_utils {
 		}
 	}
 
-	void gerServer(struct t_request &request)
+	void getServer(struct t_request &request)
 	{
-		for (std::vector<Server*>::iterator it = request.potentialServers.begin(); it !=  request.potentialServers.end(); it++)
+		std::vector<std::string> names;
+		Server *server = *request.potentialServers.begin();
+		std::string domain = request.host.substr(0, request.host.find(':'));
+		
+		for (std::vector<Server*>::iterator server_it = request.potentialServers.begin(); server_it !=  request.potentialServers.end(); server_it++)
 		{
-			
+			names = (*server_it)->getServerNames();
+			for (std::vector<std::string>::iterator name_it = names.begin(); name_it != names.end(); name_it++)
+			{
+				if (*name_it == domain)
+					request.server = *server_it;
+			}
 		}
+		if (!request.server)
+			request.server = server;
 	}
 
 	void displayServers(std::vector<Server*> &server_list)

@@ -10,15 +10,14 @@ private:
 
 	std::vector<int>								_listen_socket_list;
 	std::vector<struct t_request>					_request_list;
-	struct sockaddr_in 								_socketAddr;
-	unsigned int									_socketAddrLen;
 	std::vector<std::string>						_url_list;
 	std::vector<std::string>						_folder_list;
 	std::vector<Server*>							_server_list;
+	int												_max_fds;
 
-	void											acceptNewConnections(int &, fd_set &);
+	void											acceptNewConnections(fd_set &, int &);
 	void											readRequests(fd_set &, fd_set &);
-	void											sendRequests(bool &, fd_set &, int &);
+	void											sendRequests(bool &, fd_set &);
 
 	std::string										_conf;
 	// std::vector<struct sockaddr_in>					_address_list;

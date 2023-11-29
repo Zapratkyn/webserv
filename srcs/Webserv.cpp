@@ -2,7 +2,7 @@
 
 using namespace webserv_utils;
 
-Webserv::Webserv(const std::string &conf_file) : _socketAddrLen(sizeof(_socketAddr)), _conf(conf_file)
+Webserv::Webserv(const std::string &conf_file) : _conf(conf_file)
 {
 	_folder_list.push_back("/www/");
 	_url_list.push_back("./stylesheet.css");
@@ -76,8 +76,6 @@ void Webserv::startServer()
 	int listen_socket;
 	int reuse = true;
 
-	_socketAddr.sin_family = AF_INET;
-
 	if (!checkRedirectionList(_url_list))
 		throw redirectionListException();
 
@@ -115,6 +113,7 @@ void Webserv::startServer()
 			}
 		}
 	}
+	_max_fds = ++listen_socket;
 }
 
 void Webserv::startListen()
@@ -127,7 +126,7 @@ void Webserv::startListen()
 	Since fd 0, 1 and 2 are already taken (STD_IN and STD_OUT and STD_ERR), our list begins at 3
 	Therefore, max_fds = total_number_of_sockets + STD_IN + STD_OUT + STD_ERR
 	*/
-	int 			max_fds = _listen_socket_list.size() + 3, step = 1, select_return;
+	int 			step = 1, select_return, max;
 	fd_set			readfds, writefds;
 	bool			kill = false;
 	sigset_t		sigmask;
@@ -136,6 +135,7 @@ void Webserv::startListen()
 	{
 		if (step == 1)
 		{
+			max = _max_fds;
 			FD_ZERO(&readfds);
 			for (std::vector<int>::iterator it = _listen_socket_list.begin(); it != _listen_socket_list.end(); it++)
 				FD_SET(*it, &readfds);
@@ -150,18 +150,18 @@ void Webserv::startListen()
 		Reset the readfds with the listening sockets (see above)
 		Go through the whole process again
 		*/
-		select_return = pselect(max_fds, &readfds, &writefds, NULL, NULL, &sigmask);
+		select_return = pselect(max, &readfds, &writefds, NULL, NULL, &sigmask);
 		if (select_return < 0)
 		{
 			std::cerr << "Select error" << std::endl;
 			continue;
 		}
 		if (step == 1)
-			acceptNewConnections(max_fds, readfds);
+			acceptNewConnections(readfds, max);
 		else if (step == 2 && !_request_list.empty())
 			readRequests(readfds, writefds);
 		else if (step == 3 && !_request_list.empty())
-			sendRequests(kill, writefds, max_fds);
+			sendRequests(kill, writefds);
 		if (++step == 4)
 			step = 1;
 	}
@@ -170,27 +170,32 @@ void Webserv::startListen()
 	log("Webserv stopped", "", "", 0);
 }
 
-void Webserv::acceptNewConnections(int &max_fds, fd_set &readfds)
+void Webserv::acceptNewConnections(fd_set &readfds, int &max)
 {
 	int new_socket;
 	struct t_request new_request;
+	struct sockaddr_in addr;
+	unsigned int addr_len = sizeof(addr);
 	std::vector<int> new_socket_list;
 
-	for (int socket = 3; socket < max_fds; socket++)
+	addr.sin_family = AF_INET;
+
+	for (int socket = 3; socket < max; socket++)
 	{
 		if (FD_ISSET(socket, &readfds))
 		{
 			while (true)
 			{
 				initRequest(new_request);
-				new_socket = accept(socket, (sockaddr *)&_socketAddr, &_socketAddrLen);
+				new_socket = accept(socket, (sockaddr *)&addr, &addr_len);
 				if (new_socket < 0)
 					break;
+				max = new_socket;
+				max++;
 				getPotentialServers(_server_list, _socket_list[socket], new_request);
 				// new_request.client = _socketAddr.sin_addr;
 				new_request.socket = new_socket;
 				_request_list.push_back(new_request);
-				max_fds++;
 				new_socket_list.push_back(new_socket);
 			}
 		}
@@ -216,7 +221,7 @@ void Webserv::readRequests(fd_set &readfds, fd_set &writefds)
 					it->url = "./www/errors/400.html";
 					sendText(*it);
 				}
-				// getServer(*it);
+				getServer(*it);
 				FD_SET(it->socket, &writefds);
 			}
 			catch(const std::exception& e)
@@ -229,7 +234,7 @@ void Webserv::readRequests(fd_set &readfds, fd_set &writefds)
 	FD_ZERO(&readfds);
 }
 
-void Webserv::sendRequests(bool &kill, fd_set &writefds, int &max_fds)
+void Webserv::sendRequests(bool &kill, fd_set &writefds)
 {
 	for (std::vector<struct t_request>::iterator it = _request_list.begin(); it != _request_list.end();)
 	{
@@ -240,7 +245,6 @@ void Webserv::sendRequests(bool &kill, fd_set &writefds, int &max_fds)
 				break;
 			close(it->socket); // Closes the socket so it can be used again later
 			it = _request_list.erase(it);
-			max_fds--;
 		}
 	}
 	// We don't want select() to test this fd_set anymore
