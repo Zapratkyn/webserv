@@ -242,7 +242,11 @@ namespace webserv_utils {
 			request.body.append("\n");
 		}
 		if (DISPLAY_REQUEST)
-			std::cout << request.header << "\n" << request.body << std::endl;
+		{
+			std::cout << request.header << std::endl;
+			if (request.body != "")
+				std::cout << request.body << std::endl;
+		}
 	}
 
 };

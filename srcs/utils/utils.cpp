@@ -193,5 +193,7 @@ std::string getContentType(std::string extension)
 		return "html";
 	else if (extension == "ico")
 		return ("image/x-icon");
+	else if (extension == "pdf")
+		return ("application/pdf");
 	return "";
 }

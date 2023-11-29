@@ -262,7 +262,7 @@ namespace server_utils {
 				if (*it == request.location)
 				{
 					request.url = *it;
-					extension = &request.url[request.url.find_last_of(".")];
+					// extension = &request.url[request.url.find_last_of(".")];
 					if (extension == ".html" || extension == ".htm" || extension == ".php" || extension == ".css")
 						sendText(request);
 					else
@@ -412,7 +412,7 @@ namespace server_utils {
 			spot = html.rfind("</tbody>");
 			if (extension == ".html" || extension == ".htm" || extension == ".php")
 				html.insert(spot, "/icons/webPage.png");
-			else if (extension != "")
+			else if (extension[0] == '.')
 				html.insert(spot, "/icons/file.png");
 			else
 				html.insert(spot, "/icons/directory.png");
@@ -429,7 +429,7 @@ namespace server_utils {
 			spot = html.rfind("</tbody>");
 			if (extension == ".html" || extension == ".htm" || extension == ".php")
 				html.insert(spot, "Web page");
-			else if (extension != "")
+			else if (extension[0] == '.')
 				html.insert(spot, "File");
 			else
 				html.insert(spot, "Directory");

@@ -68,6 +68,6 @@ NOTES :
 
 TO DO :
 
-- I'm not sure about the allowed methods for the locations. Either I won't let the user look for direct url or I'll update any page linked to a location if methods other than GET are specified in the location block.
+- Some types of media (So far, I tried only pdf) struggle to be sent via binary opening mode. Icons work most of the time
 
 - CGI !!!
