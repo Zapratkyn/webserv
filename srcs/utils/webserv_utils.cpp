@@ -98,14 +98,13 @@ namespace webserv_utils {
 	{
 		std::vector<std::string> names;
 		Server *server = *request.potentialServers.begin();
-		std::string domain = request.host.substr(0, request.host.find(':'));
 		
 		for (std::vector<Server*>::iterator server_it = request.potentialServers.begin(); server_it !=  request.potentialServers.end(); server_it++)
 		{
 			names = (*server_it)->getServerNames();
 			for (std::vector<std::string>::iterator name_it = names.begin(); name_it != names.end(); name_it++)
 			{
-				if (*name_it == domain)
+				if (*name_it == request.host)
 					request.server = *server_it;
 			}
 		}

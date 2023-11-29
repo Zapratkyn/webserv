@@ -71,3 +71,199 @@ Wed Nov 29 11:49:35 2023 - : Reponse (/dir.html) sent to
 Wed Nov 29 11:49:35 2023 - : Request (/file.png) received from 
 Wed Nov 29 11:49:35 2023 - : Reponse (/file.png) sent to 
 Wed Nov 29 11:49:44 2023 - Webserv stopped
+Wed Nov 29 11:51:10 2023 - Webserv started
+Wed Nov 29 11:51:25 2023 - : Request (/) received from 
+Wed Nov 29 11:51:25 2023 - : Reponse (/www/pages/index.html) sent to 
+Wed Nov 29 11:51:32 2023 - Webserv stopped
+Wed Nov 29 11:52:05 2023 - Webserv started
+Wed Nov 29 11:52:08 2023 - : Request (/) received from 
+Wed Nov 29 11:52:08 2023 - : Reponse (/www/pages/test.html) sent to 
+Wed Nov 29 11:52:11 2023 - : Request (/www/pages/index.html) received from 
+Wed Nov 29 11:52:11 2023 - : Reponse (/www/pages/index.html) sent to 
+Wed Nov 29 11:52:17 2023 - Webserv stopped
+Wed Nov 29 11:53:36 2023 - Webserv started
+Wed Nov 29 11:53:41 2023 - : Request (/) received from 
+Wed Nov 29 11:53:41 2023 - : Reponse (/www/pages/test.html) sent to 
+Wed Nov 29 11:53:45 2023 - : Request (/) received from 
+Wed Nov 29 11:53:45 2023 - : Reponse (/www/pages/index.html) sent to 
+Wed Nov 29 11:53:51 2023 - Webserv stopped
+Wed Nov 29 11:55:26 2023 - Webserv started
+Wed Nov 29 11:55:49 2023 - : Invalid method
+Wed Nov 29 11:55:49 2023 - : Reponse (/www/errors/400.html) sent to 
+Wed Nov 29 11:55:55 2023 - : Request (/) received from 
+Wed Nov 29 11:55:55 2023 - : Reponse (/www/pages/test.html) sent to 
+Wed Nov 29 11:56:14 2023 - : Request (/www/pages/index.html) received from 
+Wed Nov 29 11:56:14 2023 - : Reponse (/www/pages/index.html) sent to 
+Wed Nov 29 11:56:18 2023 - : Request (/www/pages/) received from 
+Wed Nov 29 11:56:18 2023 - : Reponse (/dir.html) sent to 
+Wed Nov 29 11:56:18 2023 - : Request (/webPage.png) received from 
+Wed Nov 29 11:56:18 2023 - : Reponse (/webPage.png) sent to 
+Wed Nov 29 11:56:18 2023 - : Request (/parentDirectory.png) received from 
+Wed Nov 29 11:56:18 2023 - : Reponse (/parentDirectory.png) sent to 
+Wed Nov 29 11:56:21 2023 - : Request (/www) received from 
+Wed Nov 29 11:56:21 2023 - : Reponse (/dir.html) sent to 
+Wed Nov 29 11:56:21 2023 - : Request (/file.png) received from 
+Wed Nov 29 11:56:21 2023 - : Reponse (/file.png) sent to 
+Wed Nov 29 11:56:24 2023 - : Request (/www/errors) received from 
+Wed Nov 29 11:56:24 2023 - : Reponse (/dir.html) sent to 
+Wed Nov 29 11:56:24 2023 - : Request (/parentDirectory.png) received from 
+Wed Nov 29 11:56:24 2023 - : Reponse (/parentDirectory.png) sent to 
+Wed Nov 29 11:56:24 2023 - : Request (/webPage.png) received from 
+Wed Nov 29 11:56:24 2023 - : Reponse (/webPage.png) sent to 
+Wed Nov 29 11:56:25 2023 - : Request (/www) received from 
+Wed Nov 29 11:56:25 2023 - : Reponse (/dir.html) sent to 
+Wed Nov 29 11:56:25 2023 - : Request (/file.png) received from 
+Wed Nov 29 11:56:25 2023 - : Reponse (/file.png) sent to 
+Wed Nov 29 11:56:25 2023 - : Request (/www/files) received from 
+Wed Nov 29 11:56:25 2023 - : Reponse (/dir.html) sent to 
+Wed Nov 29 11:56:25 2023 - : Request (/parentDirectory.png) received from 
+Wed Nov 29 11:56:25 2023 - : Reponse (/parentDirectory.png) sent to 
+Wed Nov 29 11:56:26 2023 - : Request (/www) received from 
+Wed Nov 29 11:56:26 2023 - : Reponse (/dir.html) sent to 
+Wed Nov 29 11:56:26 2023 - : Request (/file.png) received from 
+Wed Nov 29 11:56:26 2023 - : Reponse (/file.png) sent to 
+Wed Nov 29 11:56:27 2023 - : Request (/www/pages) received from 
+Wed Nov 29 11:56:27 2023 - : Reponse (/dir.html) sent to 
+Wed Nov 29 11:56:27 2023 - : Request (/webPage.png) received from 
+Wed Nov 29 11:56:27 2023 - : Reponse (/webPage.png) sent to 
+Wed Nov 29 11:56:27 2023 - : Request (/parentDirectory.png) received from 
+Wed Nov 29 11:56:27 2023 - : Reponse (/parentDirectory.png) sent to 
+Wed Nov 29 11:56:28 2023 - : Request (/www) received from 
+Wed Nov 29 11:56:28 2023 - : Reponse (/dir.html) sent to 
+Wed Nov 29 11:56:28 2023 - : Request (/file.png) received from 
+Wed Nov 29 11:56:28 2023 - : Reponse (/file.png) sent to 
+Wed Nov 29 11:56:35 2023 - Webserv stopped
+Wed Nov 29 12:01:11 2023 - Webserv started
+Wed Nov 29 12:02:13 2023 - Webserv started
+Wed Nov 29 12:02:16 2023 - : Request (/) received from 
+Wed Nov 29 12:02:16 2023 - : Reponse (/www/pages/index.html) sent to 
+Wed Nov 29 12:02:52 2023 - : Request (/) received from 
+Wed Nov 29 12:02:52 2023 - : Reponse (/www/pages/index.html) sent to 
+Wed Nov 29 12:03:03 2023 - : Request (/) received from 
+Wed Nov 29 12:03:03 2023 - : Reponse (/www/pages/index.html) sent to 
+Wed Nov 29 12:03:07 2023 - Webserv stopped
+Wed Nov 29 12:06:40 2023 - Webserv started
+Wed Nov 29 12:06:43 2023 - : Request (/) received from 
+Wed Nov 29 12:06:43 2023 - : Reponse (/www/pages/index.html) sent to 
+Wed Nov 29 12:06:43 2023 - : Reponse (/www/errors/404.html) sent to 
+Wed Nov 29 12:06:45 2023 - : Request (/www/) received from 
+Wed Nov 29 12:06:45 2023 - : Reponse (/dir.html) sent to 
+Wed Nov 29 12:06:45 2023 - : Request (/icons/file.png) received from 
+Wed Nov 29 12:06:45 2023 - : Reponse (/www/errors/404.html) sent to 
+Wed Nov 29 12:06:47 2023 - : Request (/www/errors) received from 
+Wed Nov 29 12:06:47 2023 - : Reponse (/dir.html) sent to 
+Wed Nov 29 12:06:47 2023 - : Request (/icons/parentDirectory.png) received from 
+Wed Nov 29 12:06:47 2023 - : Reponse (/www/errors/404.html) sent to 
+Wed Nov 29 12:07:36 2023 - Webserv started
+Wed Nov 29 12:07:38 2023 - : Request (/www/errors) received from 
+Wed Nov 29 12:07:38 2023 - : Reponse (/dir.html) sent to 
+Wed Nov 29 12:07:38 2023 - : Request (/icons/parentDirectory.png) received from 
+Wed Nov 29 12:07:38 2023 - : Reponse (/icons/parentDirectory.png) sent to 
+Wed Nov 29 12:07:38 2023 - : Request (/icons/webPage.png) received from 
+Wed Nov 29 12:07:38 2023 - : Reponse (/icons/webPage.png) sent to 
+Wed Nov 29 12:07:39 2023 - : Request (/www) received from 
+Wed Nov 29 12:07:39 2023 - : Reponse (/dir.html) sent to 
+Wed Nov 29 12:07:39 2023 - : Request (/icons/file.png) received from 
+Wed Nov 29 12:07:39 2023 - : Reponse (/icons/file.png) sent to 
+Wed Nov 29 12:07:40 2023 - : Request (/www/files) received from 
+Wed Nov 29 12:07:40 2023 - : Reponse (/dir.html) sent to 
+Wed Nov 29 12:07:40 2023 - : Request (/icons/parentDirectory.png) received from 
+Wed Nov 29 12:07:40 2023 - : Reponse (/icons/parentDirectory.png) sent to 
+Wed Nov 29 12:07:41 2023 - : Request (/www) received from 
+Wed Nov 29 12:07:41 2023 - : Reponse (/dir.html) sent to 
+Wed Nov 29 12:07:41 2023 - : Request (/icons/file.png) received from 
+Wed Nov 29 12:07:41 2023 - : Reponse (/icons/file.png) sent to 
+Wed Nov 29 12:07:41 2023 - : Request (/www/pages) received from 
+Wed Nov 29 12:07:41 2023 - : Reponse (/dir.html) sent to 
+Wed Nov 29 12:07:41 2023 - : Request (/icons/parentDirectory.png) received from 
+Wed Nov 29 12:07:41 2023 - : Reponse (/icons/parentDirectory.png) sent to 
+Wed Nov 29 12:07:41 2023 - : Request (/icons/webPage.png) received from 
+Wed Nov 29 12:07:41 2023 - : Reponse (/icons/webPage.png) sent to 
+Wed Nov 29 12:07:42 2023 - : Request (/www) received from 
+Wed Nov 29 12:07:42 2023 - : Reponse (/dir.html) sent to 
+Wed Nov 29 12:07:42 2023 - : Request (/icons/file.png) received from 
+Wed Nov 29 12:07:42 2023 - : Reponse (/icons/file.png) sent to 
+Wed Nov 29 12:07:42 2023 - : Request (/www/errors) received from 
+Wed Nov 29 12:07:42 2023 - : Reponse (/dir.html) sent to 
+Wed Nov 29 12:07:42 2023 - : Request (/icons/parentDirectory.png) received from 
+Wed Nov 29 12:07:42 2023 - : Reponse (/icons/parentDirectory.png) sent to 
+Wed Nov 29 12:07:42 2023 - : Request (/icons/webPage.png) received from 
+Wed Nov 29 12:07:42 2023 - : Reponse (/icons/webPage.png) sent to 
+Wed Nov 29 12:07:44 2023 - : Request (/www) received from 
+Wed Nov 29 12:07:44 2023 - : Reponse (/dir.html) sent to 
+Wed Nov 29 12:07:44 2023 - : Request (/icons/file.png) received from 
+Wed Nov 29 12:07:44 2023 - : Reponse (/icons/file.png) sent to 
+Wed Nov 29 12:08:35 2023 - Webserv stopped
+Wed Nov 29 12:09:32 2023 - Webserv started
+Wed Nov 29 12:09:41 2023 - Webserv started
+Wed Nov 29 12:11:14 2023 - Webserv started
+Wed Nov 29 12:14:09 2023 - Webserv started
+Wed Nov 29 12:14:33 2023 - Webserv started
+Wed Nov 29 12:14:37 2023 - : Request (/) received from 
+Wed Nov 29 12:14:37 2023 - : Reponse (/www/pages/index.html) sent to 
+Wed Nov 29 12:16:22 2023 - Webserv started
+Wed Nov 29 12:16:25 2023 - : Request (/) received from 
+Wed Nov 29 12:16:25 2023 - : Reponse (/www/pages/index.html) sent to 
+Wed Nov 29 12:16:25 2023 - : Reponse (/www/errors/404.html) sent to 
+Wed Nov 29 12:16:39 2023 - : Request (/) received from 
+Wed Nov 29 12:16:39 2023 - : Reponse (/www/pages/index.html) sent to 
+Wed Nov 29 12:16:39 2023 - : Reponse (/www/errors/404.html) sent to 
+Wed Nov 29 12:16:42 2023 - : Request (/www/) received from 
+Wed Nov 29 12:16:42 2023 - : Reponse (/others/dir.html) sent to 
+Wed Nov 29 12:16:42 2023 - : Reponse (/www/errors/404.html) sent to 
+Wed Nov 29 12:16:42 2023 - : Request (/icons/file.png) received from 
+Wed Nov 29 12:16:42 2023 - : Reponse (/icons/file.png) sent to 
+Wed Nov 29 12:17:01 2023 - : Request (/www/) received from 
+Wed Nov 29 12:17:01 2023 - : Reponse (/others/dir.html) sent to 
+Wed Nov 29 12:17:01 2023 - : Reponse (/www/errors/404.html) sent to 
+Wed Nov 29 12:17:01 2023 - : Request (/icons/file.png) received from 
+Wed Nov 29 12:17:01 2023 - : Reponse (/icons/file.png) sent to 
+Wed Nov 29 12:17:03 2023 - : Request (/www/errors) received from 
+Wed Nov 29 12:17:03 2023 - : Reponse (/others/dir.html) sent to 
+Wed Nov 29 12:17:03 2023 - : Reponse (/www/errors/404.html) sent to 
+Wed Nov 29 12:17:03 2023 - : Request (/icons/parentDirectory.png) received from 
+Wed Nov 29 12:17:03 2023 - : Reponse (/icons/parentDirectory.png) sent to 
+Wed Nov 29 12:17:03 2023 - : Request (/icons/webPage.png) received from 
+Wed Nov 29 12:17:03 2023 - : Reponse (/icons/webPage.png) sent to 
+Wed Nov 29 12:17:04 2023 - : Request (/www) received from 
+Wed Nov 29 12:17:04 2023 - : Reponse (/others/dir.html) sent to 
+Wed Nov 29 12:17:04 2023 - : Reponse (/www/errors/404.html) sent to 
+Wed Nov 29 12:17:04 2023 - : Request (/icons/file.png) received from 
+Wed Nov 29 12:17:04 2023 - : Reponse (/icons/file.png) sent to 
+Wed Nov 29 12:17:10 2023 - : Request (/icons/file.png) received from 
+Wed Nov 29 12:17:10 2023 - : Reponse (/icons/file.png) sent to 
+Wed Nov 29 12:17:18 2023 - : Request (/) received from 
+Wed Nov 29 12:17:18 2023 - : Reponse (/www/pages/index.html) sent to 
+Wed Nov 29 12:17:18 2023 - : Reponse (/www/errors/404.html) sent to 
+Wed Nov 29 12:17:28 2023 - : Request (/www/) received from 
+Wed Nov 29 12:17:28 2023 - : Reponse (/others/dir.html) sent to 
+Wed Nov 29 12:17:28 2023 - : Reponse (/www/errors/404.html) sent to 
+Wed Nov 29 12:17:28 2023 - : Request (/icons/file.png) received from 
+Wed Nov 29 12:17:28 2023 - : Reponse (/icons/file.png) sent to 
+Wed Nov 29 12:17:29 2023 - : Request (/www/pages) received from 
+Wed Nov 29 12:17:29 2023 - : Reponse (/others/dir.html) sent to 
+Wed Nov 29 12:17:29 2023 - : Reponse (/www/errors/404.html) sent to 
+Wed Nov 29 12:17:29 2023 - : Request (/icons/parentDirectory.png) received from 
+Wed Nov 29 12:17:29 2023 - : Reponse (/icons/parentDirectory.png) sent to 
+Wed Nov 29 12:17:29 2023 - : Request (/icons/webPage.png) received from 
+Wed Nov 29 12:17:29 2023 - : Reponse (/icons/webPage.png) sent to 
+Wed Nov 29 12:17:30 2023 - : Request (/www/pages/test.html) received from 
+Wed Nov 29 12:17:30 2023 - : Reponse (/www/pages/test.html) sent to 
+Wed Nov 29 12:17:30 2023 - : Reponse (/www/errors/404.html) sent to 
+Wed Nov 29 12:17:31 2023 - : Request (/www/pages/index.html) received from 
+Wed Nov 29 12:17:31 2023 - : Reponse (/www/pages/index.html) sent to 
+Wed Nov 29 12:17:31 2023 - : Reponse (/www/errors/404.html) sent to 
+Wed Nov 29 12:17:46 2023 - Webserv stopped
+Wed Nov 29 12:17:50 2023 - Webserv started
+Wed Nov 29 12:18:01 2023 - Webserv started
+Wed Nov 29 12:18:03 2023 - : Request (/) received from 
+Wed Nov 29 12:18:03 2023 - : Reponse (/www/pages/index.html) sent to 
+Wed Nov 29 12:18:06 2023 - : Request (/www/) received from 
+Wed Nov 29 12:18:06 2023 - : Reponse (/others/dir.html) sent to 
+Wed Nov 29 12:19:16 2023 - Webserv started
+Wed Nov 29 12:19:22 2023 - Webserv started
+Wed Nov 29 12:19:28 2023 - Webserv started
+Wed Nov 29 12:19:41 2023 - Webserv started
+Wed Nov 29 12:19:47 2023 - : Request (/) received from 
+Wed Nov 29 12:19:47 2023 - : Reponse (/www/pages/index.html) sent to 
+Wed Nov 29 12:19:51 2023 - Webserv stopped

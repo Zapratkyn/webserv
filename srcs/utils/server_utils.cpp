@@ -234,7 +234,7 @@ namespace server_utils {
 		if (request.location == "/kill")
 		{
 			kill = true;
-			request.url = "./kill.html";
+			request.url = "./others/kill.html";
 			sendText(request);
 		}
 	}
@@ -299,7 +299,7 @@ namespace server_utils {
 				}
 				else if (it->second.autoindex == "on")
 				{
-					request.url = "./dir.html";
+					request.url = "./others/dir.html";
 					sendTable(request, it->second.root);
 					return;
 				}
@@ -345,7 +345,7 @@ namespace server_utils {
 
 	void sendTable(struct t_request &request, std::string root)
 	{
-		std::ifstream 	ifs("./dir.html");
+		std::ifstream 	ifs("./others/dir.html");
 		std::string		html = "", buffer;
 		std::string 	result = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: ";
 
@@ -378,7 +378,7 @@ namespace server_utils {
 
 		loc = loc.substr(0, loc.find_last_of("/"));
 
-		html.insert(spot, "\n\t\t<tr>\n\t\t\t<td><img src=\"/parentDirectory.png\"></td>\n\t\t\t<td><a href=\"");
+		html.insert(spot, "\n\t\t<tr>\n\t\t\t<td><img src=\"/icons/parentDirectory.png\"></td>\n\t\t\t<td><a href=\"");
 		spot = html.rfind("</tbody>");
 		html.insert(spot, loc);
 		spot = html.rfind("</tbody>");
@@ -411,11 +411,11 @@ namespace server_utils {
 			html.insert(spot, "\t\t<tr>\n\t\t\t<td><img src=\"");
 			spot = html.rfind("</tbody>");
 			if (extension == ".html" || extension == ".htm" || extension == ".php")
-				html.insert(spot, "/webPage.png");
+				html.insert(spot, "/icons/webPage.png");
 			else if (extension != "")
-				html.insert(spot, "/file.png");
+				html.insert(spot, "/icons/file.png");
 			else
-				html.insert(spot, "/directory.png");
+				html.insert(spot, "/icons/directory.png");
 			spot = html.rfind("</tbody>");
 			html.insert(spot, "\" /></td>\n\t\t\t<td><a href=\"");
 			spot = html.rfind("</tbody>");

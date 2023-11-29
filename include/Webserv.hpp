@@ -20,7 +20,6 @@ private:
 	void											sendRequests(bool &, fd_set &);
 
 	std::string										_conf;
-	// std::vector<struct sockaddr_in>					_address_list;
 	std::map<int, struct sockaddr_in>				_socket_list;
 
 public:

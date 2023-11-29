@@ -5,12 +5,12 @@ using namespace webserv_utils;
 Webserv::Webserv(const std::string &conf_file) : _conf(conf_file)
 {
 	_folder_list.push_back("/www/");
-	_url_list.push_back("./stylesheet.css");
-	_url_list.push_back("./favicon.ico");
-	_url_list.push_back("./parentDirectory.png");
-	_url_list.push_back("./directory.png");
-	_url_list.push_back("./file.png");
-	_url_list.push_back("./webPage.png");
+	_url_list.push_back("./others/stylesheet.css");
+	_url_list.push_back("./icons/favicon.ico");
+	_url_list.push_back("./icons/parentDirectory.png");
+	_url_list.push_back("./icons/directory.png");
+	_url_list.push_back("./icons/file.png");
+	_url_list.push_back("./icons/webPage.png");
 	parseUrl("./www/", _url_list, _folder_list);
 	if (DISPLAY_URL)
 	{
@@ -60,8 +60,6 @@ void Webserv::parseConf()
 				throw confFailureException();
 			}
 			_server_list.push_back(server);
-			// for(std::vector<struct sockaddr_in>::iterator it = server._end_points.begin(); it != server._end_points.end(); it++)
-			// 	_address_list.push_back(*it);
 		}
 	}
 	infile.close();
