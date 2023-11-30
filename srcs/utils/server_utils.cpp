@@ -169,6 +169,8 @@ namespace server_utils {
 			case 7:
 				std::cerr << "listen: invalid value" << std::endl;
 				break;
+	        case 8:
+		        std::cerr << option << " " << value << ": missing url" << std::endl;
 		}
 	}
 

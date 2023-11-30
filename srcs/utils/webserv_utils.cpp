@@ -119,6 +119,7 @@ namespace webserv_utils {
 		std::vector<int>					port_list;
 		std::map<std::string, t_location>	location_list;
 		std::vector<std::string>			method_list;
+	    std::map<int, std::string>          error_pages;
 
 		std::cout << std::endl;
 
@@ -155,6 +156,13 @@ namespace webserv_utils {
 					}
 				}
 			}
+		    error_pages = (*it)->getErrorPages();
+		    if (!error_pages.empty()) {
+			    std::cout << "Error pages :" << std::endl;
+			    for (std::map<int, std::string>::const_iterator cit = error_pages.begin(); cit != error_pages.end(); ++cit) {
+				    std::cout << "  - " << cit->first << " : " + cit->second << std::endl;
+			    }
+		    }
 			std::cout << std::endl;
 		}
 	}
@@ -175,7 +183,10 @@ namespace webserv_utils {
 	            file = readdir(dir);
 	            continue; 
 	        }
-	        extension = &file_name[file_name.find_last_of(".")];
+                if (file_name.find_last_of(".") != std::string::npos)
+                    extension = &file_name[file_name.find_last_of(".")]; //TODO & DONE fix heap-buffer-overflow
+                else
+                    extension.clear();
 	        if (extension[0] != '.')
 	        {
 	            sub_folder = folder_cpy.append(file_name);

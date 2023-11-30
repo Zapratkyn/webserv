@@ -74,8 +74,8 @@ void Webserv::startServer()
 	int listen_socket;
 	int reuse = true;
 
-	if (!checkRedirectionList(_url_list))
-		throw redirectionListException();
+//	if (!checkRedirectionList(_url_list))
+//		throw redirectionListException();
 
 	/*
 	Each port in the conf file is used to make an individual listening socket
