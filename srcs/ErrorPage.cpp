@@ -32,15 +32,10 @@ void ErrorPage::_buildErrorPage()
 {
 	std::string meaning = _statuses[_status_code];
 
-	_stream << "<!DOCTYPE html>\n"
-	           "<head>\n"
-	           "\t<meta charset=\"UTF-8\">\n"
-	           "\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
-	           "\t<title>" + meaning + "</title>\n"
-	           "</head>\n\n"
+	_stream << "<html>\n"
+	           "<head><title>" << _status_code << " " + meaning + "</title></head>\n"
 	           "<body>\n"
-	           "\t\t\t<h1>" << _status_code << "</h1>\n"
-	           "\t\t\t<h3>" + meaning + "</h3>\n"
+	           "<center><h1>" << _status_code << " " + meaning + "</h1></center>\n"
 	           "</body>\n"
 	           "</html>";
 }
