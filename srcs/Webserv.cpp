@@ -100,6 +100,7 @@ void Webserv::startServer()
 
 				fcntl(listen_socket, F_SETFL, O_NONBLOCK); // Sets the sockets to non-blocking
 				_listen_socket_list.push_back(listen_socket);
+				_global_socket_list.push_back(listen_socket);
 
 				addr = *addr_it;
 				if (bind(listen_socket, (sockaddr *)&addr, sizeof(*addr_it)) < 0)
@@ -111,7 +112,6 @@ void Webserv::startServer()
 			}
 		}
 	}
-	_max_fds = ++listen_socket;
 }
 
 void Webserv::startListen()
@@ -127,17 +127,12 @@ void Webserv::startListen()
 	int 			step = 1, select_return, max;
 	fd_set			readfds, writefds;
 	bool			kill = false;
-	sigset_t		sigmask;
+
+	for (std::vector<int>::iterator it = _listen_socket_list.begin(); it != _listen_socket_list.end(); it++)
+		FD_SET(*it, &readfds);
 	
 	while (!kill)
 	{
-		if (step == 1)
-		{
-			max = _max_fds;
-			FD_ZERO(&readfds);
-			for (std::vector<int>::iterator it = _listen_socket_list.begin(); it != _listen_socket_list.end(); it++)
-				FD_SET(*it, &readfds);
-		}
 		/*
 		Select blocks until a new request is received
 		It then sets the request receiving sockets to 1 and unblocks
@@ -148,7 +143,8 @@ void Webserv::startListen()
 		Reset the readfds with the listening sockets (see above)
 		Go through the whole process again
 		*/
-		select_return = pselect(max, &readfds, &writefds, NULL, NULL, &sigmask);
+		max = *std::max_element(_global_socket_list.begin(), _global_socket_list.end()) + 1;
+		select_return = select(max, &readfds, &writefds, NULL, NULL);
 		if (select_return < 0)
 		{
 			std::cerr << "Select error" << std::endl;
@@ -159,7 +155,7 @@ void Webserv::startListen()
 		else if (step == 2 && !_request_list.empty())
 			readRequests(readfds, writefds);
 		else if (step == 3 && !_request_list.empty())
-			sendRequests(kill, writefds);
+			sendRequests(kill, readfds, writefds);
 		if (++step == 4)
 			step = 1;
 	}
@@ -174,7 +170,6 @@ void Webserv::acceptNewConnections(fd_set &readfds, int &max)
 	struct t_request new_request;
 	struct sockaddr_in addr;
 	unsigned int addr_len = sizeof(addr);
-	std::vector<int> new_socket_list;
 
 	addr.sin_family = AF_INET;
 
@@ -188,40 +183,47 @@ void Webserv::acceptNewConnections(fd_set &readfds, int &max)
 				new_socket = accept(socket, (sockaddr *)&addr, &addr_len);
 				if (new_socket < 0)
 					break;
-				max = new_socket;
-				max++;
 				getPotentialServers(_server_list, _socket_list[socket], new_request);
 				// new_request.client = _socketAddr.sin_addr;
 				new_request.socket = new_socket;
 				_request_list.push_back(new_request);
-				new_socket_list.push_back(new_socket);
+				_global_socket_list.push_back(new_socket);
+				FD_SET(new_socket, &readfds);
 			}
 		}
 	}
-	// We keep only the new sockets to avoid having select() applied on the same sockets several times
-	FD_ZERO(&readfds);
-	for (std::vector<int>::iterator it = new_socket_list.begin(); it != new_socket_list.end(); it++)
-		FD_SET(*it, &readfds);
 }
 
 void Webserv::readRequests(fd_set &readfds, fd_set &writefds)
 {
+	bool stayOpen;
+
 	for (std::vector<struct t_request>::iterator it = _request_list.begin(); it != _request_list.end(); it++)
 	{
 		if (FD_ISSET(it->socket, &readfds))
 		{
 			try
 			{
-				getRequest(*it);
-				if (it->host == "")
+				stayOpen = getRequest(*it);
+				if (!stayOpen)
+				{
+					FD_CLR(it->socket, &readfds);
+					deleteRequest(it->socket, _request_list);
+					close(it->socket);
+				}
+				else if (stayOpen && it->host == "")
 				{
 					it->code = "400 Bad Request";
 					it->url = "./www/errors/400.html";
 					if (!sendText(*it))
 						sendError(400, it->socket);
 				}
-				getServer(*it);
-				FD_SET(it->socket, &writefds);
+				else
+				{
+					getServer(*it);
+					FD_CLR(it->socket, &readfds);
+					FD_SET(it->socket, &writefds);
+				}
 			}
 			catch(const std::exception& e)
 			{
@@ -229,11 +231,9 @@ void Webserv::readRequests(fd_set &readfds, fd_set &writefds)
 			}
 		}
 	}
-	// We don't need to read the requesting sockets anymore
-	FD_ZERO(&readfds);
 }
 
-void Webserv::sendRequests(bool &kill, fd_set &writefds)
+void Webserv::sendRequests(bool &kill, fd_set &readfds, fd_set &writefds)
 {
 	for (std::vector<struct t_request>::iterator it = _request_list.begin(); it != _request_list.end();)
 	{
@@ -242,11 +242,9 @@ void Webserv::sendRequests(bool &kill, fd_set &writefds)
 			it->server->handleRequest(*it, _url_list, kill);
 			if (kill)
 				break;
-			close(it->socket); // Closes the socket so it can be used again later
+			FD_CLR(it->socket, &writefds);
+			FD_SET(it->socket, &readfds);
 			it = _request_list.erase(it);
 		}
 	}
-	// We don't want select() to test this fd_set anymore
-	FD_ZERO(&writefds);
-	_request_list.clear();
 }

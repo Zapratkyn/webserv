@@ -164,6 +164,7 @@ namespace webserv_utils {
 		DIR *dir = opendir(folder.c_str());
 	    struct dirent *file;
 	    std::string file_name, extension, sub_folder, folder_cpy = folder;
+		size_t pos;
 	
 	    file = readdir(dir);
 	
@@ -175,21 +176,26 @@ namespace webserv_utils {
 	            file = readdir(dir);
 	            continue; 
 	        }
-	        extension = &file_name[file_name.find_last_of(".")];
-	        if (extension[0] != '.')
-	        {
-	            sub_folder = folder_cpy.append(file_name);
+			pos = file_name.find_last_of(".");
+			if (pos != std::string::npos)
+	     		extension = &file_name[pos];
+			else
+				extension.clear();
+			if (extension == "")
+			{
+	        	sub_folder = folder_cpy.append(file_name);
 				folder_cpy = folder;
 				sub_folder.append("/");
 				folder_list.push_back(&sub_folder[1]);
-	            parseUrl(sub_folder, url_list, folder_list);
-	        }
+	        	parseUrl(sub_folder, url_list, folder_list);
+			}
 			else
 			{
 				file_name = folder_cpy.append(file_name);
 				folder_cpy = folder;
 				url_list.push_back(file_name);
 			}
+			
 	        file = readdir(dir);
 		}
 		closedir(dir);
@@ -209,15 +215,17 @@ namespace webserv_utils {
 		request.is_url = false;
 	}
 
-	void getRequest(struct t_request &request)
+	bool getRequest(struct t_request &request)
 	{
 		int bytesReceived;
-		char buffer[BUFFER_SIZE];
+		char buffer[BUFFER_SIZE] = {};
 
 		bytesReceived = read(request.socket, buffer, BUFFER_SIZE);
 		if (bytesReceived < 0)
 			throw readRequestException();
-
+		else if (bytesReceived == 0)
+			return false;
+		
 		std::string oBuffer(buffer);
 		std::stringstream ifs(oBuffer);
 
@@ -246,6 +254,16 @@ namespace webserv_utils {
 			std::cout << request.header << std::endl;
 			if (request.body != "")
 				std::cout << request.body << std::endl;
+		}
+		return true;
+	}
+
+	void deleteRequest(int socket, std::vector<struct t_request> &request_list)
+	{
+		for (std::vector<struct t_request>::iterator it = request_list.begin(); it != request_list.end(); it++)
+		{
+			if (it->socket == socket)
+				request_list.erase(it);
 		}
 	}
 

@@ -211,6 +211,7 @@ namespace server_utils {
 	void setRequest(t_request &request, bool &kill)
 	{
 		std::string first_line = request.header.substr(0, request.header.find_first_of("\n"));
+		// int pos;
 
 		request.method = first_line.substr(0, first_line.find_first_of(" \t"));
 		if (!validMethod(request.method))
@@ -224,7 +225,6 @@ namespace server_utils {
 		first_line = &first_line[first_line.find_first_of(" \t")];
 		first_line = &first_line[first_line.find_first_not_of(" \t")];
 		request.location = first_line.substr(0, first_line.find_first_of(" \t"));
-
 
 		if (DISPLAY_METHOD_AND_LOCATION)
 		{
