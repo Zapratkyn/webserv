@@ -15,10 +15,10 @@ private:
 	std::vector<std::string>						_folder_list;
 	std::vector<Server*>							_server_list;
 
-	void											acceptNewConnections(fd_set &, int &);
-	void											readRequests(fd_set &, fd_set &);
-	void											sendRequests(bool &, fd_set &, fd_set &);
-
+	void											acceptNewConnections(int, fd_set *);
+	void											readRequests(int, fd_set *, fd_set *);
+	void											sendRequests(int, bool &, fd_set *, fd_set *);
+        bool _isListeningSocket(int fd);
 	std::string										_conf;
 	std::map<int, struct sockaddr_in>				_socket_list;
 
