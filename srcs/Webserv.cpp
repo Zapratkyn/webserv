@@ -195,23 +195,10 @@ void Webserv::acceptNewConnections(int server_fd, fd_set *read_backup)
 
 }
 
-static int setSocketAddress(const std::string &ip_address, const std::string &port_num,
-                     struct sockaddr_in *socket_addr) {
-        struct addrinfo hints = {};
-        struct addrinfo *res = NULL;
-
-        hints.ai_family = AF_INET;
-        hints.ai_socktype = SOCK_STREAM;
-        hints.ai_flags = AI_NUMERICSERV;
-
-        int status = getaddrinfo(ip_address.c_str(), port_num.c_str(), &hints, &res);
-        if (status == 0 && res != NULL)
-                *socket_addr = *(struct sockaddr_in *)res->ai_addr;
-        freeaddrinfo(res);
-        return (status);
+static int getSocketAddress(int socket, struct sockaddr_in *addr) {
+        socklen_t len = sizeof *addr;
+        return (getsockname(socket, (struct sockaddr *)addr, &len));
 }
-
-
 
 void Webserv::readRequests(int client_fd, fd_set *read_backup, fd_set *write_backup)
 {
@@ -219,8 +206,8 @@ void Webserv::readRequests(int client_fd, fd_set *read_backup, fd_set *write_bac
         struct t_request new_request;
         struct sockaddr_in addr = {};
 
-        // THIS is the address of the server
-        setSocketAddress("127.0.0.1", "8080", &addr);
+        // THIS is the address of the server that init the connection with the client
+        getSocketAddress(client_fd, &addr);
 
         initRequest(new_request);
         getPotentialServers(_server_list, addr, new_request);
