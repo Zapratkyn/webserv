@@ -112,6 +112,13 @@ namespace webserv_utils {
 			request.server = server;
 	}
 
+        void printSocketAddress(struct sockaddr_in &_socketAddr) {
+                char s[INET_ADDRSTRLEN] = {};
+
+                inet_ntop(AF_INET, (void *)&_socketAddr.sin_addr, s, INET_ADDRSTRLEN);
+                std::cout << s << ":" << ntohs(_socketAddr.sin_port);
+        }
+
 	void displayServers(std::vector<Server*> &server_list)
 	{
 		std::string 						value;
@@ -155,8 +162,16 @@ namespace webserv_utils {
 					}
 				}
 			}
+                        std::cout << "Listening on :\n";
+                        std::vector<struct sockaddr_in> endpoints = (*it)->getEndPoints();
+                        for (std::vector<struct sockaddr_in>::iterator it = endpoints.begin(); it != endpoints.end(); ++it)
+                        {
+                                std::cout << "    - ";
+                                printSocketAddress(*it);
+                        }
 			std::cout << std::endl;
 		}
+
 	}
 
 	void parseUrl(std::string folder, std::vector<std::string> &url_list, std::vector<std::string> &folder_list)
@@ -217,14 +232,17 @@ namespace webserv_utils {
 
 	bool getRequest(struct t_request &request)
 	{
-		int bytesReceived;
+		ssize_t bytesReceived;
 		char buffer[BUFFER_SIZE] = {};
 
-		bytesReceived = read(request.socket, buffer, BUFFER_SIZE);
+		bytesReceived = recv(request.socket, buffer, BUFFER_SIZE, 0);
 		if (bytesReceived < 0)
 			throw readRequestException();
 		else if (bytesReceived == 0)
-			return false;
+                {
+                        std::cout << "client closed" << std::endl;
+                        return false;
+                }
 		
 		std::string oBuffer(buffer);
 		std::stringstream ifs(oBuffer);

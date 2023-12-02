@@ -140,14 +140,15 @@ void Webserv::startListen()
         timer.tv_sec = 2;
         timer.tv_usec = 0;
         for (std::vector<int>::iterator it = _listen_socket_list.begin(); it != _listen_socket_list.end(); it++)
-              FD_SET(*it, &write_backup);
+              FD_SET(*it, &read_backup);
 	while (!kill)
 	{
+                FD_ZERO(&writefds);
+                FD_ZERO(&readfds);
                 FD_COPY(&write_backup, &writefds);
                 FD_COPY(&read_backup, &readfds);
-		max = *std::max_element(_global_socket_list.begin(), _global_socket_list.end()) + 1;
-                std::cout << "max is " << max << std::endl;
-		select_return = select(max, &readfds, &writefds, NULL, &timer);
+		max = *std::max_element(_global_socket_list.begin(), _global_socket_list.end());
+		select_return = select(max + 1, &readfds, &writefds, NULL, &timer);
 		if (select_return < 0)
 		{
 			std::cerr << "Select error" << std::endl;
@@ -158,7 +159,7 @@ void Webserv::startListen()
                   std::cout << "Server is waiting ..." << std::endl;
                   continue;
                 }
-                for (int i = 0; i < max; ++i)
+                for (int i = 0; i <= max; ++i)
                 {
 
                         if (FD_ISSET(i, &readfds) && (_isListeningSocket(i)))
@@ -180,76 +181,83 @@ void Webserv::startListen()
 
 void Webserv::acceptNewConnections(int server_fd, fd_set *read_backup)
 {
-        struct t_request new_request;
-        struct sockaddr_in addr = {};
-        unsigned int addr_len = sizeof(addr);
-        addr.sin_family = AF_INET;
+        struct sockaddr_in addr = _socket_list[server_fd];
+        socklen_t addr_len = sizeof(addr);
 
-	initRequest(new_request);
 	int new_socket = accept(server_fd, (sockaddr *)&addr, &addr_len);
 	if (new_socket < 0)
-		return ;
+                return ;
         fcntl(new_socket, F_SETFL, O_NONBLOCK);
-	getPotentialServers(_server_list, _socket_list[server_fd], new_request);
-	// new_request.client = _socketAddr.sin_addr;
-	new_request.socket = new_socket;
-	_request_list.push_back(new_request);
+        int reuse = 1;
+        setsockopt(new_socket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
 	_global_socket_list.push_back(new_socket);
 	FD_SET(new_socket, read_backup);
 
 }
 
+static int setSocketAddress(const std::string &ip_address, const std::string &port_num,
+                     struct sockaddr_in *socket_addr) {
+        struct addrinfo hints = {};
+        struct addrinfo *res = NULL;
+
+        hints.ai_family = AF_INET;
+        hints.ai_socktype = SOCK_STREAM;
+        hints.ai_flags = AI_NUMERICSERV;
+
+        int status = getaddrinfo(ip_address.c_str(), port_num.c_str(), &hints, &res);
+        if (status == 0 && res != NULL)
+                *socket_addr = *(struct sockaddr_in *)res->ai_addr;
+        freeaddrinfo(res);
+        return (status);
+}
+
+
+
 void Webserv::readRequests(int client_fd, fd_set *read_backup, fd_set *write_backup)
 {
 	bool stayOpen;
+        struct t_request new_request;
+        struct sockaddr_in addr = {};
 
-	for (std::vector<struct t_request>::iterator it = _request_list.begin(); it != _request_list.end(); it++)
-	{
-		if (client_fd == it->socket)
-		{
-			try
-			{
-				stayOpen = getRequest(*it);
-				if (!stayOpen)
-				{
-					FD_CLR(client_fd, read_backup);
-					deleteRequest(client_fd, _request_list);
-					close(client_fd);
-				}
-				else if (stayOpen && it->host == "")
-				{
-					it->code = "400 Bad Request";
-					it->url = "./www/errors/400.html";
-					if (!sendText(*it))
-						sendError(400, it->socket);
-				}
-				else
-				{
-					getServer(*it);
-					FD_CLR(client_fd, read_backup);
-					FD_SET(client_fd, write_backup);
-				}
-			}
-			catch(const std::exception& e)
-			{
-				log(e.what(), it->client, "", 1);
-			}
-		}
-	}
+        // THIS is the address of the server
+        setSocketAddress("127.0.0.1", "8080", &addr);
+
+        initRequest(new_request);
+        getPotentialServers(_server_list, addr, new_request);
+        new_request.socket = client_fd;
+
+
+        try
+        {
+                stayOpen = getRequest(new_request);
+                if (!stayOpen)
+                {
+                        FD_CLR(client_fd, read_backup);
+                        close(client_fd);
+                }
+                else
+                {
+                        getServer(new_request);
+                        FD_CLR(client_fd, read_backup);
+                        FD_SET(client_fd, write_backup);
+                        _request_list.push_back(new_request);
+                }
+        }
+        catch (const std::exception& e)
+        {
+                log(e.what(), new_request.client, "", 1);
+        }
 }
 
 void Webserv::sendRequests(int client_fd, bool &kill, fd_set *read_backup, fd_set *write_backup)
 {
-	for (std::vector<struct t_request>::iterator it = _request_list.begin(); it != _request_list.end();)
-	{
+        std::vector<struct t_request>::iterator it ;
+        for (it = _request_list.begin(); it != _request_list.end(); ++it)
 		if (client_fd == it->socket)
-		{
-			it->server->handleRequest(*it, _url_list, kill);
-			if (kill)
-				break;
-                        FD_CLR(client_fd, write_backup);
-                        FD_SET(client_fd, read_backup);
-			it = _request_list.erase(it);
-		}
-	}
+                     break;
+        it->server->handleRequest(*it, _url_list, kill);
+        FD_CLR(client_fd, write_backup);
+        FD_SET(client_fd, read_backup);
+        _request_list.erase(it);
+
 }

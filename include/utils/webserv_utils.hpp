@@ -21,6 +21,7 @@ namespace webserv_utils {
 	bool					socketIsSet(std::map<int, struct sockaddr_in> &, struct sockaddr_in &);
 	void					freeSockets(std::vector<int> &, std::vector<int> &, fd_set &, std::vector<struct t_request> &);
 	void 					deleteRequest(int, std::vector<struct t_request> &);
+        void printSocketAddress(struct sockaddr_in &_socketAddr);
 
     class readRequestException : public std::exception { public: virtual const char *what() const throw() { return "Error while reading request"; } };
     class requestBodyTooBigException : public std::exception { public: virtual const char *what() const throw() { return "Client's request's body too big"; } };

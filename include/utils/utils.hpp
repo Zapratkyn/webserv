@@ -21,10 +21,10 @@
 #include <netdb.h>
 #include "../Server.hpp"
 
-# define DISPLAY_HTML true
+# define DISPLAY_HTML false
 # define DISPLAY_METHOD_AND_LOCATION false
 # define DISPLAY_REQUEST true
-# define DISPLAY_URL true
+# define DISPLAY_URL false
 # define DISPLAY_SERVERS true
 
 # define DIGITS "0123456789"
