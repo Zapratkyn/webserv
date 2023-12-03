@@ -4,19 +4,20 @@ bool valid_file(const std::string &); // I like to keep the main() function on t
 
 int main(int argc, char **argv)
 {
-  signal(SIGPIPE, SIG_IGN);
+	// signal(SIGPIPE, SIG_IGN);
 	if (argc > 2)
 	{
 		std::cerr << "ERROR\nExpected : ./webserv [configuration file path]" << std::endl;
 		return EXIT_FAILURE;
 	}
-	
+
 	std::string conf_file = "./conf/default.conf";
-	
+
 	if (argc == 2)
 	{
 		conf_file = argv[1];
-		if (!valid_file(conf_file)) // Make sure the configuration file exists and has a correct extension (".conf" / "cnf")
+		if (!valid_file(
+		        conf_file)) // Make sure the configuration file exists and has a correct extension (".conf" / "cnf")
 		{
 			std::cerr << "ERROR\nInvalid configuration file" << std::endl;
 			return EXIT_FAILURE;
@@ -27,13 +28,13 @@ int main(int argc, char **argv)
 
 	try
 	{
-		webserver.parseConf(); // Using the configuration file to fill the Webserv's list of servers
+		webserver.parseConf();   // Using the configuration file to fill the Webserv's list of servers
 		webserver.startServer(); // Create the listening sockets
 		webserver.startListen(); // Actual main loop
 	}
 	catch (const std::exception &e)
 	{
-		std::cerr << e.what() <<std::endl;
+		std::cerr << e.what() << std::endl;
 		return EXIT_FAILURE;
 	}
 
