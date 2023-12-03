@@ -181,10 +181,7 @@ void Webserv::startListen()
 
 void Webserv::acceptNewConnections(int server_fd, fd_set *read_backup)
 {
-        struct sockaddr_in addr = _socket_list[server_fd];
-        socklen_t addr_len = sizeof(addr);
-
-	int new_socket = accept(server_fd, (sockaddr *)&addr, &addr_len);
+	int new_socket = accept(server_fd, NULL, NULL);
 	if (new_socket < 0)
                 return ;
         fcntl(new_socket, F_SETFL, O_NONBLOCK);
@@ -206,7 +203,7 @@ void Webserv::readRequests(int client_fd, fd_set *read_backup, fd_set *write_bac
         struct t_request new_request;
         struct sockaddr_in addr = {};
 
-        // THIS is the address of the server that init the connection with the client
+        // THIS is the address of the server that init the connection with the client (the local address of the listening socket)
         getSocketAddress(client_fd, &addr);
 
         initRequest(new_request);

@@ -168,6 +168,7 @@ namespace webserv_utils {
                         {
                                 std::cout << "    - ";
                                 printSocketAddress(*it);
+                                std::cout << std::endl;
                         }
 			std::cout << std::endl;
 		}

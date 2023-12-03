@@ -7,11 +7,11 @@ Server::~Server() { return; }
 
 bool Server::addServerName(const std::string &name)
 {
-	if (!_server_name.empty())
-	{
-		ft_error(0, name, "server_name");
-		return false;
-	}
+//	if (!_server_name.empty())
+//	{
+//		ft_error(0, name, "server_name");
+//		return false;
+//	}
   	std::istringstream ss(name);
   	std::string token;
   	while (ss >> token) 

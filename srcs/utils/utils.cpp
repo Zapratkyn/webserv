@@ -136,7 +136,9 @@ void sendFile(t_request &request)
 	result.append("\n\n");
 	result.append(file);
 
-	write(request.socket, result.c_str(), result.size());
+        ssize_t bytes_written = write(request.socket, result.c_str(), result.size());
+        std::cout << "bytes written : " << bytes_written << std::endl;
+        std::cout << "size : " << result.size() << std::endl;
 
 	ifs.close();
 }
