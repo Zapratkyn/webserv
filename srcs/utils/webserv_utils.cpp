@@ -271,6 +271,14 @@ bool getRequest(struct t_request &request)
 			oBuffer = &oBuffer[oBuffer.find_first_of(" \t")];
 			request.host = &oBuffer[oBuffer.find_first_not_of(" \t")];
 		}
+		else if (oBuffer.substr(0, oBuffer.find_first_of(' ')) == "Connection:")
+		{
+			oBuffer = &oBuffer[oBuffer.find_first_of(' ')];
+			std::stringstream ss(oBuffer);
+			oBuffer.clear();
+			ss >> oBuffer;
+			request.headers["Connection"].push_back(oBuffer);
+		}
 	}
 	while (!ifs.eof())
 	{

@@ -4,7 +4,6 @@ bool valid_file(const std::string &); // I like to keep the main() function on t
 
 int main(int argc, char **argv)
 {
-	// signal(SIGPIPE, SIG_IGN);
 	if (argc > 2)
 	{
 		std::cerr << "ERROR\nExpected : ./webserv [configuration file path]" << std::endl;

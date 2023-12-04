@@ -39,6 +39,7 @@ class Server;
 struct t_request
 {
 
+	std::map<std::string, std::vector<std::string> > headers;
 	std::string method;
 	std::string location;
 	std::string url;

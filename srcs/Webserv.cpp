@@ -134,8 +134,8 @@ void Webserv::startListen()
 
 	FD_ZERO(&read_backup);
 	FD_ZERO(&write_backup);
-	timer.tv_sec = 2;
-	timer.tv_usec = 0;
+//	timer.tv_sec = 2;
+//	timer.tv_usec = 0;
 	for (std::vector<int>::iterator it = _listen_socket_list.begin(); it != _listen_socket_list.end(); it++)
 		FD_SET(*it, &read_backup);
 	while (!kill)
@@ -153,22 +153,25 @@ void Webserv::startListen()
 		}
 		else if (select_return == 0)
 		{
-			std::cout << "Server is waiting ..." << std::endl;
+			//std::cout << "Server is waiting ..." << std::endl;
 			continue;
 		}
 		for (int i = 0; i <= max; ++i)
 		{
 			if (FD_ISSET(i, &readfds) && (_isListeningSocket(i)))
-			{
 				acceptNewConnections(i, &read_backup);
-			}
-			else if (FD_ISSET(i, &readfds) && !_isListeningSocket(i))
+		}
+		for (int i = 0; i <= max; ++i)
+		{
+			 if (FD_ISSET(i, &readfds) && !_isListeningSocket(i))
 			{
 				readRequests(i, &read_backup, &write_backup);
+				break ;
 			}
 			else if (FD_ISSET(i, &writefds) && !_isListeningSocket(i))
 			{
 				sendRequests(i, kill, &read_backup, &write_backup);
+				break ;
 			}
 		}
 	}
@@ -235,6 +238,13 @@ void Webserv::readRequests(int client_fd, fd_set *read_backup, fd_set *write_bac
 	}
 }
 
+static const std::string &getConnectionHeader(struct t_request &request)
+{
+	std::map<std::string, std::vector<std::string> >::iterator it;
+	it = request.headers.find("Connection");
+	return (it->second[0]);
+}
+
 void Webserv::sendRequests(int client_fd, bool &kill, fd_set *read_backup, fd_set *write_backup)
 {
 	std::vector<struct t_request>::iterator it;
@@ -248,6 +258,9 @@ void Webserv::sendRequests(int client_fd, bool &kill, fd_set *read_backup, fd_se
 	}
 	it->server->handleRequest(*it, _url_list, kill);
 	FD_CLR(client_fd, write_backup);
-	FD_SET(client_fd, read_backup);
+	if (getConnectionHeader(*it) == "close")
+		close(client_fd);
+	else
+		FD_SET(client_fd, read_backup);
 	_request_list.erase(it);
 }
