@@ -4,13 +4,13 @@ using namespace webserv_utils;
 
 Webserv::Webserv(const std::string &conf_file) : _conf(conf_file)
 {
-	_folder_list.push_back("/www/");
-	parseUrl("./www/", _url_list, _folder_list);
-	if (DISPLAY_URL)
-	{
-		for (std::vector<std::string>::iterator it = _url_list.begin(); it != _url_list.end(); it++)
-			std::cout << *it << std::endl;
-	}
+	// _folder_list.push_back("/www/");
+	// parseUrl("./www/", _url_list, _folder_list);
+	// if (DISPLAY_URL)
+	// {
+	// 	for (std::vector<std::string>::iterator it = _url_list.begin(); it != _url_list.end(); it++)
+	// 		std::cout << *it << std::endl;
+	// }
 	return;
 }
 
@@ -156,19 +156,23 @@ void Webserv::startListen()
 			std::cout << "Server is waiting ..." << std::endl;
 			continue;
 		}
+		std::cout << "Select" << std::endl;
 		for (int i = 0; i <= max; ++i)
 		{
 			if (FD_ISSET(i, &readfds) && (_isListeningSocket(i)))
 			{
 				acceptNewConnections(i, &read_backup);
+				break ;
 			}
 			else if (FD_ISSET(i, &readfds) && !_isListeningSocket(i))
 			{
 				readRequests(i, &read_backup, &write_backup);
+				break ;
 			}
 			else if (FD_ISSET(i, &writefds) && !_isListeningSocket(i))
 			{
 				sendRequests(i, kill, &read_backup, &write_backup);
+				break ;
 			}
 		}
 	}
