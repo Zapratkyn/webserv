@@ -153,22 +153,22 @@ void Webserv::startListen()
 		}
 		else if (select_return == 0)
 		{
-			//std::cout << "Server is waiting ..." << std::endl;
+			std::cout << "Server is waiting ..." << std::endl;
 			continue;
 		}
 		for (int i = 0; i <= max; ++i)
 		{
 			if (FD_ISSET(i, &readfds) && (_isListeningSocket(i)))
+			{
 				acceptNewConnections(i, &read_backup);
-		}
-		for (int i = 0; i <= max; ++i)
-		{
-			 if (FD_ISSET(i, &readfds) && !_isListeningSocket(i))
+				break ;
+			}
+			if (FD_ISSET(i, &readfds) && !_isListeningSocket(i))
 			{
 				readRequests(i, &read_backup, &write_backup);
 				break ;
 			}
-			else if (FD_ISSET(i, &writefds) && !_isListeningSocket(i))
+			if (FD_ISSET(i, &writefds) && !_isListeningSocket(i))
 			{
 				sendRequests(i, kill, &read_backup, &write_backup);
 				break ;
