@@ -4,13 +4,6 @@ using namespace webserv_utils;
 
 Webserv::Webserv(const std::string &conf_file) : _conf(conf_file)
 {
-	// _folder_list.push_back("/www/");
-	// parseUrl("./www/", _url_list, _folder_list);
-	// if (DISPLAY_URL)
-	// {
-	// 	for (std::vector<std::string>::iterator it = _url_list.begin(); it != _url_list.end(); it++)
-	// 		std::cout << *it << std::endl;
-	// }
 	return;
 }
 
@@ -38,9 +31,8 @@ void Webserv::parseConf()
 	So we can open it at construction without checking for fail()
 	*/
 	std::ifstream infile(_conf.c_str());
-	std::string buffer, server_block, indexing;
+	std::string buffer, server_block;
 	Server *server;
-	int server_index = 0;
 
 	while (!infile.eof())
 	{
@@ -48,9 +40,8 @@ void Webserv::parseConf()
 		if (buffer == "server {")
 		{
 			server_block = getServerBlock(infile);
-			indexing = "server0";
-			server = new Server(indexing.append(ft_to_string(server_index++)));
-			if (!server->parseServer(server_block, _folder_list))
+			server = new Server;
+			if (!server->parseServer(server_block))
 			{
 				delete server;
 				throw confFailureException();

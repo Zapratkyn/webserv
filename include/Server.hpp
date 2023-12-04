@@ -16,21 +16,19 @@ class Server
 
   private:
 	std::vector<std::string> _server_name;
-	std::string _server_index;
 	std::string _root;
 	std::string _index;
 	int _client_max_body_size;
 	std::map<std::string, t_location> _location_list;
 	std::vector<struct sockaddr_in> _end_points;
 	std::map<int, std::string> _error_pages;
-	std::vector<std::string> _folder_list;
 	// ErrorPage	_errorPage;
 
 	bool parseOption(const int &, std::string &, std::stringstream &);
 	void addDefaultLocation();
 
   public:
-	Server(std::string);
+	Server();
 	~Server();
 
 	std::vector<std::string> getServerNames() const;

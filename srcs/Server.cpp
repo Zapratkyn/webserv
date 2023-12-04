@@ -2,7 +2,7 @@
 
 using namespace server_utils;
 
-Server::Server(std::string server_index) : _server_index(server_index), _root(""), _index(""), _client_max_body_size(-1)
+Server::Server() : _root(""), _index(""), _client_max_body_size(-1)
 {
 	return;
 }
@@ -30,12 +30,17 @@ bool Server::addServerName(const std::string &name)
 bool Server::setRoot(std::string &root)
 {
 	std::string global_root = "./www/html/";
-	global_root.append(_server_index);
-	global_root.append("/");
+	DIR *dir;
 
 	if (_root != "")
 	{
 		ft_error(0, root, "root");
+		return false;
+	}
+	dir = opendir(root);
+	if (!dir)
+	{
+		ft_error(9, root, "root");
 		return false;
 	}
 	if (root[root.size() - 1] != '/')
@@ -128,7 +133,7 @@ bool Server::addLocation(std::stringstream &ifs, std::string &value)
 	if (location_block.size())
 	{
 		value = slash.append(value);
-		_location_list[value] = newLocation(value, location_block, _root, _server_index);
+		_location_list[value] = newLocation(value, location_block, _root);
 		if (!_location_list[value].valid)
 			return false;
 	}
@@ -146,8 +151,8 @@ void Server::addDefaultLocation()
 		default_location.root = _root;
 	else
 	{
-		default_location.root = "/www/html/";
-		default_location.root.append(_server_index);
+		default_location.root = "./www/html/";
+		default_location.root.append(_root);
 	}
 	default_location.location = "/";
 	default_location.autoindex = "on";
@@ -271,7 +276,7 @@ bool Server::parseOption(const int &option, std::string &value, std::stringstrea
 	return true;
 }
 
-bool Server::parseServer(const std::string &server_block, std::vector<std::string> &folder_list)
+bool Server::parseServer(const std::string &server_block)
 {
 	std::string buffer, name, value,
 	    option_list[7] = {"listen", "server_name", "client_max_body_size", "root", "index", "location", "error_page"};
@@ -316,19 +321,12 @@ bool Server::parseServer(const std::string &server_block, std::vector<std::strin
 		_client_max_body_size = 60000; // The PDF states we need to limit the client_max_body_size
 	if (_location_list.find("/") == _location_list.end())
 		addDefaultLocation();
-	for (std::vector<std::string>::iterator it = folder_list.begin(); it != folder_list.end(); it++)
-	{
-		folder.autoindex = "on";
-		folder.root = *it;
-		folder.location = *it;
-		_location_list[*it] = folder;
-	}
 	return true;
 }
 
 void Server::handleRequest(struct t_request &request, bool &kill)
 {
-	std::string extension = "", dot = ".";
+	std::string extension = "";
 	size_t pos;
 
 	try
@@ -340,12 +338,8 @@ void Server::handleRequest(struct t_request &request, bool &kill)
 			Truncates the location (if needed)
 			Sets the request.url if location ends with html/htm/php
 			*/
-			checkUrl(request, _root, "");
-			if (request.url == "" || request.url.find('.') == std::string::npos)
-			{
-				// Checks redirections, allowed methods and destinations (url)
-				checkLocation(request, _location_list, _server_index);
-			}
+			checkLocation(request);
+			checkUrl(request, _root);
 		}
 	}
 	catch (const std::exception &e)

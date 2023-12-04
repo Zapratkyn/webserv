@@ -42,12 +42,12 @@ std::string getLocationBlock(std::stringstream &ifs)
 	return location_block;
 }
 
-t_location newLocation(const std::string &location_name, const std::string &location_block, std::string &root, std::string &server_index)
+t_location newLocation(const std::string &location_name, const std::string &location_block, std::string &root)
 {
 	t_location loc;
 	int option, pos;
 	std::stringstream ifs(location_block);
-	std::string root_cpy = root, method, buffer, name, value, slash = "/",
+	std::string method, buffer, name, value, slash = "/",
 	                                         option_list[4] = {"root", "index", "allow_methods", "autoindex"};
 
 	loc.location = location_name;
@@ -82,10 +82,9 @@ t_location newLocation(const std::string &location_name, const std::string &loca
 			}
 			if (value[value.size() - 1] != '/')
 				value.append("/");
-			if (value[0] == '/')
-				loc.root = root_cpy.append(&value[1]);
-			else
-				loc.root = root_cpy.append(value);
+			if (value[0] != '/')
+				value = slash.append(value);
+			loc.root = value;
 			break;
 		case 1:
 			if (loc.index != "")
@@ -139,7 +138,7 @@ t_location newLocation(const std::string &location_name, const std::string &loca
 		}
 	}
 	if (loc.root == "")
-		loc.root = "/";
+		loc.root = root;
 	loc.valid = true;
 	return loc;
 }
@@ -176,6 +175,10 @@ void ft_error(int type, std::string value, std::string option)
 		break;
 	case 8:
 		std::cerr << option << " " << value << ": missing url" << std::endl;
+		break;
+	case 9:
+		std::cerr << value << ": no such directory" << std::endl;
+		break;
 	}
 }
 
@@ -266,39 +269,62 @@ void setRequest(t_request &request, bool &kill)
 	}
 }
 
-void checkUrl(struct t_request &request, std::string &root, std::string local_url)
+void checkUrl(struct t_request &request, std::string root)
 {
-	DIR *dir = opendir(root.c_str());
-	struct dirent *file;
-	std::string local_cpy, root_cpy = root;
+	std::ifstream file;
+	DIR *dir;
+	std::string url = root.append(&request.location[1]), extension;
 
-	file = readdir(dir);
-
-	while (file && request.url == "")
+	file.open(url.c_str());
+	if (!file.fail())
 	{
-		if (file->d_name == "." || file->d_name == "..")
-		{
-			file = readdir(dir);
-			continue;
-		}
-		local_cpy = local_url;
-		local_cpy.append(file->d_name);
-		if (local_cpy == request.location)
-			request.url= root.append(file->d_name);
-		else if (file->d_name.rfind('.') == std::string::npos)
-		{
-			local_cpy.append("/");
-			root_cpy.append(file->d_name);
-			root_cpy.append("/");
-			checkUrl(request, root_cpy, local_cpy);
-		}
+		extension = &request.location[request.location.rfind('.')];
+		if (extension == ".html" || extension == ".htm" || extension == ".php")
+			request.type = PAGE;
 		else
-			file = readdir(dir);
+			request.type = FILE;
+		file.close();
 	}
-	closedir(dir);
+	else
+	{
+		dir = opendir(url);
+		if (dir)
+		{
+			request.type = DIRECTORY;
+			closedir(dir);
+		}
+	}
+	// DIR *dir = opendir(root.c_str());
+	// struct dirent *file;
+	// std::string local_cpy, root_cpy = root;
+
+	// file = readdir(dir);
+
+	// while (file && request.url == "")
+	// {
+	// 	if (file->d_name == "." || file->d_name == "..")
+	// 	{
+	// 		file = readdir(dir);
+	// 		continue;
+	// 	}
+	// 	local_cpy = local_url;
+	// 	local_cpy.append(file->d_name);
+	// 	if (local_cpy == request.location)
+	// 		request.url= root.append(file->d_name);
+	// 	else if (file->d_name.rfind('.') == std::string::npos)
+	// 	{
+	// 		local_cpy.append("/");
+	// 		root_cpy.append(file->d_name);
+	// 		root_cpy.append("/");
+	// 		checkUrl(request, root_cpy, local_cpy);
+	// 	}
+	// 	else
+	// 		file = readdir(dir);
+	// }
+	// closedir(dir);
 }
 
-void checkLocation(struct t_request &request, std::map<std::string, struct t_location> &location_list, std::string &server_index)
+void checkLocation(struct t_request &request, std::map<std::string, struct t_location> &location_list)
 {
 	for (std::map<std::string, struct t_location>::iterator it = location_list.begin(); it != location_list.end(); it++)
 	{
@@ -307,15 +333,7 @@ void checkLocation(struct t_request &request, std::map<std::string, struct t_loc
 			if (it->second.index != "")
 			{
 				request.location = it->second.index;
-				checkUrl(request, it->second.root, "");
-				if (request.url == "")
-				{
-					request.code = "404 Not found";
-					request.url = "www/html//404.html";
-					request.url.insert(9, server_index)
-				}
-				if (!sendText(request))
-					sendError(404, request.socket);
+				checkUrl(request, it->second.root);
 			}
 			else if (it->second.autoindex == "on")
 			{

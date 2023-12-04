@@ -34,6 +34,11 @@
 #define EXIT_SUCCESS 0
 #define EXIT_FAILURE 1
 
+#define ERROR 0
+#define PAGE 1
+#define FILE 2
+#define DIRECTORY 3
+
 class Server;
 
 struct t_request
@@ -50,6 +55,7 @@ struct t_request
 	std::string body;
 	std::string host;
 	int socket;
+	int type;
 };
 
 std::string ft_pop_back(std::string);
