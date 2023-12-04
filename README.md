@@ -1,12 +1,6 @@
 # webserv
 
-Warning :
-
-If during testing you get a "Couldn't bind socket" error, just keep trying to run the program. A listening socket stays unavailable for a short period after being used by a program, even if you close it with the kill method.
-
-==============================
-
-Naming convention :
+Naming conventions :
 
 - Variables, structures, namespaces : snake_case
 - Functions : camelCase
