@@ -42,12 +42,12 @@ std::string getLocationBlock(std::stringstream &ifs)
 	return location_block;
 }
 
-t_location newLocation(const std::string &location_name, const std::string &location_block)
+t_location newLocation(const std::string &location_name, const std::string &location_block, std::string &root, std::string &server_index)
 {
 	t_location loc;
 	int option, pos;
 	std::stringstream ifs(location_block);
-	std::string method, buffer, name, value, slash = "/",
+	std::string root_cpy = root, method, buffer, name, value, slash = "/",
 	                                         option_list[4] = {"root", "index", "allow_methods", "autoindex"};
 
 	loc.location = location_name;
@@ -80,11 +80,12 @@ t_location newLocation(const std::string &location_name, const std::string &loca
 				ft_error(0, value, "loc.root");
 				return loc;
 			}
-			if (value[0] != '/')
-				value = slash.append(value);
 			if (value[value.size() - 1] != '/')
 				value.append("/");
-			loc.root = value;
+			if (value[0] == '/')
+				loc.root = root_cpy.append(&value[1]);
+			else
+				loc.root = root_cpy.append(value);
 			break;
 		case 1:
 			if (loc.index != "")
@@ -137,8 +138,8 @@ t_location newLocation(const std::string &location_name, const std::string &loca
 			return loc;
 		}
 	}
-	if (loc.root == "" || loc.root == "/")
-		loc.root = "/www/";
+	if (loc.root == "")
+		loc.root = "/";
 	loc.valid = true;
 	return loc;
 }
@@ -178,6 +179,23 @@ void ft_error(int type, std::string value, std::string option)
 	}
 }
 
+// void parseFolders(std::string root)
+// {
+// 	DIR *dir = opendir(root.c_str());
+// 	struct dirent *file;
+// 	std::string folder, root_cpy = root;
+
+// 	file = readdir(dir);
+
+// 	while (file)
+// 	{
+// 		if (file->d_name.rfind('.') == std::string::npos)
+// 		{
+			
+// 		}
+// 	}
+// }
+
 bool setSocketAddress(const std::string &ip_address, const std::string &port_num, struct sockaddr_in *socket_addr)
 {
 	struct addrinfo hints = {};
@@ -215,8 +233,7 @@ bool validMethod(std::string &method)
 
 void setRequest(t_request &request, bool &kill)
 {
-	std::string first_line = request.header.substr(0, request.header.find_first_of("\n"));
-	// int pos;
+	std::string first_line = request.header.substr(0, request.header.find_first_of("\n")), extension;
 
 	request.method = first_line.substr(0, first_line.find_first_of(" \t"));
 	if (!validMethod(request.method))
@@ -231,129 +248,122 @@ void setRequest(t_request &request, bool &kill)
 	first_line = &first_line[first_line.find_first_not_of(" \t")];
 	request.location = first_line.substr(0, first_line.find_first_of(" \t"));
 
-	if (DISPLAY_METHOD_AND_LOCATION)
-	{
-		std::cout << "Method = " << request.method << std::endl;
-		std::cout << "Location = " << request.location << std::endl;
-	}
-
 	if (request.location == "/kill")
 	{
 		kill = true;
 		request.url = "./www/kill.html";
 		sendText(request);
 	}
-}
 
-void checkUrl(struct t_request &request, std::vector<std::string> &url_list)
-{
-	std::string dot = ".";
-
-	std::string extension = &request.location[request.location.find_last_of(".")];
-
+	extension = &request.location[request.location.find_last_of(".")];
 	if (extension != ".css" && extension != ".ico")
-		log("", request.client, request.location, 2);
+		log("", "", request.location, 2);
 
-	if (extension[0] == '.')
+	if (DISPLAY_METHOD_AND_LOCATION)
 	{
-		request.is_url = true;
-		// request.location = dot.append(request.location);
-		request.location = dot.append(request.server->getRoot().append(&request.location[1]));
-
-		for (std::vector<std::string>::iterator it = url_list.begin(); it != url_list.end(); it++)
-		{
-			/*
-			If the requested url exists in the Webserv's list, we provide the page
-			If not, we provide the 404 error page
-			*/
-			if (*it == request.location)
-			{
-				request.url = *it;
-				// extension = &request.url[request.url.find_last_of(".")];
-				if (extension == ".html" || extension == ".htm" || extension == ".php" || extension == ".css" ||
-				    extension == ".ico")
-					sendText(request);
-				else
-					sendFile(request);
-				return;
-			}
-		}
-		if (!checkRedirection(request))
-		{
-			request.url = "./404.html";
-			request.code = "404 Not found";
-			if (!sendText(request))
-				sendError(404, request.socket);
-		}
+		std::cout << "Method = " << request.method << std::endl;
+		std::cout << "Location = " << request.location << std::endl;
 	}
-
-	if (request.location[request.location.size() - 1] != '/')
-		request.location.append("/");
 }
 
-void checkLocation(struct t_request &request, std::map<std::string, struct t_location> &location_list)
+void checkUrl(struct t_request &request, std::string &root, std::string local_url)
 {
-	std::string dot = ".", root_copy;
+	DIR *dir = opendir(root.c_str());
+	struct dirent *file;
+	std::string local_cpy, root_cpy = root;
 
+	file = readdir(dir);
+
+	while (file && request.url == "")
+	{
+		if (file->d_name == "." || file->d_name == "..")
+		{
+			file = readdir(dir);
+			continue;
+		}
+		local_cpy = local_url;
+		local_cpy.append(file->d_name);
+		if (local_cpy == request.location)
+			request.url= root.append(file->d_name);
+		else if (file->d_name.rfind('.') == std::string::npos)
+		{
+			local_cpy.append("/");
+			root_cpy.append(file->d_name);
+			root_cpy.append("/");
+			checkUrl(request, root_cpy, local_cpy);
+		}
+		else
+			file = readdir(dir);
+	}
+	closedir(dir);
+}
+
+void checkLocation(struct t_request &request, std::map<std::string, struct t_location> &location_list, std::string &server_index)
+{
 	for (std::map<std::string, struct t_location>::iterator it = location_list.begin(); it != location_list.end(); it++)
 	{
 		if (request.location == it->first)
 		{
 			if (it->second.index != "")
 			{
-				root_copy = it->second.root;
-				request.url = root_copy.append(it->second.index);
-				request.url = dot.append(request.url);
-				sendText(request);
-				return;
+				request.location = it->second.index;
+				checkUrl(request, it->second.root, "");
+				if (request.url == "")
+				{
+					request.code = "404 Not found";
+					request.url = "www/html//404.html";
+					request.url.insert(9, server_index)
+				}
+				if (!sendText(request))
+					sendError(404, request.socket);
 			}
 			else if (it->second.autoindex == "on")
 			{
 				request.url =
 				    "./assets/dir.html"; // TODO SHOULD NOT BE HARDCODED, default in code, directive in config file
 				sendTable(request, it->second.root);
-				return;
 			}
+			return;
 		}
 	}
-	if (!checkRedirection(request))
-	{
-		request.url = "./www/errors/404.html";
-		request.code = "404 Not found";
-		if (!sendText(request))
-			sendError(404, request.socket);
-	}
+	// if (!checkRedirection(request))
+	// {
+	// 	request.url = "./www/errors/404.html";
+	// 	request.code = "404 Not found";
+	// 	if (!sendText(request))
+	// 		sendError(404, request.socket);
+	// }
 }
 
-bool checkRedirection(struct t_request &request)
-{
-	std::ifstream list("./others/redirections.list");
-	std::string in, out, buffer, dot = ".";
-	int sep;
+// bool checkRedirection(struct t_request &request)
+// {
+// 	std::ifstream list("./others/redirections.list");
+// 	std::string in, out, buffer, dot = ".";
+// 	int sep;
 
-	if (request.location[0] != '.')
-		request.location = dot.append(request.location);
+// 	if (request.location[0] != '.')
+// 		request.location = dot.append(request.location);
 
-	while (!list.eof())
-	{
-		dot = ".";
-		getline(list, buffer);
-		sep = buffer.find_first_of(":");
-		in = dot.append(buffer.substr(0, sep++));
-		out = buffer.substr(sep);
-		if (request.location == in)
-		{
-			dot = ".";
-			request.url = dot.append(out);
-			request.code = "308 Permanent Redirect";
-			sendText(request);
-			list.close();
-			return true;
-		}
-	}
-	list.close();
-	return false;
-}
+// 	while (!list.eof())
+// 	{
+// 		dot = ".";
+// 		getline(list, buffer);
+// 		sep = buffer.find_first_of(":");
+// 		in = dot.append(buffer.substr(0, sep++));
+// 		out = buffer.substr(sep);
+// 		if (request.location == in)
+// 		{
+// 			dot = ".";
+// 			request.url = dot.append(out);
+// 			request.code = "308 Permanent Redirect";
+// 			sendText(request);
+// 			list.close();
+// 			return true;
+// 		}
+// 	}
+// 	list.close();
+// 	return false;
+// }
 
 void sendTable(struct t_request &request, std::string root)
 {

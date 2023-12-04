@@ -11,8 +11,7 @@ class Webserv
 	std::vector<int> _listen_socket_list;
 	std::vector<int> _global_socket_list;
 	std::vector<struct t_request> _request_list;
-	std::vector<std::string> _url_list;
-	std::vector<std::string> _folder_list;
+	// std::vector<std::string> _url_list;
 	std::vector<Server *> _server_list;
 
 	void acceptNewConnections(int, fd_set *);

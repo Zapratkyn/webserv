@@ -153,7 +153,7 @@ void sendError(int error, int socket)
 	body.append("\t<section id=\"error-page-section\">\n");
 	body.append("\t\t<div class=\"err-page-container\">\n");
 	body.append("\t\t\t<h1></h1>\n\t\t\t<h3></h3>\n\t\t\t<p>Sorry, .</p>\n");
-	body.append("\t\t\t<p>Please return to the <a href=\"/www/pages/index.html\">home page</a>.</p>\n");
+	body.append("\t\t\t<p>Please return to the <a href=\"/\">home page</a>.</p>\n");
 	body.append("\t\t</div>\n\t</section>\n</body>\n</html>");
 
 	switch (error)

@@ -38,8 +38,9 @@ void Webserv::parseConf()
 	So we can open it at construction without checking for fail()
 	*/
 	std::ifstream infile(_conf.c_str());
-	std::string buffer, server_block;
+	std::string buffer, server_block, indexing;
 	Server *server;
+	int server_index = 0;
 
 	while (!infile.eof())
 	{
@@ -47,7 +48,8 @@ void Webserv::parseConf()
 		if (buffer == "server {")
 		{
 			server_block = getServerBlock(infile);
-			server = new Server;
+			indexing = "server0";
+			server = new Server(indexing.append(ft_to_string(server_index++)));
 			if (!server->parseServer(server_block, _folder_list))
 			{
 				delete server;
@@ -250,7 +252,7 @@ void Webserv::sendRequests(int client_fd, bool &kill, fd_set *read_backup, fd_se
 		std::cerr << "For some reason, we can't find your request" << std::endl;
 		return;
 	}
-	it->server->handleRequest(*it, _url_list, kill);
+	it->server->handleRequest(*it, kill);
 	FD_CLR(client_fd, write_backup);
 	FD_SET(client_fd, read_backup);
 	_request_list.erase(it);

@@ -49,7 +49,6 @@ struct t_request
 	std::string header;
 	std::string body;
 	std::string host;
-	bool is_url;
 	int socket;
 };
 
