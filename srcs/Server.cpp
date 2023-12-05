@@ -272,6 +272,7 @@ bool Server::parseOption(const int &option, std::string &value, std::stringstrea
 	case 5:
 		if (!addLocation(ifs, value))
 			return false;
+		break;
 	case 6:
 		if (!addErrorPage(value))
 			return false;
