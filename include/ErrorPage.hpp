@@ -5,6 +5,8 @@
 #include <iostream>
 #include <map>
 
+class Server;
+
 class ErrorPage
 {
   public:

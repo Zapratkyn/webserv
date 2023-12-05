@@ -197,3 +197,10 @@ std::string getContentType(std::string extension)
 		return ("application/pdf");
 	return "";
 }
+
+bool isChildDirectory(std::string folder, std::string root)
+{
+	if (folder[folder.size() - 1] != '/')
+		folder.append("/");
+	return folder.size() > root.size();
+}

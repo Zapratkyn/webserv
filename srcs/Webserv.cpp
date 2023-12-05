@@ -127,7 +127,7 @@ void Webserv::startListen()
 
 	FD_ZERO(&read_backup);
 	FD_ZERO(&write_backup);
-	timer.tv_sec = 2;
+	timer.tv_sec = 15;
 	timer.tv_usec = 0;
 	for (std::vector<int>::iterator it = _listen_socket_list.begin(); it != _listen_socket_list.end(); it++)
 		FD_SET(*it, &read_backup);
@@ -149,7 +149,6 @@ void Webserv::startListen()
 			std::cout << "Server is waiting ..." << std::endl;
 			continue;
 		}
-		std::cout << "Select" << std::endl;
 		for (int i = 0; i <= max; ++i)
 		{
 			if (FD_ISSET(i, &readfds) && (_isListeningSocket(i)))

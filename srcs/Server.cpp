@@ -2,7 +2,7 @@
 
 using namespace server_utils;
 
-Server::Server() : _root(""), _index(""), _client_max_body_size(-1)
+Server::Server() : _root(""), _index(""), _autoindex("off"), _client_max_body_size(-1)
 {
 	return;
 }
@@ -29,7 +29,6 @@ bool Server::addServerName(const std::string &name)
 }
 bool Server::setRoot(std::string &root)
 {
-	std::string global_root = "./www/html/";
 	DIR *dir;
 
 	if (_root != "")
@@ -37,7 +36,7 @@ bool Server::setRoot(std::string &root)
 		ft_error(0, root, "root");
 		return false;
 	}
-	dir = opendir(root);
+	dir = opendir(root.c_str());
 	if (!dir)
 	{
 		ft_error(9, root, "root");
@@ -45,7 +44,8 @@ bool Server::setRoot(std::string &root)
 	}
 	if (root[root.size() - 1] != '/')
 		root.append("/");
-	_root = global_root.append(root);
+	_root = root;
+	closedir(dir);
 	return true;
 }
 bool Server::setBodySize(const std::string &size)
@@ -146,14 +146,11 @@ void Server::addDefaultLocation()
 	if (_index != "")
 		default_location.index = _index;
 	else
-		default_location.index = "index.html";
+		default_location.index = "pages/index.html";
 	if (_root != "")
 		default_location.root = _root;
 	else
-	{
-		default_location.root = "./www/html/";
-		default_location.root.append(_root);
-	}
+		default_location.root = "www/html/server00/";
 	default_location.location = "/";
 	default_location.autoindex = "on";
 	default_location.methods.push_back("GET");
@@ -201,6 +198,13 @@ bool Server::addErrorPage(std::string &value)
 		}
 		tmp.erase(tmp.begin());
 	}
+	return true;
+}
+bool Server::setAutoIndex(std::string &value)
+{
+	if (value != "on" && value != "off")
+		return false;
+	_autoindex = value;
 	return true;
 }
 
@@ -272,6 +276,9 @@ bool Server::parseOption(const int &option, std::string &value, std::stringstrea
 		if (!addErrorPage(value))
 			return false;
 		break;
+	case 7:
+		if (!setAutoIndex(value))
+			return false;
 	}
 	return true;
 }
@@ -279,7 +286,7 @@ bool Server::parseOption(const int &option, std::string &value, std::stringstrea
 bool Server::parseServer(const std::string &server_block)
 {
 	std::string buffer, name, value,
-	    option_list[7] = {"listen", "server_name", "client_max_body_size", "root", "index", "location", "error_page"};
+	    option_list[8] = {"listen", "server_name", "client_max_body_size", "root", "index", "location", "error_page", "autoindex"};
 	std::stringstream ifs(server_block); // std::stringstream works the same as a std::ifstream but is constructed from
 	                                     // a string instead of a file
 	int option;
@@ -300,16 +307,16 @@ bool Server::parseServer(const std::string &server_block)
 				return false;
 			}
 		}
-		for (option = 0; option < 7; ++option)
+		for (option = 0; option < 8; ++option)
 		{
 			if (name == option_list[option])
 				break;
 		}
 		/*
-		Thanks to the 'option == 7' condition, we don't need a default
+		Thanks to the 'option == 8' condition, we don't need a default
 		behavior for the switch statement in the parseOption() function
 		*/
-		if (option == 7)
+		if (option == 8)
 		{
 			ft_error(4, name, "");
 			return false;
@@ -331,15 +338,15 @@ void Server::handleRequest(struct t_request &request, bool &kill)
 
 	try
 	{
-		setRequest(request, kill); // Gets the method and the location from the request
+		setRequest(request, kill, _root); // Gets the method and the location from the request
 		if (!kill)
 		{
 			/*
 			Truncates the location (if needed)
 			Sets the request.url if location ends with html/htm/php
 			*/
-			checkLocation(request);
-			checkUrl(request, _root);
+			if (!checkLocation(request, _location_list, _root))
+				checkUrl(request, _root, _autoindex);
 		}
 	}
 	catch (const std::exception &e)

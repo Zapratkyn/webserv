@@ -238,7 +238,6 @@ void initRequest(struct t_request &request)
 	request.host = "";
 	request.url = "";
 	request.server = NULL;
-	request.type = ERROR;
 }
 
 bool getRequest(struct t_request &request)

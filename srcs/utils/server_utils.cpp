@@ -44,6 +44,7 @@ std::string getLocationBlock(std::stringstream &ifs)
 
 t_location newLocation(const std::string &location_name, const std::string &location_block, std::string &root)
 {
+	DIR *dir;
 	t_location loc;
 	int option, pos;
 	std::stringstream ifs(location_block);
@@ -80,10 +81,15 @@ t_location newLocation(const std::string &location_name, const std::string &loca
 				ft_error(0, value, "loc.root");
 				return loc;
 			}
+			dir = opendir(value.c_str());
+			if (!dir)
+			{
+				ft_error(9, root, "root");
+				return loc;
+			}
 			if (value[value.size() - 1] != '/')
 				value.append("/");
-			if (value[0] != '/')
-				value = slash.append(value);
+			closedir(dir);
 			loc.root = value;
 			break;
 		case 1:
@@ -182,23 +188,6 @@ void ft_error(int type, std::string value, std::string option)
 	}
 }
 
-// void parseFolders(std::string root)
-// {
-// 	DIR *dir = opendir(root.c_str());
-// 	struct dirent *file;
-// 	std::string folder, root_cpy = root;
-
-// 	file = readdir(dir);
-
-// 	while (file)
-// 	{
-// 		if (file->d_name.rfind('.') == std::string::npos)
-// 		{
-			
-// 		}
-// 	}
-// }
-
 bool setSocketAddress(const std::string &ip_address, const std::string &port_num, struct sockaddr_in *socket_addr)
 {
 	struct addrinfo hints = {};
@@ -234,14 +223,14 @@ bool validMethod(std::string &method)
 	return true;
 }
 
-void setRequest(t_request &request, bool &kill)
+void setRequest(t_request &request, bool &kill, std::string root)
 {
 	std::string first_line = request.header.substr(0, request.header.find_first_of("\n")), extension;
 
 	request.method = first_line.substr(0, first_line.find_first_of(" \t"));
 	if (!validMethod(request.method))
 	{
-		request.url = "./www/errors/400.html";
+		request.url = root.append("errors/400.html");
 		request.code = "400 Bad Request";
 		if (!sendText(request))
 			sendError(400, request.socket);
@@ -254,7 +243,7 @@ void setRequest(t_request &request, bool &kill)
 	if (request.location == "/kill")
 	{
 		kill = true;
-		request.url = "./www/kill.html";
+		request.url = "www/kill.html";
 		sendText(request);
 	}
 
@@ -269,123 +258,88 @@ void setRequest(t_request &request, bool &kill)
 	}
 }
 
-void checkUrl(struct t_request &request, std::string root)
+void checkUrl(struct t_request &request, std::string root, std::string &autoindex)
 {
 	std::ifstream file;
-	DIR *dir;
-	std::string url = root.append(&request.location[1]), extension;
+	std::string extension, folder;
+	size_t pos;
 
-	file.open(url.c_str());
+	request.url = root;
+	request.url.append(&request.location[1]);
+	file.open(request.url.c_str());
 	if (!file.fail())
 	{
-		extension = &request.location[request.location.rfind('.')];
-		if (extension == ".html" || extension == ".htm" || extension == ".php")
-			request.type = PAGE;
-		else
-			request.type = FILE;
 		file.close();
-	}
-	else
-	{
-		dir = opendir(url);
-		if (dir)
+		pos = request.location.rfind('.');
+		if (pos == std::string::npos)
 		{
-			request.type = DIRECTORY;
-			closedir(dir);
+			if (autoindex == "on")
+			{
+				folder = request.url;
+				request.url = root;
+				request.url.append("assets/dir.html");
+				sendTable(request, root, folder);
+				return;
+			}
+		}
+		else
+		{
+			extension = &request.location[request.location.rfind('.')];
+			if (extension == ".html" || extension == ".htm" || extension == ".php")
+				sendText(request);
+			else
+				sendFile(request);
+			return;
 		}
 	}
-	// DIR *dir = opendir(root.c_str());
-	// struct dirent *file;
-	// std::string local_cpy, root_cpy = root;
-
-	// file = readdir(dir);
-
-	// while (file && request.url == "")
-	// {
-	// 	if (file->d_name == "." || file->d_name == "..")
-	// 	{
-	// 		file = readdir(dir);
-	// 		continue;
-	// 	}
-	// 	local_cpy = local_url;
-	// 	local_cpy.append(file->d_name);
-	// 	if (local_cpy == request.location)
-	// 		request.url= root.append(file->d_name);
-	// 	else if (file->d_name.rfind('.') == std::string::npos)
-	// 	{
-	// 		local_cpy.append("/");
-	// 		root_cpy.append(file->d_name);
-	// 		root_cpy.append("/");
-	// 		checkUrl(request, root_cpy, local_cpy);
-	// 	}
-	// 	else
-	// 		file = readdir(dir);
-	// }
-	// closedir(dir);
+	request.url = root;
+	request.url.append("errors/404.html");
+	request.code = "404 Not found";
+	if (!sendText(request))
+		sendError(404, request.socket);
 }
 
-void checkLocation(struct t_request &request, std::map<std::string, struct t_location> &location_list)
+bool checkLocation(struct t_request &request, std::map<std::string, struct t_location> &location_list, std::string root)
 {
+	std::ifstream index;
+
 	for (std::map<std::string, struct t_location>::iterator it = location_list.begin(); it != location_list.end(); it++)
 	{
 		if (request.location == it->first)
 		{
 			if (it->second.index != "")
 			{
-				request.location = it->second.index;
-				checkUrl(request, it->second.root);
+				request.url = it->second.root;
+				request.url.append(it->second.index);
+				index.open(request.url.c_str());
+				if (!index.fail())
+				{
+					sendText(request);
+					index.close();
+				}
+				else
+				{
+					request.code = "404 Not found";
+					request.url = root.append("errors/404.html");
+					if (!sendText(request))
+						sendError(404, request.socket);
+				}
 			}
 			else if (it->second.autoindex == "on")
 			{
-				request.url =
-				    "./assets/dir.html"; // TODO SHOULD NOT BE HARDCODED, default in code, directive in config file
-				sendTable(request, it->second.root);
+				request.url = root;
+				request.url.append("assets/dir.html");
+				sendTable(request, root, it->second.root);
 			}
-			return;
+			return true;
 		}
 	}
-	// if (!checkRedirection(request))
-	// {
-	// 	request.url = "./www/errors/404.html";
-	// 	request.code = "404 Not found";
-	// 	if (!sendText(request))
-	// 		sendError(404, request.socket);
-	// }
+	return false;
 }
 
-// bool checkRedirection(struct t_request &request)
-// {
-// 	std::ifstream list("./others/redirections.list");
-// 	std::string in, out, buffer, dot = ".";
-// 	int sep;
-
-// 	if (request.location[0] != '.')
-// 		request.location = dot.append(request.location);
-
-// 	while (!list.eof())
-// 	{
-// 		dot = ".";
-// 		getline(list, buffer);
-// 		sep = buffer.find_first_of(":");
-// 		in = dot.append(buffer.substr(0, sep++));
-// 		out = buffer.substr(sep);
-// 		if (request.location == in)
-// 		{
-// 			dot = ".";
-// 			request.url = dot.append(out);
-// 			request.code = "308 Permanent Redirect";
-// 			sendText(request);
-// 			list.close();
-// 			return true;
-// 		}
-// 	}
-// 	list.close();
-// 	return false;
-// }
-
-void sendTable(struct t_request &request, std::string root)
+void sendTable(struct t_request &request, std::string root, std::string folder)
 {
-	std::ifstream ifs("./others/dir.html");
+	std::ifstream ifs(request.url.c_str());
 	std::string html = "", buffer;
 	std::string result = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: ";
 
@@ -399,26 +353,26 @@ void sendTable(struct t_request &request, std::string root)
 
 	html.insert(html.find("</caption>"), request.location);
 
-	if (root != "/www/")
-		addParentDirectory(html, root);
-
-	addLinkList(html, root);
+	if (isChildDirectory(folder, root))
+		addParentDirectory(html, folder);
+	
+	addLinkList(html, folder);
 
 	result.append(ft_to_string(html.size())); // We append the size of the html page to the http response
 	result.append("\n\n");                    // The http response's header stops here
 	result.append(html);                      // The http reponse body (html page)
-
+	
 	write(request.socket, result.c_str(), result.size());
 }
 
-void addParentDirectory(std::string &html, std::string location)
+void addParentDirectory(std::string &html, std::string folder)
 {
 	int spot = html.rfind("</tbody>");
-	std::string loc = location.substr(0, location.find_last_of("/"));
+	std::string loc = folder.substr(0, folder.rfind('/'));
 
-	loc = loc.substr(0, loc.find_last_of("/"));
+	loc = loc.substr(0, loc.rfind('/'));
 
-	html.insert(spot, "\n\t\t<tr>\n\t\t\t<td><img src=\"/icons/parentDirectory.png\"></td>\n\t\t\t<td><a href=\"");
+	html.insert(spot, "\n\t\t<tr>\n\t\t\t<td><img src=\"/assets/parentDirectory.png\"></td>\n\t\t\t<td><a href=\"");
 	spot = html.rfind("</tbody>");
 	html.insert(spot, loc);
 	spot = html.rfind("</tbody>");
@@ -428,7 +382,7 @@ void addParentDirectory(std::string &html, std::string location)
 void addLinkList(std::string &html, std::string location)
 {
 	std::string file_name, url_copy, extension, dot = ".";
-	DIR *dir = opendir(dot.append(location).c_str());
+	DIR *dir = opendir(location.c_str());
 	struct dirent *file = readdir(dir);
 	int spot;
 
@@ -447,11 +401,11 @@ void addLinkList(std::string &html, std::string location)
 		html.insert(spot, "\t\t<tr>\n\t\t\t<td><img src=\"");
 		spot = html.rfind("</tbody>");
 		if (extension == ".html" || extension == ".htm" || extension == ".php")
-			html.insert(spot, "/icons/webPage.png");
+			html.insert(spot, "/assets/webPage.png");
 		else if (extension[0] == '.')
-			html.insert(spot, "/icons/file.png");
+			html.insert(spot, "/assets/file.png");
 		else
-			html.insert(spot, "/icons/directory.png");
+			html.insert(spot, "/assets/directory.png");
 		spot = html.rfind("</tbody>");
 		html.insert(spot, "\" /></td>\n\t\t\t<td><a href=\"");
 		spot = html.rfind("</tbody>");
@@ -470,7 +424,7 @@ void addLinkList(std::string &html, std::string location)
 		else
 			html.insert(spot, "Directory");
 		spot = html.rfind("</tbody>");
-		html.insert(spot, "</td>\n\t\t</tr>\n");
+		html.insert(spot, "</td>\n\t\t</tr>\n\t");
 		file = readdir(dir);
 	}
 	closedir(dir);

@@ -23,9 +23,9 @@
 
 #define DISPLAY_HTML false
 #define DISPLAY_METHOD_AND_LOCATION false
-#define DISPLAY_REQUEST true
+#define DISPLAY_REQUEST false
 #define DISPLAY_URL false
-#define DISPLAY_SERVERS true
+#define DISPLAY_SERVERS false
 
 #define DIGITS "0123456789"
 #define BUFFER_SIZE 10000
@@ -33,11 +33,6 @@
 
 #define EXIT_SUCCESS 0
 #define EXIT_FAILURE 1
-
-#define ERROR 0
-#define PAGE 1
-#define FILE 2
-#define DIRECTORY 3
 
 class Server;
 
@@ -55,7 +50,6 @@ struct t_request
 	std::string body;
 	std::string host;
 	int socket;
-	int type;
 };
 
 std::string ft_pop_back(std::string);
@@ -67,5 +61,6 @@ bool sendText(struct t_request &);
 void sendFile(struct t_request &);
 void sendError(int, int);
 std::string getContentType(std::string);
+bool isChildDirectory(std::string, std::string);
 
 #endif
