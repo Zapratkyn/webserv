@@ -150,7 +150,7 @@ void Server::addDefaultLocation()
 	if (_root != "")
 		default_location.root = _root;
 	else
-		default_location.root = "www/html/server00/";
+		default_location.root = "www/server00/";
 	default_location.location = "/";
 	default_location.autoindex = "on";
 	default_location.methods.push_back("GET");
@@ -291,6 +291,7 @@ bool Server::parseServer(const std::string &server_block)
 	                                     // a string instead of a file
 	int option;
 	t_location folder;
+	std::ifstream index;
 
 	while (!ifs.eof())
 	{
@@ -324,6 +325,8 @@ bool Server::parseServer(const std::string &server_block)
 		if (!parseOption(option, value, ifs))
 			return false;
 	}
+	if (_index == "")
+		_index = "pages/index.html";
 	if (_client_max_body_size == -1)
 		_client_max_body_size = 60000; // The PDF states we need to limit the client_max_body_size
 	if (_location_list.find("/") == _location_list.end())
@@ -341,10 +344,6 @@ void Server::handleRequest(struct t_request &request, bool &kill)
 		setRequest(request, kill, _root); // Gets the method and the location from the request
 		if (!kill)
 		{
-			/*
-			Truncates the location (if needed)
-			Sets the request.url if location ends with html/htm/php
-			*/
 			if (!checkLocation(request, _location_list, _root))
 				checkUrl(request, _root, _autoindex);
 		}

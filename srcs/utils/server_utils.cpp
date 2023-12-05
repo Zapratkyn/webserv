@@ -275,9 +275,10 @@ void checkUrl(struct t_request &request, std::string root, std::string &autoinde
 		{
 			if (autoindex == "on")
 			{
-				folder = request.url;
+				if (folder[folder.size() - 1] != '/')
+					folder = request.url.append("/");
 				request.url = root;
-				request.url.append("assets/dir.html");
+				request.url.append("pages/dir.html");
 				sendTable(request, root, folder);
 				return;
 			}
@@ -328,7 +329,7 @@ bool checkLocation(struct t_request &request, std::map<std::string, struct t_loc
 			else if (it->second.autoindex == "on")
 			{
 				request.url = root;
-				request.url.append("assets/dir.html");
+				request.url.append("pages/dir.html");
 				sendTable(request, root, it->second.root);
 			}
 			return true;
@@ -368,20 +369,22 @@ void sendTable(struct t_request &request, std::string root, std::string folder)
 void addParentDirectory(std::string &html, std::string folder)
 {
 	int spot = html.rfind("</tbody>");
-	std::string loc = folder.substr(0, folder.rfind('/'));
 
-	loc = loc.substr(0, loc.rfind('/'));
-
+	if (folder[folder.size() - 1] == '/')
+		folder = folder.substr(0, folder.rfind('/'));
+	folder = folder.substr(0, folder.rfind('/'));
+	folder = folder.substr(0, folder.rfind('/'));
+	
 	html.insert(spot, "\n\t\t<tr>\n\t\t\t<td><img src=\"/assets/parentDirectory.png\"></td>\n\t\t\t<td><a href=\"");
 	spot = html.rfind("</tbody>");
-	html.insert(spot, loc);
+	html.insert(spot, folder);
 	spot = html.rfind("</tbody>");
 	html.insert(spot, "\">Parent directory</a></td>\n\t\t\t<td>Directory</td>\n\t\t</tr>\n");
 }
 
 void addLinkList(std::string &html, std::string location)
 {
-	std::string file_name, url_copy, extension, dot = ".";
+	std::string file_name, extension, slash = "/";
 	DIR *dir = opendir(location.c_str());
 	struct dirent *file = readdir(dir);
 	int spot;
@@ -394,9 +397,7 @@ void addLinkList(std::string &html, std::string location)
 			file = readdir(dir);
 			continue;
 		}
-		url_copy = location;
-		url_copy.append(file_name);
-		extension = &url_copy[url_copy.find_last_of(".")];
+		extension = &file_name[file_name.find_last_of(".")];
 		spot = html.rfind("</tbody>");
 		html.insert(spot, "\t\t<tr>\n\t\t\t<td><img src=\"");
 		spot = html.rfind("</tbody>");
@@ -409,7 +410,7 @@ void addLinkList(std::string &html, std::string location)
 		spot = html.rfind("</tbody>");
 		html.insert(spot, "\" /></td>\n\t\t\t<td><a href=\"");
 		spot = html.rfind("</tbody>");
-		html.insert(spot, url_copy);
+		html.insert(spot, file_name);
 		spot = html.rfind("</tbody>");
 		html.insert(spot++, 1, '"');
 		html.insert(spot++, 1, '>');

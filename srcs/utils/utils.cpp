@@ -202,5 +202,5 @@ bool isChildDirectory(std::string folder, std::string root)
 {
 	if (folder[folder.size() - 1] != '/')
 		folder.append("/");
-	return folder.size() > root.size();
+	return folder.size() == root.size();
 }
