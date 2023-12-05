@@ -266,6 +266,8 @@ void checkUrl(struct t_request &request, std::string root, std::string &autoinde
 
 	request.url = root;
 	request.url.append(&request.location[1]);
+	if (request.url[request.url.size() - 1] == '/')
+		request.url = ft_pop_back(request.url);
 	file.open(request.url.c_str());
 	if (!file.fail())
 	{
@@ -275,10 +277,11 @@ void checkUrl(struct t_request &request, std::string root, std::string &autoinde
 		{
 			if (autoindex == "on")
 			{
+				folder = request.url;
 				if (folder[folder.size() - 1] != '/')
-					folder = request.url.append("/");
+					folder.append("/");
 				request.url = root;
-				request.url.append("pages/dir.html");
+				request.url.append("assets/dir.html");
 				sendTable(request, root, folder);
 				return;
 			}
@@ -329,7 +332,7 @@ bool checkLocation(struct t_request &request, std::map<std::string, struct t_loc
 			else if (it->second.autoindex == "on")
 			{
 				request.url = root;
-				request.url.append("pages/dir.html");
+				request.url.append("assets/dir.html");
 				sendTable(request, root, it->second.root);
 			}
 			return true;
@@ -341,9 +344,11 @@ bool checkLocation(struct t_request &request, std::map<std::string, struct t_loc
 void sendTable(struct t_request &request, std::string root, std::string folder)
 {
 	std::ifstream ifs(request.url.c_str());
-	std::string html = "", buffer;
+	std::string html = "", buffer, local;
 	std::string result = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: ";
 
+	(void)root;
+	
 	while (!ifs.eof())
 	{
 		getline(ifs, buffer);
@@ -354,8 +359,9 @@ void sendTable(struct t_request &request, std::string root, std::string folder)
 
 	html.insert(html.find("</caption>"), request.location);
 
-	if (isChildDirectory(folder, root))
-		addParentDirectory(html, folder);
+	local = getLocalFolder(folder);
+	if (local != "/")
+		addParentDirectory(html, local, root);
 	
 	addLinkList(html, folder);
 
@@ -366,18 +372,20 @@ void sendTable(struct t_request &request, std::string root, std::string folder)
 	write(request.socket, result.c_str(), result.size());
 }
 
-void addParentDirectory(std::string &html, std::string folder)
+void addParentDirectory(std::string &html, std::string local, std::string root)
 {
 	int spot = html.rfind("</tbody>");
 
-	if (folder[folder.size() - 1] == '/')
-		folder = folder.substr(0, folder.rfind('/'));
-	folder = folder.substr(0, folder.rfind('/'));
-	folder = folder.substr(0, folder.rfind('/'));
+	if (local[local.size() - 1] == '/')
+		local = local.substr(0, local.rfind("/"));
+	local = local.substr(0, local.rfind("/") + 1);
+
+	if (local == "/")
+		local = root;
 	
 	html.insert(spot, "\n\t\t<tr>\n\t\t\t<td><img src=\"/assets/parentDirectory.png\"></td>\n\t\t\t<td><a href=\"");
 	spot = html.rfind("</tbody>");
-	html.insert(spot, folder);
+	html.insert(spot, local);
 	spot = html.rfind("</tbody>");
 	html.insert(spot, "\">Parent directory</a></td>\n\t\t\t<td>Directory</td>\n\t\t</tr>\n");
 }
@@ -412,6 +420,8 @@ void addLinkList(std::string &html, std::string location)
 		spot = html.rfind("</tbody>");
 		html.insert(spot, file_name);
 		spot = html.rfind("</tbody>");
+		if (extension[0] != '.')
+			html.insert(spot++, 1, '/');
 		html.insert(spot++, 1, '"');
 		html.insert(spot++, 1, '>');
 		html.insert(spot, file_name);

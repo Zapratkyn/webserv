@@ -61,6 +61,6 @@ bool sendText(struct t_request &);
 void sendFile(struct t_request &);
 void sendError(int, int);
 std::string getContentType(std::string);
-bool isChildDirectory(std::string, std::string);
+std::string getLocalFolder(std::string);
 
 #endif

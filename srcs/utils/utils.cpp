@@ -198,9 +198,9 @@ std::string getContentType(std::string extension)
 	return "";
 }
 
-bool isChildDirectory(std::string folder, std::string root)
+std::string getLocalFolder(std::string folder)
 {
-	if (folder[folder.size() - 1] != '/')
-		folder.append("/");
-	return folder.size() == root.size();
+	folder = &folder[4];
+	folder = &folder[folder.find('/')];
+	return (folder);
 }
