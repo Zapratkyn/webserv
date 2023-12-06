@@ -58,7 +58,7 @@ NOTES :
 
 - The browser keeps the favicon associated with the url in cache. Meaning it will not request it to the server again. The same is not true for the stylesheet.
 
-- A web page opened via a link ending with '/' will modify the root of the next request. For instance, if I open localhost:8080/pages and click on a link on the displayed page, the request will be /[link]. But if I open localhost:8080/pages and click on a link, the next request will use pages/ as a start, giving a request like /pages/[link]. I believe it is done by the browser.
+- In the current state of the main loop, connections are closed even without closing any tab. Get back to the previous version?
 
 ================================
 
