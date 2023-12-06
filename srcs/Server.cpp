@@ -132,8 +132,11 @@ bool Server::addLocation(std::stringstream &ifs, std::string &value)
 	location_block = getLocationBlock(ifs);
 	if (location_block.size())
 	{
-		value = slash.append(value);
-		_location_list[value] = newLocation(value, location_block, _root);
+		if (value[value.size() - 1] != '/')
+			value.append("/");
+		if (value[0] != '/')
+			value.insert(0, "/");
+		_location_list[value] = newLocation(value, location_block, _root, _autoindex);
 		if (!_location_list[value].valid)
 			return false;
 	}

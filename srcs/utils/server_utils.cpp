@@ -42,7 +42,7 @@ std::string getLocationBlock(std::stringstream &ifs)
 	return location_block;
 }
 
-t_location newLocation(const std::string &location_name, const std::string &location_block, std::string &root)
+t_location newLocation(const std::string &location_name, const std::string &location_block, std::string &root, std::string autoindex)
 {
 	DIR *dir;
 	t_location loc;
@@ -54,7 +54,7 @@ t_location newLocation(const std::string &location_name, const std::string &loca
 	loc.location = location_name;
 	loc.root = "";
 	loc.index = "";
-	loc.autoindex = "off";
+	loc.autoindex = autoindex;
 	loc.valid = false;
 
 	while (!ifs.eof())
@@ -241,12 +241,16 @@ void setRequest(t_request &request, bool &kill, std::string root)
 	request.location = first_line.substr(0, first_line.find_first_of(" \t"));
 	request.local = request.location;
 
+
 	if (request.location == "/kill")
 	{
 		kill = true;
 		request.url = "www/kill.html";
 		sendText(request);
 	}
+
+	if (request.location[request.location.size() - 1] != '/')
+		request.location.append("/");
 
 	extension = &request.location[request.location.find_last_of(".")];
 	if (extension != ".css" && extension != ".ico")
@@ -322,13 +326,6 @@ bool checkLocation(struct t_request &request, std::map<std::string, struct t_loc
 					sendText(request);
 					index.close();
 				}
-				else
-				{
-					request.code = "404 Not found";
-					request.url = root.append("errors/404.html");
-					if (!sendText(request))
-						sendError(404, request.socket);
-				}
 			}
 			else if (it->second.autoindex == "on")
 			{
@@ -336,6 +333,10 @@ bool checkLocation(struct t_request &request, std::map<std::string, struct t_loc
 				request.url.append("assets/dir.html");
 				sendTable(request, root, it->second.root);
 			}
+			request.code = "404 Not found";
+			request.url = root.append("errors/404.html");
+			if (!sendText(request))
+				sendError(404, request.socket);
 			return true;
 		}
 	}

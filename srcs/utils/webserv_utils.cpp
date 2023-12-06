@@ -163,6 +163,7 @@ void displayServers(std::vector<Server *> &server_list)
 				value = it->second.index;
 				if (value != "")
 					std::cout << "    - Index : " << value << std::endl;
+				std::cout << "    - Autoindex : " << it->second.autoindex << std::endl;
 				method_list = it->second.methods;
 				if (!method_list.empty())
 				{
