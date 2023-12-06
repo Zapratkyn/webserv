@@ -1,7 +1,6 @@
 #ifndef __UTILS_HPP__
-#define __UTILS_HPP__
+# define __UTILS_HPP__
 
-#include "../Server.hpp"
 #include <algorithm>
 #include <arpa/inet.h>
 #include <ctime>
@@ -20,6 +19,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <vector>
+#include "../Server.hpp"
 
 #define DISPLAY_HTML false
 #define DISPLAY_METHOD_AND_LOCATION false
@@ -49,6 +49,7 @@ struct t_request
 	std::string header;
 	std::string body;
 	std::string host;
+	std::string local;
 	int socket;
 };
 

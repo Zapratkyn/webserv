@@ -1,8 +1,8 @@
 #ifndef __SERVER_HPP__
 #define __SERVER_HPP__
 
-#include "utils/server_utils.hpp"
 #include "utils/utils.hpp"
+#include "utils/server_utils.hpp"
 // #include "ErrorPage.hpp"
 
 struct t_location;

@@ -230,7 +230,7 @@ void setRequest(t_request &request, bool &kill, std::string root)
 	request.method = first_line.substr(0, first_line.find_first_of(" \t"));
 	if (!validMethod(request.method))
 	{
-		request.url = root.append("errors/400.html");
+		request.url = root.append("/errors/400.html");
 		request.code = "400 Bad Request";
 		if (!sendText(request))
 			sendError(400, request.socket);
@@ -239,6 +239,7 @@ void setRequest(t_request &request, bool &kill, std::string root)
 	first_line = &first_line[first_line.find_first_of(" \t")];
 	first_line = &first_line[first_line.find_first_not_of(" \t")];
 	request.location = first_line.substr(0, first_line.find_first_of(" \t"));
+	request.local = request.location;
 
 	if (request.location == "/kill")
 	{
@@ -281,7 +282,7 @@ void checkUrl(struct t_request &request, std::string root, std::string &autoinde
 				if (folder[folder.size() - 1] != '/')
 					folder.append("/");
 				request.url = root;
-				request.url.append("assets/dir.html");
+				request.url.append("/assets/dir.html");
 				sendTable(request, root, folder);
 				return;
 			}
@@ -297,7 +298,7 @@ void checkUrl(struct t_request &request, std::string root, std::string &autoinde
 		}
 	}
 	request.url = root;
-	request.url.append("errors/404.html");
+	request.url.append("/errors/404.html");
 	request.code = "404 Not found";
 	if (!sendText(request))
 		sendError(404, request.socket);
@@ -363,7 +364,7 @@ void sendTable(struct t_request &request, std::string root, std::string folder)
 	if (local != "/")
 		addParentDirectory(html, local, root);
 	
-	addLinkList(html, folder);
+	addLinkList(html, folder, request.local);
 
 	result.append(ft_to_string(html.size())); // We append the size of the html page to the http response
 	result.append("\n\n");                    // The http response's header stops here
@@ -381,7 +382,10 @@ void addParentDirectory(std::string &html, std::string local, std::string root)
 	local = local.substr(0, local.rfind("/") + 1);
 
 	if (local == "/")
+	{
 		local = root;
+		local.insert(0, "/");
+	}
 	
 	html.insert(spot, "\n\t\t<tr>\n\t\t\t<td><img src=\"/assets/parentDirectory.png\"></td>\n\t\t\t<td><a href=\"");
 	spot = html.rfind("</tbody>");
@@ -390,12 +394,15 @@ void addParentDirectory(std::string &html, std::string local, std::string root)
 	html.insert(spot, "\">Parent directory</a></td>\n\t\t\t<td>Directory</td>\n\t\t</tr>\n");
 }
 
-void addLinkList(std::string &html, std::string location)
+void addLinkList(std::string &html, std::string location, std::string local)
 {
 	std::string file_name, extension, slash = "/";
 	DIR *dir = opendir(location.c_str());
 	struct dirent *file = readdir(dir);
 	int spot;
+
+	if (local[local.size() - 1] != '/')
+		local.append("/");
 
 	while (file)
 	{
@@ -405,6 +412,7 @@ void addLinkList(std::string &html, std::string location)
 			file = readdir(dir);
 			continue;
 		}
+		file_name.insert(0, local);
 		extension = &file_name[file_name.find_last_of(".")];
 		spot = html.rfind("</tbody>");
 		html.insert(spot, "\t\t<tr>\n\t\t\t<td><img src=\"");
@@ -420,11 +428,9 @@ void addLinkList(std::string &html, std::string location)
 		spot = html.rfind("</tbody>");
 		html.insert(spot, file_name);
 		spot = html.rfind("</tbody>");
-		if (extension[0] != '.')
-			html.insert(spot++, 1, '/');
 		html.insert(spot++, 1, '"');
 		html.insert(spot++, 1, '>');
-		html.insert(spot, file_name);
+		html.insert(spot, &file_name[file_name.rfind("/")] + 1);
 		spot = html.rfind("</tbody>");
 		html.insert(spot, "</a></td>\n\t\t\t<td>");
 		spot = html.rfind("</tbody>");
@@ -439,6 +445,80 @@ void addLinkList(std::string &html, std::string location)
 		file = readdir(dir);
 	}
 	closedir(dir);
+}
+
+bool displayRoot(struct t_request &request, std::string root)
+{
+	if (&request.location[1] != root)
+		return false;
+
+	DIR *dir = opendir(root.c_str());
+	std::ifstream ifs(root.append("assets/dir.html"));
+	struct dirent *file = readdir(dir);
+	int spot;
+
+	std::string html = "", buffer, file_name, extension;
+	std::string result = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: ";
+	
+	while (!ifs.eof())
+	{
+		getline(ifs, buffer);
+		html.append(buffer);
+		html.append("\n");
+	}
+	ifs.close();
+
+	html.insert(html.find("</caption>"), request.location);
+
+	while (file)
+	{
+		file_name = file->d_name;
+		if (file_name == "." || file_name == "..")
+		{
+			file = readdir(dir);
+			continue;
+		}
+		file_name.insert(0, "/");
+		extension = &file_name[file_name.find_last_of(".")];
+		spot = html.rfind("</tbody>");
+		html.insert(spot, "\t\t<tr>\n\t\t\t<td><img src=\"");
+		spot = html.rfind("</tbody>");
+		if (extension == ".html" || extension == ".htm" || extension == ".php")
+			html.insert(spot, "/assets/webPage.png");
+		else if (extension[0] == '.')
+			html.insert(spot, "/assets/file.png");
+		else
+			html.insert(spot, "/assets/directory.png");
+		spot = html.rfind("</tbody>");
+		html.insert(spot, "\" /></td>\n\t\t\t<td><a href=\"");
+		spot = html.rfind("</tbody>");
+		html.insert(spot, file_name);
+		spot = html.rfind("</tbody>");
+		html.insert(spot++, 1, '"');
+		html.insert(spot++, 1, '>');
+		html.insert(spot, &file_name[1]);
+		spot = html.rfind("</tbody>");
+		html.insert(spot, "</a></td>\n\t\t\t<td>");
+		spot = html.rfind("</tbody>");
+		if (extension == ".html" || extension == ".htm" || extension == ".php")
+			html.insert(spot, "Web page");
+		else if (extension[0] == '.')
+			html.insert(spot, "File");
+		else
+			html.insert(spot, "Directory");
+		spot = html.rfind("</tbody>");
+		html.insert(spot, "</td>\n\t\t</tr>\n\t");
+		file = readdir(dir);
+	}
+	closedir(dir);
+
+	result.append(ft_to_string(html.size())); // We append the size of the html page to the http response
+	result.append("\n\n");                    // The http response's header stops here
+	result.append(html);                      // The http reponse body (html page)
+	
+	write(request.socket, result.c_str(), result.size());
+
+	return true;
 }
 
 }; // namespace server_utils

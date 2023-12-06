@@ -237,6 +237,7 @@ void initRequest(struct t_request &request)
 	request.method = "";
 	request.host = "";
 	request.url = "";
+	request.local = "";
 	request.server = NULL;
 }
 

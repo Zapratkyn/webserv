@@ -1,8 +1,8 @@
 #ifndef __WEBSERV_UTILS_HPP__
 #define __WEBSERV_UTILS_HPP__
 
-#include "../Server.hpp"
 #include "utils.hpp"
+#include "../Server.hpp"
 
 namespace webserv_utils
 {

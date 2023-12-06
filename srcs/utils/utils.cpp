@@ -204,3 +204,20 @@ std::string getLocalFolder(std::string folder)
 	folder = &folder[folder.find('/')];
 	return (folder);
 }
+
+void addLocal(std::string &html, std::string local)
+{
+	size_t spot;
+	std::string html_copy = &html[html.find("<body>")];
+
+	local.append("/");
+
+	spot = html_copy.find("href=\"");
+
+	while (spot != std::string::npos)
+	{
+		spot += 6;
+		html.insert(spot, local);
+		spot = html.find("href=\"");
+	}
+}
