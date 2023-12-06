@@ -345,7 +345,7 @@ void Server::handleRequest(struct t_request &request, bool &kill)
 		setRequest(request, kill, _root); // Gets the method and the location from the request
 		if (!kill)
 		{
-			if (!displayRoot(request, _root) && !checkLocation(request, _location_list, _root))
+			if (!displayRoot(request, _root, _autoindex) && !checkLocation(request, _location_list, _root))
 				checkUrl(request, _root, _autoindex);
 		}
 	}

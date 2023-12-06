@@ -30,7 +30,7 @@ void setRequest(t_request &, bool &, std::string);
 void checkUrl(struct t_request &, std::string, std::string &);
 bool checkLocation(struct t_request &, std::map<std::string, struct t_location> &, std::string);
 // bool checkRedirection(struct t_request &);
-bool displayRoot(struct t_request &, std::string);
+bool displayRoot(struct t_request &, std::string, std::string);
 void sendTable(struct t_request &, std::string, std::string);
 void addParentDirectory(std::string &, std::string, std::string);
 void addLinkList(std::string &, std::string, std::string);

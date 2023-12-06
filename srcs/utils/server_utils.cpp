@@ -447,9 +447,9 @@ void addLinkList(std::string &html, std::string location, std::string local)
 	closedir(dir);
 }
 
-bool displayRoot(struct t_request &request, std::string root)
+bool displayRoot(struct t_request &request, std::string root, std::string autoindex)
 {
-	if (&request.location[1] != root)
+	if (&request.location[1] != root || autoindex == "off")
 		return false;
 
 	DIR *dir = opendir(root.c_str());
