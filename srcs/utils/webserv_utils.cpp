@@ -252,10 +252,9 @@ bool getRequest(struct t_request &request)
 		throw readRequestException();
 	else if (bytesReceived == 0)
 	{
-		std::cout << "client closed" << std::endl;
+		std::cout << "client closed" << std::endl; //TODO remove this before
 		return false;
 	}
-	std::cout << "let's go" << std::endl;
 	std::string oBuffer(buffer);
 	std::stringstream ifs(oBuffer);
 

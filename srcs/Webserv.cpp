@@ -112,7 +112,7 @@ bool Webserv::_isListeningSocket(int fd)
 void Webserv::startListen()
 {
 	std::cout << "\n\n### Webserv started ###\n\n" << std::endl;
-	log("Webserv started", "", "", 0);
+	log("Webserv started", -1, "", 0);
 
 	/*
 	Select() needs the biggest fd + 1 from all the fd_sets
@@ -168,7 +168,7 @@ void Webserv::startListen()
 			}
 		}
 	}
-	log("Webserv stopped", "", "", 0);
+	log("Webserv stopped", -1, "", 0);
 }
 
 void Webserv::acceptNewConnections(int server_fd, fd_set *read_backup)
@@ -197,7 +197,7 @@ static int getSocketAddress(int socket, struct sockaddr_in *addr)
 
 void Webserv::readRequests(int client_fd, fd_set *read_backup, fd_set *write_backup)
 {
-	bool keep_alive;
+	bool client_fd_is_open;
 	struct t_request new_request = {};
 	struct sockaddr_in addr = {};
 	(void)write_backup;
@@ -211,8 +211,8 @@ void Webserv::readRequests(int client_fd, fd_set *read_backup, fd_set *write_bac
 
 	try
 	{
-		keep_alive = getRequest(new_request);
-		if (!keep_alive)
+		client_fd_is_open = getRequest(new_request);
+		if (!client_fd_is_open)
 		{
 			FD_CLR(client_fd, read_backup);
 			close(client_fd);
@@ -227,15 +227,18 @@ void Webserv::readRequests(int client_fd, fd_set *read_backup, fd_set *write_bac
 	}
 	catch (const std::exception &e)
 	{
-		log(e.what(), new_request.client, "", 1);
+		log(e.what(), client_fd, "", 1);
 	}
 }
 
-static const std::string &getConnectionHeader(struct t_request &request)
+static std::string getConnectionHeader(struct t_request &request)
 {
 	std::map<std::string, std::vector<std::string> >::iterator it;
 	it = request.headers.find("Connection");
-	return (it->second[0]);
+	if (it != request.headers.end())
+		return (it->second[0]);
+	else
+		return ("");
 }
 
 void Webserv::sendRequests(int client_fd, bool &kill, fd_set *read_backup, fd_set *write_backup)
@@ -246,7 +249,7 @@ void Webserv::sendRequests(int client_fd, bool &kill, fd_set *read_backup, fd_se
 			break;
 	if (it == _request_list.end())
 	{
-		std::cerr << "For some reason, we can't find your request" << std::endl;
+		std::cerr << "For some reason, we can't find your request" << std::endl; //TODO make this an internal server error
 		return;
 	}
 	it->server->handleRequest(*it, kill);

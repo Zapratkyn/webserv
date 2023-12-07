@@ -254,7 +254,7 @@ void setRequest(t_request &request, bool &kill, std::string root)
 
 	extension = &request.location[request.location.find_last_of(".")];
 	if (extension != ".css" && extension != ".ico")
-		log("", "", request.location, 2);
+		log("", request.socket, request.location, 2);
 
 	if (DISPLAY_METHOD_AND_LOCATION)
 	{

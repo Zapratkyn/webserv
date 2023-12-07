@@ -54,7 +54,7 @@ int ft_stoi(std::string str)
 	return result;
 }
 
-void log(std::string line, std::string client, std::string url, int type)
+void log(std::string line, int client_fd, std::string url, int type)
 {
 	time_t tm = std::time(NULL);
 	char *dt = ctime(&tm);
@@ -71,13 +71,13 @@ void log(std::string line, std::string client, std::string url, int type)
 		log_file << line << "\n";
 		break;
 	case 1:
-		log_file << client << ": " << line << "\n";
+		log_file << client_fd << ": " << line << "\n";
 		break;
 	case 2:
-		log_file << ": Request (" << url << ") received from " << client << "\n";
+		log_file << ": Request (" << url << ") received from " << client_fd << "\n";
 		break;
 	case 3:
-		log_file << ": Reponse (" << &url[1] << ") sent to " << client << "\n";
+		log_file << ": Reponse (" << &url[1] << ") sent to " << client_fd << "\n";
 		break;
 	}
 

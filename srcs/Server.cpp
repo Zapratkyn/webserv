@@ -354,7 +354,7 @@ void Server::handleRequest(struct t_request &request, bool &kill)
 	}
 	catch (const std::exception &e)
 	{
-		log(e.what(), request.client, "", 1);
+		log(e.what(), request.socket, "", 1);
 	}
 
 	pos = request.url.find_last_of(".");
@@ -362,5 +362,5 @@ void Server::handleRequest(struct t_request &request, bool &kill)
 		extension = &request.url[pos];
 
 	if (!kill && extension != ".css" && extension != ".ico")
-		log("", request.client, request.url, 3);
+		log("", request.socket, request.url, 3);
 }
