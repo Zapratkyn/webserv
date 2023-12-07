@@ -2,7 +2,7 @@
 
 using namespace server_utils;
 
-Server::Server() : _root(""), _index(""), _client_max_body_size(-1)
+Server::Server() : _root(""), _index(""), _autoindex("off"), _client_max_body_size(-1)
 {
 	return;
 }
@@ -29,21 +29,23 @@ bool Server::addServerName(const std::string &name)
 }
 bool Server::setRoot(std::string &root)
 {
-	std::string slash = "/";
+	DIR *dir;
 
 	if (_root != "")
 	{
 		ft_error(0, root, "root");
 		return false;
 	}
-	// We need root path to start and end with '/'
-	if (root[0] != '/')
-		root = slash.append(root);
+	dir = opendir(root.c_str());
+	if (!dir)
+	{
+		ft_error(9, root, "root");
+		return false;
+	}
 	if (root[root.size() - 1] != '/')
 		root.append("/");
-	if (root == "/")
-		root = "/www/";
 	_root = root;
+	closedir(dir);
 	return true;
 }
 bool Server::setBodySize(const std::string &size)
@@ -130,8 +132,11 @@ bool Server::addLocation(std::stringstream &ifs, std::string &value)
 	location_block = getLocationBlock(ifs);
 	if (location_block.size())
 	{
-		value = slash.append(value);
-		_location_list[value] = newLocation(value, location_block);
+		if (value[value.size() - 1] != '/')
+			value.append("/");
+		if (value[0] != '/')
+			value.insert(0, "/");
+		_location_list[value] = newLocation(value, location_block, _root, _autoindex);
 		if (!_location_list[value].valid)
 			return false;
 	}
@@ -148,7 +153,7 @@ void Server::addDefaultLocation()
 	if (_root != "")
 		default_location.root = _root;
 	else
-		default_location.root = "/www/";
+		default_location.root = "www/server00/";
 	default_location.location = "/";
 	default_location.autoindex = "on";
 	default_location.methods.push_back("GET");
@@ -196,6 +201,13 @@ bool Server::addErrorPage(std::string &value)
 		}
 		tmp.erase(tmp.begin());
 	}
+	return true;
+}
+bool Server::setAutoIndex(std::string &value)
+{
+	if (value != "on" && value != "off")
+		return false;
+	_autoindex = value;
 	return true;
 }
 
@@ -263,23 +275,27 @@ bool Server::parseOption(const int &option, std::string &value, std::stringstrea
 	case 5:
 		if (!addLocation(ifs, value))
 			return false;
+		break;
 	case 6:
 		if (!addErrorPage(value))
 			return false;
 		break;
-		break;
+	case 7:
+		if (!setAutoIndex(value))
+			return false;
 	}
 	return true;
 }
 
-bool Server::parseServer(const std::string &server_block, std::vector<std::string> &folder_list)
+bool Server::parseServer(const std::string &server_block)
 {
 	std::string buffer, name, value,
-	    option_list[7] = {"listen", "server_name", "client_max_body_size", "root", "index", "location", "error_page"};
+	    option_list[8] = {"listen", "server_name", "client_max_body_size", "root", "index", "location", "error_page", "autoindex"};
 	std::stringstream ifs(server_block); // std::stringstream works the same as a std::ifstream but is constructed from
 	                                     // a string instead of a file
 	int option;
 	t_location folder;
+	std::ifstream index;
 
 	while (!ifs.eof())
 	{
@@ -296,16 +312,16 @@ bool Server::parseServer(const std::string &server_block, std::vector<std::strin
 				return false;
 			}
 		}
-		for (option = 0; option < 7; ++option)
+		for (option = 0; option < 8; ++option)
 		{
 			if (name == option_list[option])
 				break;
 		}
 		/*
-		Thanks to the 'option == 7' condition, we don't need a default
+		Thanks to the 'option == 8' condition, we don't need a default
 		behavior for the switch statement in the parseOption() function
 		*/
-		if (option == 7)
+		if (option == 8)
 		{
 			ft_error(4, name, "");
 			return false;
@@ -313,40 +329,27 @@ bool Server::parseServer(const std::string &server_block, std::vector<std::strin
 		if (!parseOption(option, value, ifs))
 			return false;
 	}
+	if (_index == "")
+		_index = "pages/index.html";
 	if (_client_max_body_size == -1)
 		_client_max_body_size = 60000; // The PDF states we need to limit the client_max_body_size
 	if (_location_list.find("/") == _location_list.end())
 		addDefaultLocation();
-	for (std::vector<std::string>::iterator it = folder_list.begin(); it != folder_list.end(); it++)
-	{
-		folder.autoindex = "on";
-		folder.root = *it;
-		folder.location = *it;
-		_location_list[*it] = folder;
-	}
 	return true;
 }
 
-void Server::handleRequest(struct t_request &request, std::vector<std::string> &url_list, bool &kill)
+void Server::handleRequest(struct t_request &request, bool &kill)
 {
 	std::string extension = "";
 	size_t pos;
 
 	try
 	{
-		setRequest(request, kill); // Gets the method and the location from the request
+		setRequest(request, kill, _root); // Gets the method and the location from the request
 		if (!kill)
 		{
-			/*
-			Truncates the location (if needed)
-			Sets the request.url if location ends with html/htm/php
-			*/
-			checkUrl(request, url_list);
-			if (!request.is_url)
-			{
-				// Checks redirections, allowed methods and destinations (url)
-				checkLocation(request, _location_list);
-			}
+			if (!displayRoot(request, _root, _autoindex) && !checkLocation(request, _location_list, _root))
+				checkUrl(request, _root, _autoindex);
 		}
 	}
 	catch (const std::exception &e)

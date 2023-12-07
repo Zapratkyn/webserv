@@ -2,8 +2,9 @@
 #define ERRORPAGE_HPP
 
 #include "Server.hpp"
-#include <iostream>
-#include <map>
+#include "utils/utils.hpp"
+
+class Server;
 
 class ErrorPage
 {

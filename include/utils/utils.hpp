@@ -50,7 +50,7 @@ struct t_request
 	std::string header;
 	std::string body;
 	std::string host;
-	bool is_url;
+	std::string local;
 	int socket;
 };
 
@@ -63,5 +63,6 @@ bool sendText(struct t_request &);
 void sendFile(struct t_request &);
 void sendError(int, int);
 std::string getContentType(std::string);
+std::string getLocalFolder(std::string);
 
 #endif

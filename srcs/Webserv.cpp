@@ -4,13 +4,6 @@ using namespace webserv_utils;
 
 Webserv::Webserv(const std::string &conf_file) : _conf(conf_file)
 {
-	_folder_list.push_back("/www/");
-	parseUrl("./www/", _url_list, _folder_list);
-	if (DISPLAY_URL)
-	{
-		for (std::vector<std::string>::iterator it = _url_list.begin(); it != _url_list.end(); it++)
-			std::cout << *it << std::endl;
-	}
 	return;
 }
 
@@ -48,7 +41,7 @@ void Webserv::parseConf()
 		{
 			server_block = getServerBlock(infile);
 			server = new Server;
-			if (!server->parseServer(server_block, _folder_list))
+			if (!server->parseServer(server_block))
 			{
 				delete server;
 				throw confFailureException();
@@ -134,8 +127,8 @@ void Webserv::startListen()
 
 	FD_ZERO(&read_backup);
 	FD_ZERO(&write_backup);
-//	timer.tv_sec = 2;
-//	timer.tv_usec = 0;
+	timer.tv_sec = 2;
+	timer.tv_usec = 0;
 	for (std::vector<int>::iterator it = _listen_socket_list.begin(); it != _listen_socket_list.end(); it++)
 		FD_SET(*it, &read_backup);
 	while (!kill)
@@ -256,7 +249,7 @@ void Webserv::sendRequests(int client_fd, bool &kill, fd_set *read_backup, fd_se
 		std::cerr << "For some reason, we can't find your request" << std::endl;
 		return;
 	}
-	it->server->handleRequest(*it, _url_list, kill);
+	it->server->handleRequest(*it, kill);
 	FD_CLR(client_fd, write_backup);
 	if (getConnectionHeader(*it) == "close")
 		close(client_fd);

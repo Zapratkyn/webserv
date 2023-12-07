@@ -153,7 +153,7 @@ void sendError(int error, int socket)
 	body.append("\t<section id=\"error-page-section\">\n");
 	body.append("\t\t<div class=\"err-page-container\">\n");
 	body.append("\t\t\t<h1></h1>\n\t\t\t<h3></h3>\n\t\t\t<p>Sorry, .</p>\n");
-	body.append("\t\t\t<p>Please return to the <a href=\"/www/pages/index.html\">home page</a>.</p>\n");
+	body.append("\t\t\t<p>Please return to the <a href=\"/\">home page</a>.</p>\n");
 	body.append("\t\t</div>\n\t</section>\n</body>\n</html>");
 
 	switch (error)
@@ -196,4 +196,28 @@ std::string getContentType(std::string extension)
 	else if (extension == "pdf")
 		return ("application/pdf");
 	return "";
+}
+
+std::string getLocalFolder(std::string folder)
+{
+	folder = &folder[4];
+	folder = &folder[folder.find('/')];
+	return (folder);
+}
+
+void addLocal(std::string &html, std::string local)
+{
+	size_t spot;
+	std::string html_copy = &html[html.find("<body>")];
+
+	local.append("/");
+
+	spot = html_copy.find("href=\"");
+
+	while (spot != std::string::npos)
+	{
+		spot += 6;
+		html.insert(spot, local);
+		spot = html.find("href=\"");
+	}
 }
