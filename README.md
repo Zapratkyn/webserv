@@ -1,12 +1,6 @@
 # webserv
 
-Warning :
-
-If during testing you get a "Couldn't bind socket" error, just keep trying to run the program. A listening socket stays unavailable for a short period after being used by a program, even if you close it with the kill method.
-
-==============================
-
-Naming convention :
+Naming conventions :
 
 - Variables, structures, namespaces : snake_case
 - Functions : camelCase
@@ -63,6 +57,8 @@ NOTES :
 - The start/stop messages and the requests in/out are logged in the webserv.log file
 
 - The browser keeps the favicon associated with the url in cache. Meaning it will not request it to the server again. The same is not true for the stylesheet.
+
+- In the current state of the main loop, connections are closed even without closing any tab. Get back to the previous version?
 
 ================================
 

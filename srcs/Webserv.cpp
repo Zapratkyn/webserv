@@ -127,7 +127,7 @@ void Webserv::startListen()
 
 	FD_ZERO(&read_backup);
 	FD_ZERO(&write_backup);
-	timer.tv_sec = 2;
+	timer.tv_sec = 15;
 	timer.tv_usec = 0;
 	for (std::vector<int>::iterator it = _listen_socket_list.begin(); it != _listen_socket_list.end(); it++)
 		FD_SET(*it, &read_backup);

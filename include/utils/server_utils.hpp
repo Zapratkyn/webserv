@@ -2,9 +2,6 @@
 #define __SERVER_UTILS_HPP__
 
 #include "utils.hpp"
-#include <string>
-#include <map>
-#include <vector>
 
 struct t_request;
 

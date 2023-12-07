@@ -6,6 +6,7 @@
 // #include "ErrorPage.hpp"
 
 struct t_location;
+// class ErrorPage;
 
 class Server
 {
@@ -19,6 +20,7 @@ class Server
 	std::map<std::string, t_location> _location_list;
 	std::vector<struct sockaddr_in> _end_points;
 	std::map<int, std::string> _error_pages;
+	// ErrorPage	_errorPage;
 
 	bool parseOption(const int &, std::string &, std::stringstream &);
 	void addDefaultLocation();
