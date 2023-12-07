@@ -132,8 +132,8 @@ bool Server::addLocation(std::stringstream &ifs, std::string &value)
 	location_block = getLocationBlock(ifs);
 	if (location_block.size())
 	{
-		if (value[value.size() - 1] != '/')
-			value.append("/");
+//		if (value[value.size() - 1] != '/')
+//			value.append("/");
 		if (value[0] != '/')
 			value.insert(0, "/");
 		_location_list[value] = newLocation(value, location_block, _root, _autoindex);
@@ -149,13 +149,13 @@ void Server::addDefaultLocation()
 	if (_index != "")
 		default_location.index = _index;
 	else
-		default_location.index = "pages/index.html";
+		default_location.index = "index.html";
 	if (_root != "")
 		default_location.root = _root;
-	else
-		default_location.root = "www/server00/";
+//	else
+//		default_location.root = "www/server00/";
 	default_location.location = "/";
-	default_location.autoindex = "on";
+	default_location.autoindex = "off";
 	default_location.methods.push_back("GET");
 
 	_location_list["/"] = default_location;
@@ -190,7 +190,7 @@ bool Server::addErrorPage(std::string &value)
 		}
 		else
 		{
-			// TODO check valid url and code not present yet
+			// TODO check if status_code is not present yet (check of valid url should be done in handling request)
 			_error_pages.insert(std::make_pair(code, tmp[0]));
 			code_is_set = false;
 		}
@@ -330,7 +330,7 @@ bool Server::parseServer(const std::string &server_block)
 			return false;
 	}
 	if (_index == "")
-		_index = "pages/index.html";
+		_index = "index.html";
 	if (_client_max_body_size == -1)
 		_client_max_body_size = 60000; // The PDF states we need to limit the client_max_body_size
 	if (_location_list.find("/") == _location_list.end())

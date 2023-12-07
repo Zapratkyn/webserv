@@ -156,12 +156,12 @@ void Webserv::startListen()
 				acceptNewConnections(i, &read_backup);
 				break ;
 			}
-			else if (FD_ISSET(i, &readfds) && !_isListeningSocket(i))
+			if (FD_ISSET(i, &readfds) && !_isListeningSocket(i))
 			{
 				readRequests(i, &read_backup, &write_backup);
 				break ;
 			}
-			else if (FD_ISSET(i, &writefds) && !_isListeningSocket(i))
+			if (FD_ISSET(i, &writefds) && !_isListeningSocket(i))
 			{
 				sendRequests(i, kill, &read_backup, &write_backup);
 				break ;

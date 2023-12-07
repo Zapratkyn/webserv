@@ -106,7 +106,7 @@ t_location newLocation(const std::string &location_name, const std::string &loca
 			{
 				pos = value.find_first_of(" \t");
 				method = value.substr(0, pos);
-				if (method != "GET" && method != "DELETE" && method != "POST" && method != "HEAD" && method != "PUT" &&
+				if (!method.empty() && method != "GET" && method != "DELETE" && method != "POST" && method != "HEAD" && method != "PUT" &&
 				    method != "CONNECT" && method != "OPTIONS" && method != "TRACE" && method != "PATCH")
 				{
 					ft_error(3, method, "");
@@ -123,7 +123,8 @@ t_location newLocation(const std::string &location_name, const std::string &loca
 						}
 					}
 				}
-				loc.methods.push_back(method);
+				if (!method.empty())
+					loc.methods.push_back(method);
 				value = &value[pos + 1];
 				if (!value.size())
 					break;

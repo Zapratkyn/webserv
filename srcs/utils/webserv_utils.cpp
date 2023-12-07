@@ -125,6 +125,8 @@ void printSocketAddress(struct sockaddr_in &_socketAddr)
 	std::cout << s << ":" << ntohs(_socketAddr.sin_port);
 }
 
+//TODO add autoindex and error_pages to main server block, error_pages to location blocks
+//TODO apply inheritance after parsing config
 void displayServers(std::vector<Server *> &server_list)
 {
 	std::string value;
@@ -141,36 +143,28 @@ void displayServers(std::vector<Server *> &server_list)
 		std::cout << "*******   "
 		          << "server #" << i++ << "   *******" << std::endl;
 		value = (*it)->getIndex();
-		if (value != "")
-			std::cout << "Index : " << value << std::endl;
+		std::cout << "Index : " << value << std::endl;
 		value = (*it)->getRoot();
-		if (value != "")
-			std::cout << "Root : " << value << std::endl;
+		std::cout << "Root : " << value << std::endl;
 		iValue = (*it)->getBodySize();
-		if (iValue >= 0)
-			std::cout << "Client max body size : " << iValue << std::endl;
+		std::cout << "Client max body size : " << iValue << std::endl;
+		std::cout << "Locations :\n";
 		location_list = (*it)->getLocationlist();
 		if (!location_list.empty())
 		{
-			std::cout << "Locations :\n";
 			for (std::map<std::string, t_location>::iterator it = location_list.begin(); it != location_list.end();
 			     it++)
 			{
 				std::cout << "  - " << it->second.location << " :\n";
 				value = it->second.root;
-				if (value != "")
-					std::cout << "    - Root : " << value << std::endl;
+				std::cout << "    - Root : " << value << std::endl;
 				value = it->second.index;
-				if (value != "")
-					std::cout << "    - Index : " << value << std::endl;
+				std::cout << "    - Index : " << value << std::endl;
 				std::cout << "    - Autoindex : " << it->second.autoindex << std::endl;
 				method_list = it->second.methods;
-				if (!method_list.empty())
-				{
-					std::cout << "    - Allowed methods :\n";
-					for (std::vector<std::string>::iterator it = method_list.begin(); it != method_list.end(); it++)
+				std::cout << "    - Allowed methods :\n";
+				for (std::vector<std::string>::iterator it = method_list.begin(); it != method_list.end(); it++)
 						std::cout << "       - " << *it << std::endl;
-				}
 			}
 		}
 		std::cout << "Listening on :\n";
@@ -252,7 +246,7 @@ bool getRequest(struct t_request &request)
 		throw readRequestException();
 	else if (bytesReceived == 0)
 	{
-		std::cout << "client closed" << std::endl; //TODO remove this before
+		std::cout << "client on socket " << request.socket << " closed connection" << std::endl; //TODO remove this before final push or move to log
 		return false;
 	}
 	std::string oBuffer(buffer);
