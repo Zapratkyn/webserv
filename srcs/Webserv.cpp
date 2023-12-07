@@ -127,7 +127,7 @@ void Webserv::startListen()
 
 	FD_ZERO(&read_backup);
 	FD_ZERO(&write_backup);
-	timer.tv_sec = 15;
+	timer.tv_sec = 1;
 	timer.tv_usec = 0;
 	for (std::vector<int>::iterator it = _listen_socket_list.begin(); it != _listen_socket_list.end(); it++)
 		FD_SET(*it, &read_backup);
@@ -156,12 +156,12 @@ void Webserv::startListen()
 				acceptNewConnections(i, &read_backup);
 				break ;
 			}
-			if (FD_ISSET(i, &readfds) && !_isListeningSocket(i))
+			else if (FD_ISSET(i, &readfds) && !_isListeningSocket(i))
 			{
 				readRequests(i, &read_backup, &write_backup);
 				break ;
 			}
-			if (FD_ISSET(i, &writefds) && !_isListeningSocket(i))
+			else if (FD_ISSET(i, &writefds) && !_isListeningSocket(i))
 			{
 				sendRequests(i, kill, &read_backup, &write_backup);
 				break ;
@@ -252,7 +252,9 @@ void Webserv::sendRequests(int client_fd, bool &kill, fd_set *read_backup, fd_se
 	it->server->handleRequest(*it, kill);
 	FD_CLR(client_fd, write_backup);
 	if (getConnectionHeader(*it) == "close")
+	{
 		close(client_fd);
+	}
 	else
 		FD_SET(client_fd, read_backup);
 	_request_list.erase(it);

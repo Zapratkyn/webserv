@@ -255,7 +255,7 @@ bool getRequest(struct t_request &request)
 		std::cout << "client closed" << std::endl;
 		return false;
 	}
-
+	std::cout << "let's go" << std::endl;
 	std::string oBuffer(buffer);
 	std::stringstream ifs(oBuffer);
 
