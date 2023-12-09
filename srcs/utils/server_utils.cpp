@@ -44,7 +44,6 @@ std::string getLocationBlock(std::stringstream &ifs)
 
 t_location newLocation(const std::string &location_name, const std::string &location_block, std::string &root, std::string autoindex)
 {
-	DIR *dir;
 	t_location loc;
 	int option, pos;
 	std::stringstream ifs(location_block);
@@ -59,6 +58,7 @@ t_location newLocation(const std::string &location_name, const std::string &loca
 
 	while (!ifs.eof())
 	{
+		buffer.clear();
 		getline(ifs, buffer);
 		if (buffer[buffer.size() - 1] != ';')
 		{
@@ -81,15 +81,8 @@ t_location newLocation(const std::string &location_name, const std::string &loca
 				ft_error(0, value, "loc.root");
 				return loc;
 			}
-			dir = opendir(value.c_str());
-			if (!dir)
-			{
-				ft_error(9, root, "root");
-				return loc;
-			}
 			if (value[value.size() - 1] != '/')
 				value.append("/");
-			closedir(dir);
 			loc.root = value;
 			break;
 		case 1:
@@ -224,155 +217,24 @@ bool validMethod(std::string &method)
 	return true;
 }
 
-void setRequest(t_request &request, bool &kill, std::string root)
+void setResponse(t_request &request, bool &kill, std::string root)
 {
+	(void)root;
 	std::string first_line = request.header.substr(0, request.header.find_first_of("\n")), extension;
 
 	request.method = first_line.substr(0, first_line.find_first_of(" \t"));
-	if (!validMethod(request.method))
-	{
-		request.url = root.append("/errors/400.html");
-		request.code = "400 Bad Request";
-		if (!sendText(request))
-			sendError(400, request.socket);
-		throw invalidMethodException();
-	}
-	first_line = &first_line[first_line.find_first_of(" \t")];
-	first_line = &first_line[first_line.find_first_not_of(" \t")];
-	request.location = first_line.substr(0, first_line.find_first_of(" \t"));
-	request.local = request.location;
+	request.location = "www/server00/pages/test.html";
+	request.url = request.location;
+	request.code = "200 OK";
+	sendText(request);
 
-
-	if (request.location == "/kill")
-	{
-		kill = true;
-		request.url = "www/kill.html";
-		sendText(request);
-	}
-
-	if (request.location[request.location.size() - 1] != '/')
-		request.location.append("/");
-
-	extension = &request.location[request.location.find_last_of(".")];
-	if (extension != ".css" && extension != ".ico")
-		log("", request.socket, request.location, 2);
+	(void)kill;
 
 	if (DISPLAY_METHOD_AND_LOCATION)
 	{
 		std::cout << "Method = " << request.method << std::endl;
 		std::cout << "Location = " << request.location << std::endl;
 	}
-}
-
-void checkUrl(struct t_request &request, std::string root, std::string &autoindex)
-{
-	std::ifstream file;
-	std::string extension, folder;
-	size_t pos;
-
-	request.url = root;
-	request.url.append(&request.location[1]);
-	if (request.url[request.url.size() - 1] == '/')
-		request.url = ft_pop_back(request.url);
-	file.open(request.url.c_str());
-	if (!file.fail())
-	{
-		file.close();
-		pos = request.location.rfind('.');
-		if (pos == std::string::npos)
-		{
-			if (autoindex == "on")
-			{
-				folder = request.url;
-				if (folder[folder.size() - 1] != '/')
-					folder.append("/");
-				request.url = root;
-				request.url.append("/assets/dir.html");
-				sendTable(request, root, folder);
-				return;
-			}
-		}
-		else
-		{
-			extension = &request.location[request.location.rfind('.')];
-			if (extension == ".html" || extension == ".htm" || extension == ".php")
-				sendText(request);
-			else
-				sendFile(request);
-			return;
-		}
-	}
-	request.url = root;
-	request.url.append("/errors/404.html");
-	request.code = "404 Not found";
-	if (!sendText(request))
-		sendError(404, request.socket);
-}
-
-bool checkLocation(struct t_request &request, std::map<std::string, struct t_location> &location_list, std::string root)
-{
-	std::ifstream index;
-
-	for (std::map<std::string, struct t_location>::iterator it = location_list.begin(); it != location_list.end(); it++)
-	{
-		if (request.location == it->first)
-		{
-			if (it->second.index != "")
-			{
-				request.url = it->second.root;
-				request.url.append(it->second.index);
-				index.open(request.url.c_str());
-				if (!index.fail())
-				{
-					sendText(request);
-					index.close();
-				}
-			}
-			else if (it->second.autoindex == "on")
-			{
-				request.url = root;
-				request.url.append("assets/dir.html");
-				sendTable(request, root, it->second.root);
-			}
-			request.code = "404 Not found";
-			request.url = root.append("errors/404.html");
-			if (!sendText(request))
-				sendError(404, request.socket);
-			return true;
-		}
-	}
-	return false;
-}
-
-void sendTable(struct t_request &request, std::string root, std::string folder)
-{
-	std::ifstream ifs(request.url.c_str());
-	std::string html = "", buffer, local;
-	std::string result = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: ";
-
-	(void)root;
-
-	while (!ifs.eof())
-	{
-		getline(ifs, buffer);
-		html.append(buffer);
-		html.append("\n");
-	}
-	ifs.close();
-
-	html.insert(html.find("</caption>"), request.location);
-
-	local = getLocalFolder(folder);
-	if (local != "/")
-		addParentDirectory(html, local, root);
-
-	addLinkList(html, folder, request.local);
-
-	result.append(ft_to_string(html.size())); // We append the size of the html page to the http response
-	result.append("\n\n");                    // The http response's header stops here
-	result.append(html);                      // The http reponse body (html page)
-
-	write(request.socket, result.c_str(), result.size());
 }
 
 void addParentDirectory(std::string &html, std::string local, std::string root)

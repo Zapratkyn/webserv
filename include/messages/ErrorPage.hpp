@@ -1,8 +1,8 @@
 #ifndef ERRORPAGE_HPP
 #define ERRORPAGE_HPP
 
-#include "Server.hpp"
-#include "utils/utils.hpp"
+#include "../Server.hpp"
+#include "../utils/utils.hpp"
 
 class Server;
 

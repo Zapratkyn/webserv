@@ -345,12 +345,7 @@ void Server::handleRequest(struct t_request &request, bool &kill)
 
 	try
 	{
-		setRequest(request, kill, _root); // Gets the method and the location from the request
-		if (!kill)
-		{
-			if (!displayRoot(request, _root, _autoindex) && !checkLocation(request, _location_list, _root))
-				checkUrl(request, _root, _autoindex);
-		}
+		setResponse(request, kill, _root); // Gets the method and the location from the request
 	}
 	catch (const std::exception &e)
 	{
@@ -361,6 +356,5 @@ void Server::handleRequest(struct t_request &request, bool &kill)
 	if (pos != std::string::npos)
 		extension = &request.url[pos];
 
-	if (!kill && extension != ".css" && extension != ".ico")
-		log("", request.socket, request.url, 3);
+	log("", request.socket, request.url, 3);
 }

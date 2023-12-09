@@ -91,9 +91,13 @@ bool sendText(t_request &request)
 	// We start our response by the http header with the right code
 	std::string result = "HTTP/1.1 ";
 
+	std::cout << request.url << std::endl;
 	ifs.open(request.url.c_str());
 	if (ifs.fail())
+	{
+		std::cout << "NO" << std::endl;
 		return false;
+	}
 
 	result.append(request.code);
 	result.append("\nContent-Type: text/");

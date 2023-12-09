@@ -125,8 +125,8 @@ void printSocketAddress(struct sockaddr_in &_socketAddr)
 	std::cout << s << ":" << ntohs(_socketAddr.sin_port);
 }
 
-//TODO add autoindex and error_pages to main server block, error_pages to location blocks
-//TODO apply inheritance after parsing config
+//TODO add autoindex and error_pages to main server block
+//TODO apply inheritance after (or before) parsing config
 void displayServers(std::vector<Server *> &server_list)
 {
 	std::string value;
@@ -222,20 +222,6 @@ void parseUrl(std::string folder, std::vector<std::string> &url_list, std::vecto
 	closedir(dir);
 }
 
-void initRequest(struct t_request &request)
-{
-	request.body = "";
-	request.header = "";
-	request.client = "";
-	request.code = "200 OK";
-	request.location = "";
-	request.method = "";
-	request.host = "";
-	request.url = "";
-	request.local = "";
-	request.server = NULL;
-}
-
 bool getRequest(struct t_request &request)
 {
 	ssize_t bytesReceived;
@@ -288,14 +274,4 @@ bool getRequest(struct t_request &request)
 	}
 	return true;
 }
-
-void deleteRequest(int socket, std::vector<struct t_request> &request_list)
-{
-	for (std::vector<struct t_request>::iterator it = request_list.begin(); it != request_list.end(); it++)
-	{
-		if (it->socket == socket)
-			request_list.erase(it);
-	}
-}
-
 }; // namespace webserv_utils

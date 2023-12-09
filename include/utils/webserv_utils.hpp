@@ -15,7 +15,6 @@ void getServer(struct t_request &);
 void displayServers(std::vector<Server *> &);
 void parseUrl(std::string, std::vector<std::string> &, std::vector<std::string> &);
 void readRequests(std::map<std::string, Server *> &, std::map<int, t_request> &, fd_set &);
-bool getRequest(struct t_request &);
 bool validMethod(std::string &);
 void initRequest(struct t_request &);
 bool socketIsSet(std::map<int, struct sockaddr_in> &, struct sockaddr_in &);

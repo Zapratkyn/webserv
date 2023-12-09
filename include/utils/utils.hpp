@@ -21,7 +21,7 @@
 #include <vector>
 #include "../Server.hpp"
 
-#define DISPLAY_HTML false
+#define DISPLAY_HTML true
 #define DISPLAY_METHOD_AND_LOCATION true
 #define DISPLAY_REQUEST true
 #define DISPLAY_URL true
@@ -30,9 +30,6 @@
 #define DIGITS "0123456789"
 #define BUFFER_SIZE 10000
 #define MAX_LISTEN 1000
-
-#define EXIT_SUCCESS 0
-#define EXIT_FAILURE 1
 
 class Server;
 
@@ -52,6 +49,7 @@ struct t_request
 	std::string host;
 	std::string local;
 	int socket;
+	bool is_chunked;
 };
 
 std::string ft_pop_back(std::string);

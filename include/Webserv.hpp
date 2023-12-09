@@ -3,6 +3,10 @@
 
 #include "utils/utils.hpp"
 #include "utils/webserv_utils.hpp"
+#include "messages/Request.hpp"
+#include "messages/Response.hpp"
+#include <algorithm>
+
 
 class Webserv
 {
@@ -10,18 +14,18 @@ class Webserv
   private:
 	std::vector<int> _listen_socket_list;
 	std::vector<int> _global_socket_list;
-	std::vector<struct t_request> _request_list;
+	std::vector<Request> _request_list;
 	std::vector<Server *> _server_list;
 
-	void acceptNewConnections(int, fd_set *);
-	void readRequests(int, fd_set *, fd_set *);
-	void sendRequests(int, bool &, fd_set *, fd_set *);
+	void acceptNewConnection(int, fd_set *);
+	void readRequest(int, fd_set *, fd_set *);
+	void sendResponse(int, bool &, fd_set *, fd_set *);
 	bool _isListeningSocket(int fd);
 	std::string _conf;
 	std::map<int, struct sockaddr_in> _socket_list;
 
   public:
-	Webserv(const std::string &);
+	explicit Webserv(const std::string &);
 	~Webserv();
 	void startListen();
 	void startServer();

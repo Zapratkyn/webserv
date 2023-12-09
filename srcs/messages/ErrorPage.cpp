@@ -1,4 +1,4 @@
-#include "../include/ErrorPage.hpp"
+#include "../../include/messages/ErrorPage.hpp"
 
 static std::map<int, std::string> getStatuses()
 {

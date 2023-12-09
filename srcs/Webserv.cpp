@@ -13,8 +13,8 @@ Webserv::~Webserv()
 		delete (*it);
 	for (std::vector<int>::iterator it = _listen_socket_list.begin(); it != _listen_socket_list.end(); it++)
 		close(*it);
-	for (std::vector<struct t_request>::iterator it = _request_list.begin(); it != _request_list.end(); it++)
-		close(it->socket);
+	for (std::vector<Request>::iterator it = _request_list.begin(); it != _request_list.end(); it++)
+		close(it->getSocket());
 	return;
 }
 
@@ -153,25 +153,25 @@ void Webserv::startListen()
 		{
 			if (FD_ISSET(i, &readfds) && (_isListeningSocket(i)))
 			{
-				acceptNewConnections(i, &read_backup);
-				break ;
+				acceptNewConnection(i, &read_backup);
+				break;
 			}
 			if (FD_ISSET(i, &readfds) && !_isListeningSocket(i))
 			{
-				readRequests(i, &read_backup, &write_backup);
-				break ;
+				readRequest(i, &read_backup, &write_backup);
+				break;
 			}
 			if (FD_ISSET(i, &writefds) && !_isListeningSocket(i))
 			{
-				sendRequests(i, kill, &read_backup, &write_backup);
-				break ;
+				sendResponse(i, kill, &read_backup, &write_backup);
+				break;
 			}
 		}
 	}
 	log("Webserv stopped", -1, "", 0);
 }
 
-void Webserv::acceptNewConnections(int server_fd, fd_set *read_backup)
+void Webserv::acceptNewConnection(int server_fd, fd_set *read_backup)
 {
 	struct sockaddr_in addr = _socket_list[server_fd];
 	socklen_t addr_len = sizeof(addr);
@@ -187,42 +187,43 @@ void Webserv::acceptNewConnections(int server_fd, fd_set *read_backup)
 	setsockopt(new_socket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
 	_global_socket_list.push_back(new_socket);
 	FD_SET(new_socket, read_backup);
+	log("new connection", new_socket, "", 1);
 }
 
-static int getSocketAddress(int socket, struct sockaddr_in *addr)
+//static int getSocketAddress(int socket, struct sockaddr_in *addr)
+//{
+//	socklen_t len = sizeof *addr;
+//	return (getsockname(socket, (struct sockaddr *)addr, &len));
+//}
+
+void Webserv::readRequest(int client_fd, fd_set *read_backup, fd_set *write_backup)
 {
-	socklen_t len = sizeof *addr;
-	return (getsockname(socket, (struct sockaddr *)addr, &len));
-}
+	Request request(client_fd);
 
-void Webserv::readRequests(int client_fd, fd_set *read_backup, fd_set *write_backup)
-{
-	bool client_fd_is_open;
-	struct t_request new_request = {};
-	struct sockaddr_in addr = {};
-	(void)write_backup;
-
-	// THIS is the address of the server that init the connection with the client
-	getSocketAddress(client_fd, &addr);
-
-	initRequest(new_request);
-	getPotentialServers(_server_list, addr, new_request);
-	new_request.socket = client_fd;
+	std::vector<Request>::iterator it = std::find(_request_list.begin(), _request_list.end(), request);
+	if (it == _request_list.end())
+	{
+		_request_list.push_back(request);
+		it = _request_list.end() - 1;
+	}
 
 	try
 	{
-		client_fd_is_open = getRequest(new_request);
-		if (!client_fd_is_open)
+		bool connection = it->getRequest();
+		if (!connection)
 		{
+
 			FD_CLR(client_fd, read_backup);
 			close(client_fd);
+			_request_list.erase(it);
 		}
-		else
+		else if (!it->isChunkedRequest() || it->getErrorStatus() != 0)
 		{
-			getServer(new_request);
+			//validate request part2 (cf. config of the server that will handle the request)
+				//check first if client_body_size is ok, return 413 if too large
+			//handleRequest and buildResponse
 			FD_CLR(client_fd, read_backup);
 			FD_SET(client_fd, write_backup);
-			_request_list.push_back(new_request);
 		}
 	}
 	catch (const std::exception &e)
@@ -231,34 +232,41 @@ void Webserv::readRequests(int client_fd, fd_set *read_backup, fd_set *write_bac
 	}
 }
 
-static std::string getConnectionHeader(struct t_request &request)
-{
-	std::map<std::string, std::vector<std::string> >::iterator it;
-	it = request.headers.find("Connection");
-	if (it != request.headers.end())
-		return (it->second[0]);
-	else
-		return ("");
-}
+//static std::string getConnectionHeader(struct t_request &request)
+//{
+//	std::map<std::string, std::vector<std::string>>::iterator it;
+//	it = request.headers.find("Connection");
+//	if (it != request.headers.end())
+//		return (it->second[0]);
+//	else
+//		return ("");
+//}
 
-void Webserv::sendRequests(int client_fd, bool &kill, fd_set *read_backup, fd_set *write_backup)
+void Webserv::sendResponse(int client_fd, bool &kill, fd_set *read_backup, fd_set *write_backup)
 {
-	std::vector<struct t_request>::iterator it;
+	std::vector<Request>::iterator it;
 	for (it = _request_list.begin(); it != _request_list.end(); ++it)
-		if (client_fd == it->socket)
+		if (client_fd == it->getSocket())
 			break;
 	if (it == _request_list.end())
 	{
-		std::cerr << "For some reason, we can't find your request" << std::endl; //TODO make this an internal server error
+		std::cerr << "For some reason, we can't find your request"
+		          << std::endl; // TODO make this an internal server error
 		return;
 	}
-	it->server->handleRequest(*it, kill);
+//	// THIS is the address of the server that init the connection with the client
+//	struct sockaddr_in addr = {};
+//	getSocketAddress(client_fd, &addr);
+//	getPotentialServers(_server_list, addr, *it);
+//	getServer(*it);
+//	it->server->handleRequest(*it, kill);
 	FD_CLR(client_fd, write_backup);
-	if (getConnectionHeader(*it) == "close")
-	{
-		close(client_fd);
-	}
-	else
+//	if (getConnectionHeader(*it) == "close")
+//	{
+//		close(client_fd);
+//	}
+//	else
 		FD_SET(client_fd, read_backup);
 	_request_list.erase(it);
+	(void)kill;
 }
