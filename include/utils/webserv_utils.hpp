@@ -10,13 +10,10 @@ namespace webserv_utils
 bool checkRedirectionList(std::vector<std::string> &);
 std::string getServerBlock(std::ifstream &);
 void ft_error(int, std::string);
-void getPotentialServers(std::vector<Server *> &, struct sockaddr_in &, struct t_request &);
-void getServer(struct t_request &);
 void displayServers(std::vector<Server *> &);
 void parseUrl(std::string, std::vector<std::string> &, std::vector<std::string> &);
-void readRequests(std::map<std::string, Server *> &, std::map<int, t_request> &, fd_set &);
-bool validMethod(std::string &);
-void initRequest(struct t_request &);
+bool methodIsImplemented(const std::string &method);
+bool httpVersionIsSupported(const std::string &version);
 bool socketIsSet(std::map<int, struct sockaddr_in> &, struct sockaddr_in &);
 void freeSockets(std::vector<int> &, std::vector<int> &, fd_set &, std::vector<struct t_request> &);
 void deleteRequest(int, std::vector<struct t_request> &);

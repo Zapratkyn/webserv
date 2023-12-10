@@ -2,9 +2,13 @@
 
 using namespace webserv_utils;
 
+Webserv::Webserv()
+{
+}
+
+
 Webserv::Webserv(const std::string &conf_file) : _conf(conf_file)
 {
-	return;
 }
 
 Webserv::~Webserv()
@@ -16,6 +20,11 @@ Webserv::~Webserv()
 	for (std::vector<Request>::iterator it = _request_list.begin(); it != _request_list.end(); it++)
 		close(it->getSocket());
 	return;
+}
+
+void Webserv::setConfigFile(const std::string &conf_file)
+{
+	_conf = conf_file;
 }
 
 /*
@@ -111,7 +120,6 @@ bool Webserv::_isListeningSocket(int fd)
 
 void Webserv::startListen()
 {
-	std::cout << "\n\n### Webserv started ###\n\n" << std::endl;
 	log("Webserv started", -1, "", 0);
 
 	/*
@@ -146,7 +154,7 @@ void Webserv::startListen()
 		}
 		else if (select_return == 0)
 		{
-			std::cout << "Server is waiting ..." << std::endl;
+			//std::cout << "Server is waiting ..." << std::endl;
 			continue;
 		}
 		for (int i = 0; i <= max; ++i)
@@ -190,11 +198,90 @@ void Webserv::acceptNewConnection(int server_fd, fd_set *read_backup)
 	log("new connection", new_socket, "", 1);
 }
 
-//static int getSocketAddress(int socket, struct sockaddr_in *addr)
-//{
-//	socklen_t len = sizeof *addr;
-//	return (getsockname(socket, (struct sockaddr *)addr, &len));
-//}
+void Webserv::setServerForRequest(Request &request)
+{
+	struct sockaddr_in addr = {};
+	server_utils::getSocketAddress(request.getSocket(), &addr);
+
+	std::vector<Server *> potentialServers;
+	std::vector<struct sockaddr_in> end_points;
+
+	for (std::vector<Server *>::iterator server_it = _server_list.begin(); server_it != _server_list.end(); server_it++)
+	{
+		end_points = (*server_it)->getEndPoints();
+		for (std::vector<struct sockaddr_in>::iterator end_point_it = end_points.begin();
+		     end_point_it != end_points.end(); end_point_it++)
+		{
+			if (end_point_it->sin_addr.s_addr == addr.sin_addr.s_addr && end_point_it->sin_port == addr.sin_port)
+				potentialServers.push_back(*server_it);
+		}
+	}
+
+	Server *server = *potentialServers.begin();
+	request._server = server;
+
+	std::vector<std::string> host;
+	if (request.getValueOfHeader("Host", host) && !host.empty())
+	{
+		std::string host_name = host[0];
+
+		for (std::vector<Server *>::iterator server_it = potentialServers.begin(); server_it != potentialServers.end();
+		     server_it++)
+		{
+			std::vector<std::string> names = (*server_it)->getServerNames();
+			for (std::vector<std::string>::iterator name_it = names.begin(); name_it != names.end(); name_it++)
+			{
+				if (*name_it == host_name)
+					request._server = *server_it;
+			}
+		}
+	}
+	if (DISPLAY_SERVER_FOR_REQUEST)
+	{
+		int i = 0;
+		for (std::vector<Server *>::iterator server_it = _server_list.begin(); server_it != _server_list.end();
+		     server_it++)
+		{
+			if (request._server == *server_it)
+				break;
+			i++;
+		}
+		std::cout << "*****************************************" << std::endl;
+		std::cout << "Server handling request : server #" << i << std::endl;
+		std::cout << "*****************************************" << std::endl << std::endl;
+	}
+}
+
+void Webserv::setLocationForRequest(Request &request)
+{
+	std::string best_match("/");
+	size_t size_best_match = best_match.size();
+
+	UrlParser url_parsed(request.getRequestTarget());
+
+	std::map<std::string, t_location>::const_iterator cit;
+	for (cit = request._server->getLocationlist().begin(); cit != request._server->getLocationlist().end(); ++cit)
+	{
+		size_t pos = url_parsed.path.find(cit->first);
+		if (pos == 0 && cit->first.size() > size_best_match)
+			best_match = cit->first;
+	}
+	request._server_location = best_match;
+	if (DISPLAY_LOCATION_FOR_REQUEST)
+	{
+		std::cout << "************** Url Parser ***************" << std::endl;
+		std::cout << "[ UrlParser for " <<  url_parsed.resource << " ]" << std::endl;
+		std::cout << url_parsed;
+		std::cout << "best match for request_location is " << best_match << std::endl;
+		std::cout << "*****************************************" << std::endl << std::endl;
+	}
+}
+
+void Webserv::checkMaxBodySize(Request &request)
+{
+	if (request._content_length > static_cast<size_t>(request._server->getBodySize()))
+		request._error_status = 413;
+}
 
 void Webserv::readRequest(int client_fd, fd_set *read_backup, fd_set *write_backup)
 {
@@ -204,26 +291,30 @@ void Webserv::readRequest(int client_fd, fd_set *read_backup, fd_set *write_back
 	if (it == _request_list.end())
 	{
 		_request_list.push_back(request);
-		it = _request_list.end() - 1;
+		it = --_request_list.end();
 	}
 
 	try
 	{
-		bool connection = it->getRequest();
+		bool connection = it->retrieveRequest();
 		if (!connection)
 		{
 
 			FD_CLR(client_fd, read_backup);
 			close(client_fd);
 			_request_list.erase(it);
+			return;
 		}
-		else if (!it->isChunkedRequest() || it->getErrorStatus() != 0)
+		else if (!it->isChunkedRequest())
 		{
-			//validate request part2 (cf. config of the server that will handle the request)
-				//check first if client_body_size is ok, return 413 if too large
-			//handleRequest and buildResponse
+			setServerForRequest(*it);
+			setLocationForRequest(*it);
+
+			if (!it->_error_status)
+				checkMaxBodySize(*it); //TODO is this set for a server block or also for a location?
 			FD_CLR(client_fd, read_backup);
 			FD_SET(client_fd, write_backup);
+
 		}
 	}
 	catch (const std::exception &e)
@@ -232,41 +323,33 @@ void Webserv::readRequest(int client_fd, fd_set *read_backup, fd_set *write_back
 	}
 }
 
-//static std::string getConnectionHeader(struct t_request &request)
-//{
-//	std::map<std::string, std::vector<std::string>>::iterator it;
-//	it = request.headers.find("Connection");
-//	if (it != request.headers.end())
-//		return (it->second[0]);
-//	else
-//		return ("");
-//}
-
 void Webserv::sendResponse(int client_fd, bool &kill, fd_set *read_backup, fd_set *write_backup)
 {
+	(void)kill;
+
 	std::vector<Request>::iterator it;
 	for (it = _request_list.begin(); it != _request_list.end(); ++it)
 		if (client_fd == it->getSocket())
 			break;
-	if (it == _request_list.end())
+	try
 	{
-		std::cerr << "For some reason, we can't find your request"
-		          << std::endl; // TODO make this an internal server error
-		return;
+		it->_response = new Response(&*it);
+		//TODO handle request based on method if _error_status is not set in the request;
+		it->_response->buildMessage();
+		it->_response->sendMessage();
+		//TODO what with chunked requests?
+		FD_CLR(client_fd, write_backup);
+		if (it->_headers.at("Connection").front() != "keep-alive")
+		{
+			close(client_fd);
+			log("closed connection", client_fd, "", 1);
+		}
+		else
+			FD_SET(client_fd, read_backup);
+		_request_list.erase(it);
 	}
-//	// THIS is the address of the server that init the connection with the client
-//	struct sockaddr_in addr = {};
-//	getSocketAddress(client_fd, &addr);
-//	getPotentialServers(_server_list, addr, *it);
-//	getServer(*it);
-//	it->server->handleRequest(*it, kill);
-	FD_CLR(client_fd, write_backup);
-//	if (getConnectionHeader(*it) == "close")
-//	{
-//		close(client_fd);
-//	}
-//	else
-		FD_SET(client_fd, read_backup);
-	_request_list.erase(it);
-	(void)kill;
+	catch (const std::exception &e)
+	{
+		log(e.what(), client_fd, "", 1);
+	}
 }

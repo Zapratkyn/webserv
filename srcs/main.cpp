@@ -1,6 +1,6 @@
 #include "../include/Webserv.hpp"
 
-bool valid_file(const std::string &); // I like to keep the main() function on top :)
+bool validFile(const std::string &); // I like to keep the main() function on top :)
 
 int main(int argc, char **argv)
 {
@@ -15,7 +15,7 @@ int main(int argc, char **argv)
 	if (argc == 2)
 	{
 		conf_file = argv[1];
-		if (!valid_file(
+		if (!validFile(
 		        conf_file)) // Make sure the configuration file exists and has a correct extension (".conf" / "cnf")
 		{
 			std::cerr << "ERROR\nInvalid configuration file" << std::endl;
@@ -36,14 +36,10 @@ int main(int argc, char **argv)
 		std::cerr << e.what() << std::endl;
 		return EXIT_FAILURE;
 	}
-
-	// For an unknown reason, if I don't display something here, I get a SegFault error message...
-	std::cout << "### Webserv stopped ###\n" << std::endl;
-
 	return EXIT_SUCCESS;
 }
 
-bool valid_file(const std::string &file)
+bool validFile(const std::string &file)
 {
 	int pos = file.find_last_of('.');
 	std::string extension = &file[pos];

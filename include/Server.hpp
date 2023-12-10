@@ -3,10 +3,10 @@
 
 #include "utils/utils.hpp"
 #include "utils/server_utils.hpp"
-// #include "ErrorPage.hpp"
+
 
 struct t_location;
-// class ErrorPage;
+
 
 class Server
 {
@@ -20,7 +20,6 @@ class Server
 	std::map<std::string, t_location> _location_list;
 	std::vector<struct sockaddr_in> _end_points;
 	std::map<int, std::string> _error_pages;
-	// ErrorPage	_errorPage;
 
 	bool parseOption(const int &, std::string &, std::stringstream &);
 	void addDefaultLocation();
@@ -29,13 +28,13 @@ class Server
 	Server();
 	~Server();
 
-	std::vector<std::string> getServerNames() const;
+	const std::vector<std::string> &getServerNames() const;
 	std::string getRoot() const;
 	std::string getIndex() const;
 	int getBodySize() const;
-	std::map<std::string, t_location> getLocationlist() const;
+	const std::map<std::string, t_location> &getLocationlist() const;
 	std::vector<struct sockaddr_in> getEndPoints() const;
-	std::map<int, std::string> getErrorPages() const;
+	const std::map<int, std::string> &getErrorPages() const;
 
 	bool addServerName(const std::string &);
 	bool setRoot(std::string &);

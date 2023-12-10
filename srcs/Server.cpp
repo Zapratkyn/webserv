@@ -132,10 +132,6 @@ bool Server::addLocation(std::stringstream &ifs, std::string &value)
 	location_block = getLocationBlock(ifs);
 	if (location_block.size())
 	{
-//		if (value[value.size() - 1] != '/')
-//			value.append("/");
-		if (value[0] != '/')
-			value.insert(0, "/");
 		_location_list[value] = newLocation(value, location_block, _root, _autoindex);
 		if (!_location_list[value].valid)
 			return false;
@@ -211,7 +207,7 @@ bool Server::setAutoIndex(std::string &value)
 	return true;
 }
 
-std::vector<std::string> Server::getServerNames() const
+const std::vector<std::string> &Server::getServerNames() const
 {
 	return _server_name;
 }
@@ -227,7 +223,7 @@ int Server::getBodySize() const
 {
 	return _client_max_body_size;
 }
-std::map<std::string, t_location> Server::getLocationlist() const
+const std::map<std::string, t_location> &Server::getLocationlist() const
 {
 	return _location_list;
 }
@@ -235,7 +231,7 @@ std::vector<struct sockaddr_in> Server::getEndPoints() const
 {
 	return _end_points;
 }
-std::map<int, std::string> Server::getErrorPages() const
+const std::map<int, std::string> &Server::getErrorPages() const
 {
 	return _error_pages;
 }

@@ -5,7 +5,12 @@
 #include <map>
 #include <vector>
 #include "../utils/utils.hpp"
+#include "../utils/webserv_utils.hpp"
 #include <utility>
+
+#include "Response.hpp"
+
+class Response;
 
 class Request
 {
@@ -16,21 +21,18 @@ class Request
 	virtual ~Request();
 	bool operator==(const Request &rhs) const;
 
-
-
-	bool getRequest();
-
-
+	bool retrieveRequest();
 
 	int getSocket() const;
 	const std::string &getMethod() const;
 	const std::string &getRequestTarget() const;
 	const std::string &getHTTPVersion() const;
 	const std::map<std::string, std::vector<std::string> >&getHeaders() const;
+	bool getValueOfHeader(const std::string &key, std::vector<std::string> &value) const;
 	const std::string &getBody() const;
 	bool isChunkedRequest() const;
+	size_t getContentLength() const;
 	int getErrorStatus() const;
-	const std::string &getErrorMessage() const;
 	class readRequestException : public std::exception
 	{
 	  public:
@@ -39,6 +41,10 @@ class Request
 			return "Error while reading request";
 		}
 	};
+
+	friend class Webserv;
+	friend class Server;
+	friend class Response;
 
   private:
 	Request();
@@ -49,13 +55,20 @@ class Request
 	std::map<std::string, std::vector<std::string > > _headers;
 	std::string _body;
 	int _error_status;
-	std::string _error_message;
 	bool _chunked_request;
+	size_t _content_length;
+	Server *_server;
+	std::string _server_location;
+	Response *_response;
 
 	void _parseRequest(const char *buffer);
 	void _parseRequestLine(const std::string &line);
 	void _parseHeader(const std::string &line);
-	void _getMessageBody(std::stringstream &ss);
+	void _retrieveBodyInfo();
+	void _parseBody(std::stringstream &ss);
+	void _validateParsedRequestLine(const std::string &line);
+	void _validateParsedHeaders();
+	void _validateParsedBody();
 };
 
 std::ostream &operator<<(std::ostream &o, const Request &rhs);

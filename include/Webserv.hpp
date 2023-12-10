@@ -3,10 +3,16 @@
 
 #include "utils/utils.hpp"
 #include "utils/webserv_utils.hpp"
+#include "utils/UrlParser.hpp"
 #include "messages/Request.hpp"
 #include "messages/Response.hpp"
 #include <algorithm>
 
+
+// For Linux
+#ifndef FD_COPY
+# define FD_COPY(from, to) bcopy(from, to, sizeof(*(from)));
+#endif
 
 class Webserv
 {
@@ -25,11 +31,16 @@ class Webserv
 	std::map<int, struct sockaddr_in> _socket_list;
 
   public:
+	Webserv();
 	explicit Webserv(const std::string &);
 	~Webserv();
+	void setConfigFile(const std::string &conf_file);
 	void startListen();
 	void startServer();
 	void parseConf();
+	void setServerForRequest(Request &request);
+	static void setLocationForRequest(Request &request);
+	static void checkMaxBodySize(Request &request);
 
 	class openSocketException : public std::exception
 	{

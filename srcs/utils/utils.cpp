@@ -115,7 +115,7 @@ bool sendText(t_request &request)
 	result.append("\n\n");                    // The http response's header stops here
 	result.append(html);                      // The http reponse body (html page)
 
-	if (DISPLAY_HTML)
+	if (DISPLAY_RESPONSE)
 		std::cout << result << std::endl;
 
 	write(request.socket, result.c_str(), result.size());

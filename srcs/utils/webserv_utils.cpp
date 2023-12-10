@@ -56,7 +56,6 @@ std::string getServerBlock(std::ifstream &ifs)
 	return server_block;
 }
 
-// Namespaces allow us to use the same function name in different contexts
 void ft_error(int type, std::string value)
 {
 	switch (type)
@@ -82,41 +81,6 @@ bool socketIsSet(std::map<int, struct sockaddr_in> &socket_list, struct sockaddr
 	return false;
 }
 
-void getPotentialServers(std::vector<Server *> &server_list, struct sockaddr_in &addr, struct t_request &request)
-{
-	std::vector<struct sockaddr_in> end_points;
-
-	for (std::vector<Server *>::iterator server_it = server_list.begin(); server_it != server_list.end(); server_it++)
-	{
-		end_points = (*server_it)->getEndPoints();
-		for (std::vector<struct sockaddr_in>::iterator end_point_it = end_points.begin();
-		     end_point_it != end_points.end(); end_point_it++)
-		{
-			if (end_point_it->sin_addr.s_addr == addr.sin_addr.s_addr && end_point_it->sin_port == addr.sin_port)
-				request.potentialServers.push_back(*server_it);
-		}
-	}
-}
-
-void getServer(struct t_request &request)
-{
-	std::vector<std::string> names;
-	Server *server = *request.potentialServers.begin();
-
-	for (std::vector<Server *>::iterator server_it = request.potentialServers.begin();
-	     server_it != request.potentialServers.end(); server_it++)
-	{
-		names = (*server_it)->getServerNames();
-		for (std::vector<std::string>::iterator name_it = names.begin(); name_it != names.end(); name_it++)
-		{
-			if (*name_it == request.host)
-				request.server = *server_it;
-		}
-	}
-	if (!request.server)
-		request.server = server;
-}
-
 void printSocketAddress(struct sockaddr_in &_socketAddr)
 {
 	char s[INET_ADDRSTRLEN] = {};
@@ -126,7 +90,7 @@ void printSocketAddress(struct sockaddr_in &_socketAddr)
 }
 
 //TODO add autoindex and error_pages to main server block
-//TODO apply inheritance after (or before) parsing config
+//TODO apply inheritance after (or before) parsing config?
 void displayServers(std::vector<Server *> &server_list)
 {
 	std::string value;
@@ -146,6 +110,10 @@ void displayServers(std::vector<Server *> &server_list)
 		std::cout << "Index : " << value << std::endl;
 		value = (*it)->getRoot();
 		std::cout << "Root : " << value << std::endl;
+		std::vector<std::string>::const_iterator cit;
+		std::cout << "Server name : " << std::endl;
+		for (cit = (*it)->getServerNames().begin(); cit != (*it)->getServerNames().end(); ++cit)
+			std::cout << "  - " << *cit << std::endl;
 		iValue = (*it)->getBodySize();
 		std::cout << "Client max body size : " << iValue << std::endl;
 		std::cout << "Locations :\n";
@@ -221,57 +189,13 @@ void parseUrl(std::string folder, std::vector<std::string> &url_list, std::vecto
 	}
 	closedir(dir);
 }
-
-bool getRequest(struct t_request &request)
+bool methodIsImplemented(const std::string &method)
 {
-	ssize_t bytesReceived;
-	char buffer[BUFFER_SIZE] = {};
+	return (method == "GET" || method == "POST" || method == "DELETE");
+}
 
-	bytesReceived = recv(request.socket, buffer, BUFFER_SIZE, 0);
-	if (bytesReceived < 0)
-		throw readRequestException();
-	else if (bytesReceived == 0)
-	{
-		std::cout << "client on socket " << request.socket << " closed connection" << std::endl; //TODO remove this before final push or move to log
-		return false;
-	}
-	std::string oBuffer(buffer);
-	std::stringstream ifs(oBuffer);
-
-	while (!ifs.eof() && oBuffer.size())
-	{
-		getline(ifs, oBuffer);
-		if (oBuffer.size())
-		{
-			request.header.append(oBuffer);
-			request.header.append("\n");
-		}
-		if (oBuffer.substr(0, oBuffer.find_first_of(" \t")) == "Host:")
-		{
-			oBuffer = &oBuffer[oBuffer.find_first_of(" \t")];
-			request.host = &oBuffer[oBuffer.find_first_not_of(" \t")];
-		}
-		else if (oBuffer.substr(0, oBuffer.find_first_of(' ')) == "Connection:")
-		{
-			oBuffer = &oBuffer[oBuffer.find_first_of(' ')];
-			std::stringstream ss(oBuffer);
-			oBuffer.clear();
-			ss >> oBuffer;
-			request.headers["Connection"].push_back(oBuffer);
-		}
-	}
-	while (!ifs.eof())
-	{
-		getline(ifs, oBuffer);
-		request.body.append(oBuffer);
-		request.body.append("\n");
-	}
-	if (DISPLAY_REQUEST)
-	{
-		std::cout << request.header << std::endl;
-		if (request.body != "")
-			std::cout << request.body << std::endl;
-	}
-	return true;
+bool httpVersionIsSupported(const std::string &version)
+{
+	return (version == "HTTP/1.1");
 }
 }; // namespace webserv_utils

@@ -81,8 +81,8 @@ t_location newLocation(const std::string &location_name, const std::string &loca
 				ft_error(0, value, "loc.root");
 				return loc;
 			}
-			if (value[value.size() - 1] != '/')
-				value.append("/");
+//			if (value[value.size() - 1] != '/')
+//				value.append("/");
 			loc.root = value;
 			break;
 		case 1:
@@ -143,7 +143,6 @@ t_location newLocation(const std::string &location_name, const std::string &loca
 	return loc;
 }
 
-// Namespaces allow us to use the same function name in different contexts
 void ft_error(int type, std::string value, std::string option)
 {
 	std::cerr << "ERROR\n";
@@ -199,6 +198,12 @@ bool setSocketAddress(const std::string &ip_address, const std::string &port_num
 	return true;
 }
 
+int getSocketAddress(int socket, struct sockaddr_in *addr)
+{
+	socklen_t len = sizeof *addr;
+	return (getsockname(socket, (struct sockaddr *)addr, &len));
+}
+
 bool allowedMethod(std::string &method, std::vector<std::string> &list)
 {
 	for (std::vector<std::string>::iterator it = list.begin(); it != list.end(); it++)
@@ -230,11 +235,6 @@ void setResponse(t_request &request, bool &kill, std::string root)
 
 	(void)kill;
 
-	if (DISPLAY_METHOD_AND_LOCATION)
-	{
-		std::cout << "Method = " << request.method << std::endl;
-		std::cout << "Location = " << request.location << std::endl;
-	}
 }
 
 void addParentDirectory(std::string &html, std::string local, std::string root)

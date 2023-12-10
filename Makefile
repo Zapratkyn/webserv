@@ -6,7 +6,7 @@ SRCS		=	srcs/main.cpp \
 				srcs/utils/webserv_utils.cpp \
 				srcs/utils/server_utils.cpp \
 				srcs/utils/utils.cpp \
-				srcs/messages/ErrorPage.cpp \
+				srcs/utils/UrlParser.cpp \
 				srcs/messages/Request.cpp \
 				srcs/messages/Response.cpp
 
@@ -16,7 +16,7 @@ HEADERS		=	include/Webserv.hpp \
 				include/utils/webserv_utils.hpp \
 				include/utils/server_utils.hpp \
 				include/utils/utils.hpp \
-				include/messages/Errorpage.hpp \
+				include/utils/UrlParser.hpp \
 				include/messages/Request.hpp \
 				include/messages/Response.hpp \
 
