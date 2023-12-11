@@ -2,6 +2,8 @@
 
 using namespace webserv_utils;
 
+
+
 Webserv::Webserv()
 {
 }
@@ -117,6 +119,14 @@ bool Webserv::_isListeningSocket(int fd)
 	return (it != _listen_socket_list.end());
 }
 
+bool run_webserv = true;
+
+static void sigHandler(int sig_num)
+{
+	if (sig_num == SIGINT)
+		run_webserv = false;
+}
+
 void Webserv::startListen()
 {
 	log("Webserv started", -1, "", 0);
@@ -128,7 +138,6 @@ void Webserv::startListen()
 	*/
 	int select_return, max;
 	fd_set readfds, writefds;
-	bool kill = false;
 	fd_set read_backup, write_backup;
 	struct timeval timer = {};
 
@@ -138,7 +147,8 @@ void Webserv::startListen()
 	timer.tv_usec = 0;
 	for (std::vector<int>::iterator it = _listen_socket_list.begin(); it != _listen_socket_list.end(); it++)
 		FD_SET(*it, &read_backup);
-	while (!kill)
+	signal(SIGINT, sigHandler);
+	while (run_webserv)
 	{
 		FD_ZERO(&writefds);
 		FD_ZERO(&readfds);
@@ -170,7 +180,7 @@ void Webserv::startListen()
 			}
 			if (FD_ISSET(i, &writefds) && !_isListeningSocket(i))
 			{
-				sendResponse(i, kill, &read_backup, &write_backup);
+				sendResponse(i, &read_backup, &write_backup);
 				break;
 			}
 		}
@@ -320,10 +330,8 @@ void Webserv::readRequest(int client_fd, fd_set *read_backup, fd_set *write_back
 	}
 }
 
-void Webserv::sendResponse(int client_fd, bool &kill, fd_set *read_backup, fd_set *write_backup)
+void Webserv::sendResponse(int client_fd, fd_set *read_backup, fd_set *write_backup)
 {
-	(void)kill;
-
 	std::vector<Request>::iterator it;
 	for (it = _request_list.begin(); it != _request_list.end(); ++it)
 		if (client_fd == it->_socket)
