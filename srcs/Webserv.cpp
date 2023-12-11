@@ -121,6 +121,7 @@ bool Webserv::_isListeningSocket(int fd)
 
 bool run_webserv = true;
 
+//TODO check relation signal handlers and blocking system calls
 static void sigHandler(int sig_num)
 {
 	if (sig_num == SIGINT)
@@ -147,18 +148,23 @@ void Webserv::startListen()
 	timer.tv_usec = 0;
 	for (std::vector<int>::iterator it = _listen_socket_list.begin(); it != _listen_socket_list.end(); it++)
 		FD_SET(*it, &read_backup);
+
 	signal(SIGINT, sigHandler);
+
 	while (run_webserv)
 	{
+		errno = 0;
 		FD_ZERO(&writefds);
 		FD_ZERO(&readfds);
 		FD_COPY(&write_backup, &writefds);
 		FD_COPY(&read_backup, &readfds);
 		max = *std::max_element(_global_socket_list.begin(), _global_socket_list.end());
 		select_return = select(max + 1, &readfds, &writefds, NULL, &timer);
+		if (errno == EINTR)
+			break ;
 		if (select_return < 0)
 		{
-			std::cerr << "Select error" << std::endl;
+			std::cerr << "Select error";
 			continue;
 		}
 		else if (select_return == 0)
@@ -194,7 +200,7 @@ void Webserv::acceptNewConnection(int server_fd, fd_set *read_backup)
 	socklen_t addr_len = sizeof(addr);
 
 	int new_socket = accept(server_fd, (sockaddr *)&addr, &addr_len);
-	if (new_socket < 0)
+	if (new_socket < 0 && errno != EINTR)
 	{
 		std::cerr << "Error : Failed to create socket for new connection" << std::endl;
 		return;
