@@ -16,6 +16,7 @@ class Request
 {
   public:
 	explicit Request(int socket);
+	Request(int socket, Server *server);
 	Request(const Request &src);
 	Request &operator=(const Request &rhs);
 	virtual ~Request();
@@ -69,6 +70,8 @@ class Request
 	void _validateParsedRequestLine(const std::string &line);
 	void _validateParsedHeaders();
 	void _validateParsedBody();
+
+	void _resetRequest();
 };
 
 std::ostream &operator<<(std::ostream &o, const Request &rhs);

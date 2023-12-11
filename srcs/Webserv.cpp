@@ -6,7 +6,6 @@ Webserv::Webserv()
 {
 }
 
-
 Webserv::Webserv(const std::string &conf_file) : _conf(conf_file)
 {
 }
@@ -154,7 +153,7 @@ void Webserv::startListen()
 		}
 		else if (select_return == 0)
 		{
-			//std::cout << "Server is waiting ..." << std::endl;
+			// std::cout << "Server is waiting ..." << std::endl;
 			continue;
 		}
 		for (int i = 0; i <= max; ++i)
@@ -194,6 +193,9 @@ void Webserv::acceptNewConnection(int server_fd, fd_set *read_backup)
 	int reuse = 1;
 	setsockopt(new_socket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
 	_global_socket_list.push_back(new_socket);
+
+	_request_list.push_back(Request(new_socket));
+
 	FD_SET(new_socket, read_backup);
 	log("new connection", new_socket, "", 1);
 }
@@ -285,15 +287,10 @@ void Webserv::checkMaxBodySize(Request &request)
 
 void Webserv::readRequest(int client_fd, fd_set *read_backup, fd_set *write_backup)
 {
-	Request request(client_fd);
-
-	std::vector<Request>::iterator it = std::find(_request_list.begin(), _request_list.end(), request);
-	if (it == _request_list.end())
-	{
-		_request_list.push_back(request);
-		it = --_request_list.end();
-	}
-
+	std::vector<Request>::iterator it;
+	for (it = _request_list.begin(); it != _request_list.end(); ++it)
+		if (client_fd == it->_socket)
+			break;
 	try
 	{
 		bool connection = it->retrieveRequest();
@@ -307,14 +304,14 @@ void Webserv::readRequest(int client_fd, fd_set *read_backup, fd_set *write_back
 		}
 		else if (!it->isChunkedRequest())
 		{
-			setServerForRequest(*it);
-			setLocationForRequest(*it);
+			setServerForRequest(*it); //TODO move setPotentialServers() to AcceptNewConnection()
+			                          // move setFinalServer() to retrieveRequest()
+			setLocationForRequest(*it); //TODO move to retrieveRequest()
 
 			if (!it->_error_status)
 				checkMaxBodySize(*it); //TODO is this set for a server block or also for a location?
 			FD_CLR(client_fd, read_backup);
 			FD_SET(client_fd, write_backup);
-
 		}
 	}
 	catch (const std::exception &e)
@@ -329,24 +326,29 @@ void Webserv::sendResponse(int client_fd, bool &kill, fd_set *read_backup, fd_se
 
 	std::vector<Request>::iterator it;
 	for (it = _request_list.begin(); it != _request_list.end(); ++it)
-		if (client_fd == it->getSocket())
+		if (client_fd == it->_socket)
 			break;
 	try
 	{
 		it->_response = new Response(&*it);
-		//TODO handle request based on method if _error_status is not set in the request;
+		// TODO handle request based on method if _error_status is not set in the request;
 		it->_response->buildMessage();
 		it->_response->sendMessage();
-		//TODO what with chunked requests?
+		// TODO what with chunked requests?
 		FD_CLR(client_fd, write_backup);
-		if (it->_headers.at("Connection").front() != "keep-alive")
+		if (it->_headers.count("Connection") &&
+		    (std::find(it->_headers["Connection"].begin(), it->_headers["Connection"].end(), "keep-alive") ==
+		     it->_headers["Connection"].end()))
 		{
 			close(client_fd);
 			log("closed connection", client_fd, "", 1);
+			_request_list.erase(it);
 		}
 		else
+		{
 			FD_SET(client_fd, read_backup);
-		_request_list.erase(it);
+			it->_resetRequest();
+		}
 	}
 	catch (const std::exception &e)
 	{

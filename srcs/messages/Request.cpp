@@ -6,6 +6,12 @@ Request::Request(int socket)
 {
 }
 
+Request::Request(int socket, Server *server)
+    : _socket(socket), _error_status(0), _chunked_request(false), _content_length(0), _server(server),
+      _response(nullptr)
+{
+}
+
 Request::Request(const Request &src)
     : _socket(src._socket), _method(src._method), _request_target(src._request_target),
       _http_version(src._http_version), _headers(src._headers), _body(src._body), _error_status(src._error_status),
@@ -157,6 +163,15 @@ void Request::_validateParsedBody()
 	// TODO what whith chunked request?
 	else if (!_body.empty() && _headers.count("Content-Length") == 0)
 		_error_status = 411;
+}
+
+
+void Request::_resetRequest()
+{
+	Server *server = this->_server;
+	int socket = this->_socket;
+	delete this->_response;  // TODO can we do this in the overloaded assignment operator???
+	*this = Request(socket, server);
 }
 
 bool Request::retrieveRequest()
