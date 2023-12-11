@@ -16,7 +16,7 @@ UrlParser::UrlParser(const std::string &url) : resource(url)
 
 	directory = path.substr(0, path.find_last_of('/'));
 
-	if (resource.back() != '/')
+	if (resource[resource.size() - 1] != '/')
 	{
 		file_name = path.substr(path.find_last_of('/') + 1);
 		if ((pos = file_name.find('.')) != std::string::npos)

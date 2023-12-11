@@ -1,6 +1,6 @@
 #include "../include/Webserv.hpp"
 
-bool kill = false;
+bool prog_kill = false;
 
 bool validFile(const std::string &); // I like to keep the main() function on top :)
 

@@ -190,7 +190,7 @@ void Webserv::acceptNewConnection(int server_fd, fd_set *read_backup)
 		std::cerr << "Error : Failed to create socket for new connection" << std::endl;
 		return;
 	}
-	fcntl(new_socket, F_SETFL, O_NONBLOCK);
+	// fcntl(new_socket, F_SETFL, O_NONBLOCK);
 	int reuse = 1;
 	setsockopt(new_socket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
 	_global_socket_list.push_back(new_socket);
