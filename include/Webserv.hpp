@@ -34,13 +34,10 @@ class Webserv
 	Webserv();
 	explicit Webserv(const std::string &);
 	~Webserv();
-	void setConfigFile(const std::string &conf_file);
 	void startListen();
 	void startServer();
 	void parseConf();
-	void setServerForRequest(Request &request);
-	static void setLocationForRequest(Request &request);
-	static void checkMaxBodySize(Request &request);
+	std::vector<Server *> getPotentialServers(int client_fd) const;
 
 	class openSocketException : public std::exception
 	{

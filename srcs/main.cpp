@@ -1,6 +1,6 @@
 #include "../include/Webserv.hpp"
 
-bool validFile(const std::string &); // I like to keep the main() function on top :)
+bool validFile(const std::string &);
 
 int main(int argc, char **argv)
 {
@@ -15,8 +15,7 @@ int main(int argc, char **argv)
 	if (argc == 2)
 	{
 		conf_file = argv[1];
-		if (!validFile(
-		        conf_file)) // Make sure the configuration file exists and has a correct extension (".conf" / "cnf")
+		if (!validFile(conf_file)) // Make sure the configuration file exists and has a correct extension (".conf" / "cnf")
 		{
 			std::cerr << "ERROR\nInvalid configuration file" << std::endl;
 			return EXIT_FAILURE;
