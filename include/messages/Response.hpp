@@ -18,7 +18,9 @@ class Response
 	virtual ~Response();
 	void buildMessage();
 	void sendMessage();
+	const std::string &getResourcePath() const;
 	friend std::ostream &operator<<(std::ostream &o, const Response &rhs);
+
 
   private:
 	Response();

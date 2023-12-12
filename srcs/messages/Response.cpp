@@ -225,6 +225,11 @@ void Response::_buildErrorBody()
 		_buildDefaultErrorBody();
 }
 
+const std::string &Response::getResourcePath() const
+{
+	return _resource_path;
+}
+
 void Response::sendMessage()
 {
 	if (_message.size() > BUFFER_SIZE)

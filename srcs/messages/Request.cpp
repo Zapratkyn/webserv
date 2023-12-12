@@ -34,6 +34,7 @@ Request &Request::operator=(const Request &rhs)
 	_content_length = rhs._content_length;
 	_server = rhs._server;
 	_server_location = rhs._server_location;
+	delete this->_response;
 	_response = rhs._response;
 	return *this;
 }
@@ -168,10 +169,8 @@ void Request::_validateParsedBody()
 
 void Request::_resetRequest()
 {
-	Server *server = this->_server;
 	int socket = this->_socket;
-	delete this->_response;  // TODO can we do this in the overloaded assignment operator???
-	*this = Request(socket, server);
+	*this = Request(socket);
 }
 
 bool Request::retrieveRequest()

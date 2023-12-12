@@ -144,6 +144,8 @@ void Webserv::startListen()
 
 	FD_ZERO(&read_backup);
 	FD_ZERO(&write_backup);
+	FD_ZERO(&writefds);
+	FD_ZERO(&readfds);
 	timer.tv_sec = 1;
 	timer.tv_usec = 0;
 	for (std::vector<int>::iterator it = _listen_socket_list.begin(); it != _listen_socket_list.end(); it++)
@@ -200,7 +202,7 @@ void Webserv::acceptNewConnection(int server_fd, fd_set *read_backup)
 	socklen_t addr_len = sizeof(addr);
 
 	int new_socket = accept(server_fd, (sockaddr *)&addr, &addr_len);
-	if (new_socket < 0 && errno != EINTR)
+	if (new_socket < 0)
 	{
 		std::cerr << "Error : Failed to create socket for new connection" << std::endl;
 		return;
@@ -209,9 +211,7 @@ void Webserv::acceptNewConnection(int server_fd, fd_set *read_backup)
 	int reuse = 1;
 	setsockopt(new_socket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
 	_global_socket_list.push_back(new_socket);
-
 	_request_list.push_back(Request(new_socket));
-
 	FD_SET(new_socket, read_backup);
 	log("new connection", new_socket, "", 1);
 }
@@ -329,6 +329,7 @@ void Webserv::readRequest(int client_fd, fd_set *read_backup, fd_set *write_back
 			FD_CLR(client_fd, read_backup);
 			FD_SET(client_fd, write_backup);
 		}
+		log("", client_fd, it->_request_target, 2);
 	}
 	catch (const std::exception &e)
 	{
@@ -350,6 +351,7 @@ void Webserv::sendResponse(int client_fd, fd_set *read_backup, fd_set *write_bac
 		it->_response->sendMessage();
 		// TODO what with chunked requests?
 		FD_CLR(client_fd, write_backup);
+		log("", client_fd, it->_response->getResourcePath(), 3);
 		if (it->_headers.count("Connection") &&
 		    (std::find(it->_headers["Connection"].begin(), it->_headers["Connection"].end(), "keep-alive") ==
 		     it->_headers["Connection"].end()))
