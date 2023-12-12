@@ -198,7 +198,7 @@ void Webserv::startListen()
 
 void Webserv::acceptNewConnection(int server_fd, fd_set *read_backup)
 {
-	struct sockaddr_in addr = _socket_list[server_fd];
+	struct sockaddr_in addr = {};
 	socklen_t addr_len = sizeof(addr);
 
 	int new_socket = accept(server_fd, (sockaddr *)&addr, &addr_len);
@@ -315,6 +315,7 @@ void Webserv::readRequest(int client_fd, fd_set *read_backup, fd_set *write_back
 
 			FD_CLR(client_fd, read_backup);
 			close(client_fd);
+			log("closed connection", client_fd, "", 1);
 			_request_list.erase(it);
 			return;
 		}
@@ -357,7 +358,7 @@ void Webserv::sendResponse(int client_fd, fd_set *read_backup, fd_set *write_bac
 		     it->_headers["Connection"].end()))
 		{
 			close(client_fd);
-			log("closed connection", client_fd, "", 1);
+			log("do close connection", client_fd, "", 1);
 			_request_list.erase(it);
 		}
 		else
