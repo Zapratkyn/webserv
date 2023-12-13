@@ -75,6 +75,7 @@ void Request::_parseHeader(const std::string &line)
 
 void Request::_retrieveBodyInfo()
 {
+	//TODO check the _method is ok with having a body
 	if (_headers.count("Content-Length") == 1)
 	{
 		if (_chunked_request)
@@ -118,10 +119,11 @@ void Request::_parseRequest(const char *buffer)
 		{
 			_validateParsedRequestLine(line);
 			_validateParsedHeaders();
+			_setServer();
 			if (!_error_status)
 			{
-				_setServer();
 				_setLocation();
+				//TODO check method
 				_retrieveBodyInfo();
 				if (_error_status)
 					return;
@@ -172,6 +174,13 @@ void Request::_validateParsedBody()
 	// TODO what whith chunked request?
 	else if (!_body.empty() && _headers.count("Content-Length") == 0)
 		_error_status = 411;
+}
+
+void Request::_validateMethod()
+{
+	if (_)
+	_server->getLocationlist().at(_server_location);
+
 }
 
 void Request::_setServer()

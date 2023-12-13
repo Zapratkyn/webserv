@@ -21,7 +21,7 @@
 #include <vector>
 #include "../Server.hpp"
 
-#define DISPLAY_SERVERS false
+#define DISPLAY_SERVERS true
 #define DISPLAY_REQUEST true
 #define DISPLAY_SERVER_FOR_REQUEST true
 #define DISPLAY_LOCATION_FOR_REQUEST true

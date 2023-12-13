@@ -245,6 +245,8 @@ void Webserv::sendResponse(int client_fd, fd_set *read_backup, fd_set *write_bac
 	{
 		it->_response = new Response(&*it);
 		// TODO handle request based on method if _error_status is not set in the request;
+//		if (!it->_error_status)
+//			it->_response->handleRequest();
 		it->_response->buildMessage();
 		it->_response->sendMessage();
 		// TODO what with chunked requests?

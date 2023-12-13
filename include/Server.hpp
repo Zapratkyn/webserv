@@ -43,7 +43,6 @@ class Server
 	bool addErrorPage(std::string &);
 	bool setAutoIndex(std::string &);
 	bool parseServer(const std::string &);
-	void handleRequest(struct t_request &, bool &);
 };
 
 #endif
