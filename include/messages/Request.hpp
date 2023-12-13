@@ -72,7 +72,7 @@ class Request
 	void _validateParsedRequestLine(const std::string &line);
 	void _validateParsedHeaders();
 	void _validateParsedBody();
-
+	void _validateMethod();
 
 	void _setServer();
 	void _setLocation();

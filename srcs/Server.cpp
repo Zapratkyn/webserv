@@ -333,24 +333,3 @@ bool Server::parseServer(const std::string &server_block)
 		addDefaultLocation();
 	return true;
 }
-
-void Server::handleRequest(struct t_request &request, bool &kill)
-{
-	std::string extension = "";
-	size_t pos;
-
-	try
-	{
-		setResponse(request, kill, _root); // Gets the method and the location from the request
-	}
-	catch (const std::exception &e)
-	{
-		log(e.what(), request.socket, "", 1);
-	}
-
-	pos = request.url.find_last_of(".");
-	if (pos != std::string::npos)
-		extension = &request.url[pos];
-
-	log("", request.socket, request.url, 3);
-}

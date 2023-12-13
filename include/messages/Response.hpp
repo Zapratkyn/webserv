@@ -16,6 +16,7 @@ class Response
 	Response(const Response &src);
 	Response &operator=(const Response &rhs);
 	virtual ~Response();
+	void handleRequest();
 	void buildMessage();
 	void sendMessage();
 	const std::string &getResourcePath() const;
