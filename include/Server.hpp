@@ -4,9 +4,7 @@
 #include "utils/utils.hpp"
 #include "utils/server_utils.hpp"
 
-
 struct t_location;
-
 
 class Server
 {
@@ -16,7 +14,7 @@ class Server
 	std::string _root;
 	std::string _index;
 	std::string _autoindex;
-	int _client_max_body_size;
+	ssize_t _client_max_body_size;
 	std::map<std::string, t_location> _location_list;
 	std::vector<struct sockaddr_in> _end_points;
 	std::map<int, std::string> _error_pages;

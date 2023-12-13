@@ -25,7 +25,7 @@ class Webserv
 
 	void acceptNewConnection(int, fd_set *);
 	void readRequest(int, fd_set *, fd_set *);
-	void sendResponse(int, bool &, fd_set *, fd_set *);
+	void sendResponse(int, fd_set *, fd_set *);
 	bool _isListeningSocket(int fd);
 	std::string _conf;
 	std::map<int, struct sockaddr_in> _socket_list;
@@ -34,13 +34,10 @@ class Webserv
 	Webserv();
 	explicit Webserv(const std::string &);
 	~Webserv();
-	void setConfigFile(const std::string &conf_file);
 	void startListen();
 	void startServer();
 	void parseConf();
-	void setServerForRequest(Request &request);
-	static void setLocationForRequest(Request &request);
-	static void checkMaxBodySize(Request &request);
+	std::vector<Server *> getPotentialServers(int client_fd) const;
 
 	class openSocketException : public std::exception
 	{

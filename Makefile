@@ -67,7 +67,7 @@ $(FLAGS):	.FORCE
 
 debug:		$(DBGEXE)
 
-$(DBGEXE):	$(FLAGS) $(DBGOBJS) $(HEADERS)
+$(DBGEXE):	$(DBGOBJS) $(HEADERS)
 			@echo $(BYellow)Debugging with following flags: $(FLAGS)$(Color_Off);
 			@$(CXX) $(DBGCXXFLAGS) $(DBGOBJS) -o $(DBGEXE)
 			@test -z '$(filter %.o,$?)' || echo $(BGreen)√$(Color_Off)$(BBlue)Compilation done. \

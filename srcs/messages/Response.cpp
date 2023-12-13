@@ -121,8 +121,6 @@ void Response::_buildHeaders()
 	_headers["Connection"].push_back(tmp);
 
 	tmp = UrlParser(_resource_path).file_extension;
-	if (tmp.empty())
-		tmp = "text/html";
 	_headers["Content-Type"].push_back(tmp);
 
 
@@ -140,8 +138,6 @@ void Response::_buildHeaders()
 		_headersAsString += "\r\n";
 	}
 }
-
-
 
 bool Response::_retrieveMessageBody(const std::string &path)
 {
@@ -223,6 +219,11 @@ void Response::_buildErrorBody()
 {
 	if (!_buildCustomErrorBody())
 		_buildDefaultErrorBody();
+}
+
+const std::string &Response::getResourcePath() const
+{
+	return _resource_path;
 }
 
 void Response::sendMessage()

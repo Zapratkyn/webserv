@@ -6,11 +6,18 @@ Request::Request(int socket)
 {
 }
 
+Request::Request(int socket, const std::vector<Server *> &potential_servers)
+    : _socket(socket), _error_status(0), _chunked_request(false), _content_length(0),
+      _potential_servers(potential_servers), _server(nullptr), _response(nullptr)
+{
+}
+
 Request::Request(const Request &src)
     : _socket(src._socket), _method(src._method), _request_target(src._request_target),
       _http_version(src._http_version), _headers(src._headers), _body(src._body), _error_status(src._error_status),
-      _chunked_request(src._chunked_request), _content_length(src._content_length), _server(src._server),
-      _server_location(src._server_location), _response(src._response)
+      _chunked_request(src._chunked_request), _content_length(src._content_length),
+      _potential_servers(src._potential_servers), _server(src._server), _server_location(src._server_location),
+      _response(src._response)
 {
 }
 
@@ -26,8 +33,10 @@ Request &Request::operator=(const Request &rhs)
 	_error_status = rhs._error_status;
 	_chunked_request = rhs._chunked_request;
 	_content_length = rhs._content_length;
+	_potential_servers = rhs._potential_servers;
 	_server = rhs._server;
 	_server_location = rhs._server_location;
+	delete this->_response;
 	_response = rhs._response;
 	return *this;
 }
@@ -111,6 +120,8 @@ void Request::_parseRequest(const char *buffer)
 			_validateParsedHeaders();
 			if (!_error_status)
 			{
+				_setServer();
+				_setLocation();
 				_retrieveBodyInfo();
 				if (_error_status)
 					return;
@@ -145,9 +156,13 @@ void Request::_validateParsedHeaders()
 		_error_status = 400;
 }
 
+// TODO is maxBodySize set for a server block or also for a location?
+// TODO checks in which order?
 void Request::_validateParsedBody()
 {
-	if (_body.size() != _content_length)
+	if (_body.size() > static_cast<size_t>(_server->getBodySize()))
+		_error_status = 413;
+	else if (_body.size() != _content_length)
 	{
 		if (_body.size() > _content_length)
 			_error_status = 413;
@@ -157,6 +172,69 @@ void Request::_validateParsedBody()
 	// TODO what whith chunked request?
 	else if (!_body.empty() && _headers.count("Content-Length") == 0)
 		_error_status = 411;
+}
+
+void Request::_setServer()
+{
+	_server = _potential_servers[0];
+	std::vector<std::string> host;
+	if (getValueOfHeader("Host", host) && !host.empty())
+	{
+		std::string host_name = host[0];
+
+		for (std::vector<Server *>::const_iterator server_it = _potential_servers.begin();
+		     server_it != _potential_servers.end(); server_it++)
+		{
+			std::vector<std::string> names = (*server_it)->getServerNames();
+			for (std::vector<std::string>::const_iterator name_it = names.begin(); name_it != names.end(); name_it++)
+			{
+				if (*name_it == host_name)
+					_server = *server_it;
+			}
+		}
+	}
+
+	if (DISPLAY_SERVER_FOR_REQUEST)
+	{
+		size_t i(0);
+
+		for (std::vector<Server *>::const_iterator server_it = _potential_servers.begin();
+		     server_it != _potential_servers.end(); server_it++)
+		{
+			if (_server == *server_it)
+				break ;
+			i++;
+		}
+		std::cout << "************** Server ***************" << std::endl;
+		std::cout << "Request will be served by server #" << i << std::endl;
+		std::cout << "*****************************************" << std::endl << std::endl;
+	}
+}
+
+void Request::_setLocation()
+{
+	std::string best_match("/");
+	size_t size_best_match = best_match.size();
+
+	UrlParser url_parsed(_request_target);
+
+	std::map<std::string, t_location>::const_iterator cit;
+	for (cit = _server->getLocationlist().begin(); cit != _server->getLocationlist().end(); ++cit)
+	{
+		size_t pos = url_parsed.path.find(cit->first);
+		if (pos == 0 && cit->first.size() > size_best_match)
+			best_match = cit->first;
+	}
+	_server_location = best_match;
+
+	if (DISPLAY_LOCATION_FOR_REQUEST)
+	{
+		std::cout << "************** Url Parser ***************" << std::endl;
+		std::cout << "[ UrlParser for " << url_parsed.resource << " ]" << std::endl;
+		std::cout << url_parsed;
+		std::cout << "best match for request_location is " << best_match << std::endl;
+		std::cout << "*****************************************" << std::endl << std::endl;
+	}
 }
 
 bool Request::retrieveRequest()
@@ -174,6 +252,7 @@ bool Request::retrieveRequest()
 	}
 
 	_parseRequest(buffer);
+
 
 	if (DISPLAY_REQUEST)
 	{

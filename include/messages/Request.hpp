@@ -16,6 +16,7 @@ class Request
 {
   public:
 	explicit Request(int socket);
+	Request(int socket, const std::vector<Server *> &potential_servers);
 	Request(const Request &src);
 	Request &operator=(const Request &rhs);
 	virtual ~Request();
@@ -57,6 +58,7 @@ class Request
 	int _error_status;
 	bool _chunked_request;
 	size_t _content_length;
+	std::vector<Server *> _potential_servers;
 	Server *_server;
 	std::string _server_location;
 	Response *_response;
@@ -69,6 +71,10 @@ class Request
 	void _validateParsedRequestLine(const std::string &line);
 	void _validateParsedHeaders();
 	void _validateParsedBody();
+
+
+	void _setServer();
+	void _setLocation();
 };
 
 std::ostream &operator<<(std::ostream &o, const Request &rhs);
