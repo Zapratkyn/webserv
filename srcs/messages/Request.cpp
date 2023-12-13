@@ -75,7 +75,7 @@ void Request::_parseHeader(const std::string &line)
 
 void Request::_retrieveBodyInfo()
 {
-	//TODO check the _method is ok with having a body
+	//TODO check the _method is ok with having a body ???
 	if (_headers.count("Content-Length") == 1)
 	{
 		if (_chunked_request)
@@ -120,10 +120,10 @@ void Request::_parseRequest(const char *buffer)
 			_validateParsedRequestLine(line);
 			_validateParsedHeaders();
 			_setServer();
+			_setLocation();
+			_validateMethod();
 			if (!_error_status)
 			{
-				_setLocation();
-				//TODO check method
 				_retrieveBodyInfo();
 				if (_error_status)
 					return;
@@ -178,8 +178,12 @@ void Request::_validateParsedBody()
 
 void Request::_validateMethod()
 {
-	if (_)
-	_server->getLocationlist().at(_server_location);
+	const std::vector<std::string> &methods(_server->getLocationlist().at(_server_location).methods);
+	if (std::find(methods.begin(), methods.end(), _method) == methods.end())
+	{
+		_error_status = 405;
+		return ;
+	}
 
 }
 
