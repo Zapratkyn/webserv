@@ -23,6 +23,7 @@ class Request
 	bool operator==(const Request &rhs) const;
 
 	bool retrieveRequest();
+	void getPotentialServers(std::vector<Server *> &, struct sockaddr_in &);
 
 	int getSocket() const;
 	const std::string &getMethod() const;

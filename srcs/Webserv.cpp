@@ -16,8 +16,8 @@ Webserv::~Webserv()
 		delete (*it);
 	for (std::vector<int>::const_iterator it = _listen_socket_list.begin(); it != _listen_socket_list.end(); it++)
 		close(*it);
-	for (std::vector<Request>::const_iterator it = _request_list.begin(); it != _request_list.end(); it++)
-		close(it->getSocket());
+	for (std::vector<Request *>::const_iterator it = _request_list.begin(); it != _request_list.end(); it++)
+		close((*it)->getSocket());
 }
 
 
@@ -86,12 +86,6 @@ void Webserv::startServer()
 	}
 }
 
-bool Webserv::_isListeningSocket(int fd)
-{
-	std::vector<int>::const_iterator it = find(_listen_socket_list.begin(), _listen_socket_list.end(), fd);
-	return (it != _listen_socket_list.end());
-}
-
 bool run_webserv = true;
 
 //TODO check relation signal handlers and blocking system calls
@@ -105,31 +99,24 @@ void Webserv::startListen()
 {
 	log("Webserv started", -1, "", 0);
 
-	int select_return, max;
+	int select_return, max, step = 1;
 	fd_set readfds, writefds;
-	fd_set read_backup, write_backup;
-	struct timeval timer = {};
+	// struct timeval timer = {};
 
-	FD_ZERO(&read_backup);
-	FD_ZERO(&write_backup);
 	FD_ZERO(&writefds);
 	FD_ZERO(&readfds);
-	timer.tv_sec = 1;
-	timer.tv_usec = 0;
+	// timer.tv_sec = 1;
+	// timer.tv_usec = 0;
 	for (std::vector<int>::iterator it = _listen_socket_list.begin(); it != _listen_socket_list.end(); it++)
-		FD_SET(*it, &read_backup);
+		FD_SET(*it, &readfds);
 
 	signal(SIGINT, sigHandler);
 
 	while (run_webserv)
 	{
 		errno = 0;
-		FD_ZERO(&writefds);
-		FD_ZERO(&readfds);
-		FD_COPY(&write_backup, &writefds);
-		FD_COPY(&read_backup, &readfds);
-		max = *std::max_element(_global_socket_list.begin(), _global_socket_list.end());
-		select_return = select(max + 1, &readfds, &writefds, NULL, &timer);
+		max = *std::max_element(_global_socket_list.begin(), _global_socket_list.end()) + 1;
+		select_return = select(max, &readfds, &writefds, NULL, NULL);
 		if (errno == EINTR)
 			break ;
 		if (select_return < 0)
@@ -142,130 +129,150 @@ void Webserv::startListen()
 			// std::cout << "Server is waiting ..." << std::endl;
 			continue;
 		}
-		for (int i = 0; i <= max; ++i)
+		if (step == 1)
 		{
-			if (FD_ISSET(i, &readfds) && (_isListeningSocket(i)))
+			step = 2;
+			if (!acceptNewConnections(readfds))
 			{
-				acceptNewConnection(i, &read_backup);
-				break;
+				readRequests(readfds, writefds);
+				step = 3;
 			}
-			if (FD_ISSET(i, &readfds) && !_isListeningSocket(i))
-			{
-				readRequest(i, &read_backup, &write_backup);
-				break;
-			}
-			if (FD_ISSET(i, &writefds) && !_isListeningSocket(i))
-			{
-				sendResponse(i, &read_backup, &write_backup);
-				break;
-			}
+		}
+		else if (step == 2)
+		{
+			readRequests(readfds, writefds);
+			step = 3;
+		}
+		else if (step == 3)
+		{
+			sendResponses(readfds, writefds);
+			step = 1;
 		}
 	}
 	log("Webserv stopped", -1, "", 0);
 }
 
-void Webserv::acceptNewConnection(int server_fd, fd_set *read_backup)
+bool Webserv::acceptNewConnections(fd_set &readfds)
 {
-	struct sockaddr_in addr = {};
+	int new_socket, opt = 1;
+	Request *new_request;
+	struct sockaddr_in addr;
 	socklen_t addr_len = sizeof(addr);
+	bool new_connection = false;
 
-	int new_socket = accept(server_fd, (sockaddr *)&addr, &addr_len);
-	if (new_socket < 0)
+	for (std::vector<int>::iterator it = _listen_socket_list.begin(); it != _listen_socket_list.end(); it++)
 	{
-		std::cerr << "Error : Failed to create socket for new connection" << std::endl;
-		return;
-	}
-	// fcntl(new_socket, F_SETFL, O_NONBLOCK);
-	int reuse = 1;
-	setsockopt(new_socket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
-	_global_socket_list.push_back(new_socket);
-	_request_list.push_back(Request(new_socket, getPotentialServers(new_socket)));
-	FD_SET(new_socket, read_backup);
-	log("new connection", new_socket, "", 1);
-}
-
-std::vector<Server *> Webserv::getPotentialServers(int client_fd) const
-{
-	struct sockaddr_in addr = {};
-	server_utils::getSocketAddress(client_fd, &addr);
-
-	std::vector<Server *> potential_servers;
-	std::vector<struct sockaddr_in> end_points;
-
-	for (std::vector<Server *>::const_iterator server_it = _server_list.begin(); server_it != _server_list.end(); server_it++)
-	{
-		end_points = (*server_it)->getEndPoints();
-		for (std::vector<struct sockaddr_in>::const_iterator end_point_it = end_points.begin();
-		     end_point_it != end_points.end(); end_point_it++)
+		if (FD_ISSET(*it, &readfds))
 		{
-			if (end_point_it->sin_addr.s_addr == addr.sin_addr.s_addr && end_point_it->sin_port == addr.sin_port)
-				potential_servers.push_back(*server_it);
+			while (true)
+			{
+				new_socket = accept(*it, (sockaddr *)&addr, &addr_len);
+				if (new_socket < 0)
+					break;
+				setsockopt(new_socket, SOL_SOCKET, SO_KEEPALIVE, &opt, sizeof(opt));
+				new_request = new Request(new_socket);
+				new_request->getPotentialServers(_server_list, _socket_list[*it]);
+				_request_list.push_back(new_request);
+				_global_socket_list.push_back(new_socket);
+				FD_SET(new_socket, &readfds);
+				new_connection = true;
+			}
+			FD_CLR(*it, &readfds);
 		}
 	}
-	return (potential_servers);
+	return new_connection;
 }
 
-void Webserv::readRequest(int client_fd, fd_set *read_backup, fd_set *write_backup)
+void Webserv::readRequests(fd_set &readfds, fd_set &writefds)
 {
-	std::vector<Request>::iterator it;
-	for (it = _request_list.begin(); it != _request_list.end(); ++it)
-		if (client_fd == it->_socket)
-			break;
-	try
-	{
-		bool connection = it->retrieveRequest();
-		if (!connection)
-		{
-			FD_CLR(client_fd, read_backup);
-			close(client_fd);
-			log("connection closed by client", client_fd, "", 1);
-			_request_list.erase(it);
-			return;
-		}
-		else if (!it->isChunkedRequest())
-		{
-			FD_CLR(client_fd, read_backup);
-			FD_SET(client_fd, write_backup);
-		}
-		log("", client_fd, it->_request_target, 2);
-	}
-	catch (const std::exception &e)
-	{
-		log(e.what(), client_fd, "", 1);
-	}
-}
+	int socket;
+	bool connection;
 
-void Webserv::sendResponse(int client_fd, fd_set *read_backup, fd_set *write_backup)
-{
-	std::vector<Request>::iterator it;
-	for (it = _request_list.begin(); it != _request_list.end(); ++it)
-		if (client_fd == it->_socket)
-			break;
-	try
+	std::vector<Request *>::iterator it;
+	for (it = _request_list.begin(); it != _request_list.end();)
 	{
-		it->_response = new Response(&*it);
-		// TODO handle request based on method if _error_status is not set in the request;
-		it->_response->buildMessage();
-		it->_response->sendMessage();
-		// TODO what with chunked requests?
-		FD_CLR(client_fd, write_backup);
-		log("", client_fd, it->_response->getResourcePath(), 3);
-		if (it->_headers.count("Connection") &&
-		    (std::find(it->_headers["Connection"].begin(), it->_headers["Connection"].end(), "keep-alive") ==
-		     it->_headers["Connection"].end()))
+		socket = (*it)->getSocket();
+		if (FD_ISSET(socket, &readfds))
 		{
-			close(client_fd);
-			log("do close connection", client_fd, "", 1);
-			_request_list.erase(it);
+			FD_CLR(socket, &readfds);
+			try
+			{
+				connection = (*it)->retrieveRequest();
+				if (!connection)
+				{
+					close(socket);
+					_global_socket_list.erase(find(_global_socket_list.begin(), _global_socket_list.end(), socket));
+					delete (*it);
+					it = _request_list.erase(it);
+					log("connection closed by client", socket, "", 1);
+				}
+				else
+				{
+					FD_SET(socket, &writefds);
+					it++;
+				}
+			}
+			catch (const std::exception &e)
+			{
+				log(e.what(), socket, "", 1);
+			}
 		}
 		else
-		{
-			FD_SET(client_fd, read_backup);
-			*it = Request(client_fd, it->_potential_servers);
-		}
+			it++;
 	}
-	catch (const std::exception &e)
+}
+
+void Webserv::sendResponses(fd_set &readfds, fd_set &writefds)
+{
+	int socket;
+	std::vector<Server *> pot_ser;
+	
+	std::vector<Request *>::iterator it;
+	for (it = _request_list.begin(); it != _request_list.end();)
 	{
-		log(e.what(), client_fd, "", 1);
+		socket = (*it)->getSocket();
+		if (FD_ISSET(socket, &writefds))
+		{
+			try
+			{
+				(*it)->_response = new Response(*it);
+				// TODO handle Client based on method if _error_status is not set in the Client;
+				(*it)->_response->buildMessage();
+				(*it)->_response->sendMessage();
+				// TODO what with chunked Clients?
+				FD_CLR(socket, &writefds);
+				log("", socket, (*it)->_response->getResourcePath(), 3);
+				if ((*it)->_headers.count("Connection") &&
+				    (std::find((*it)->_headers["Connection"].begin(), (*it)->_headers["Connection"].end(), "keep-alive") ==
+				     (*it)->_headers["Connection"].end()))
+				{
+					close(socket);
+					_global_socket_list.erase(find(_global_socket_list.begin(), _global_socket_list.end(), socket));
+					log("do close connection", socket, "", 1);
+					delete (*it);
+					it = _request_list.erase(it);
+				}
+				else
+				{
+					FD_SET(socket, &readfds);
+					pot_ser = (*it)->_potential_servers;
+					delete (*it);
+					*it = new Request(socket, pot_ser);
+					it++;
+				}
+			}
+			catch (std::exception &e)
+			{
+				log(e.what(), socket, "", 1);
+			}
+		}
+		else
+			it++;
+	}
+	for (std::vector<int>::iterator it = _global_socket_list.begin(); it != _global_socket_list.end(); it++)
+	{
+		if (FD_ISSET(*it, &readfds))
+			continue;
+		FD_SET(*it, &readfds);
 	}
 }

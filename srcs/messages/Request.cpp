@@ -343,3 +343,19 @@ std::ostream &operator<<(std::ostream &o, const Request &rhs)
 	o << "*****************************************" << std::endl << std::endl;
 	return o;
 }
+
+void Request::getPotentialServers(std::vector<Server *> &server_list, struct sockaddr_in &addr)
+{
+	std::vector<struct sockaddr_in> end_points;
+
+	for (std::vector<Server *>::iterator server_it = server_list.begin(); server_it != server_list.end(); server_it++)
+	{
+		end_points = (*server_it)->getEndPoints();
+		for (std::vector<struct sockaddr_in>::iterator end_point_it = end_points.begin();
+		     end_point_it != end_points.end(); end_point_it++)
+		{
+			if (end_point_it->sin_addr.s_addr == addr.sin_addr.s_addr && end_point_it->sin_port == addr.sin_port)
+				_potential_servers.push_back(*server_it);
+		}
+	}
+}

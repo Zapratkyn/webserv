@@ -22,9 +22,9 @@
 #include "../Server.hpp"
 
 #define DISPLAY_SERVERS false
-#define DISPLAY_REQUEST true
-#define DISPLAY_SERVER_FOR_REQUEST false
-#define DISPLAY_LOCATION_FOR_REQUEST false
+#define DISPLAY_REQUEST false
+#define DISPLAY_SERVER_FOR_REQUEST true
+#define DISPLAY_LOCATION_FOR_REQUEST true
 #define DISPLAY_RESPONSE false
 
 #define DIGITS "0123456789"
