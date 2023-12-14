@@ -231,7 +231,8 @@ void Response::sendMessage()
 	if (_message.size() > BUFFER_SIZE)
 		; //TODO do chunked
 	ssize_t bytes_sent = send(_request->_socket, _message.c_str(), _message.size(), 0);
-	(void)bytes_sent;
+	if (bytes_sent < 0)
+		throw Response::sendResponseException();
 }
 
 std::ostream &operator<<(std::ostream &o, const Response &rhs)

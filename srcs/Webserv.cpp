@@ -17,7 +17,10 @@ Webserv::~Webserv()
 	for (std::vector<int>::const_iterator it = _listen_socket_list.begin(); it != _listen_socket_list.end(); it++)
 		close(*it);
 	for (std::vector<Request *>::const_iterator it = _request_list.begin(); it != _request_list.end(); it++)
+	{
 		close((*it)->getSocket());
+		delete (*it);
+	}
 }
 
 
@@ -107,14 +110,14 @@ void Webserv::startListen()
 	FD_ZERO(&readfds);
 	// timer.tv_sec = 1;
 	// timer.tv_usec = 0;
-	for (std::vector<int>::iterator it = _listen_socket_list.begin(); it != _listen_socket_list.end(); it++)
-		FD_SET(*it, &readfds);
 
 	signal(SIGINT, sigHandler);
 
 	while (run_webserv)
 	{
 		errno = 0;
+		for (std::vector<int>::iterator it = _global_socket_list.begin(); it != _global_socket_list.end(); it++)
+			FD_SET(*it, &readfds);
 		max = *std::max_element(_global_socket_list.begin(), _global_socket_list.end()) + 1;
 		select_return = select(max, &readfds, &writefds, NULL, NULL);
 		if (errno == EINTR)
@@ -145,7 +148,7 @@ void Webserv::startListen()
 		}
 		else if (step == 3)
 		{
-			sendResponses(readfds, writefds);
+			sendResponses(writefds);
 			step = 1;
 		}
 	}
@@ -164,6 +167,7 @@ bool Webserv::acceptNewConnections(fd_set &readfds)
 	{
 		if (FD_ISSET(*it, &readfds))
 		{
+			FD_CLR(*it, &readfds);
 			while (true)
 			{
 				new_socket = accept(*it, (sockaddr *)&addr, &addr_len);
@@ -175,10 +179,8 @@ bool Webserv::acceptNewConnections(fd_set &readfds)
 				new_request->getPotentialServers(_server_list, _socket_list[*it]);
 				_request_list.push_back(new_request);
 				_global_socket_list.push_back(new_socket);
-				FD_SET(new_socket, &readfds);
 				new_connection = true;
 			}
-			FD_CLR(*it, &readfds);
 		}
 	}
 	return new_connection;
@@ -215,6 +217,10 @@ void Webserv::readRequests(fd_set &readfds, fd_set &writefds)
 			}
 			catch (const std::exception &e)
 			{
+				close(socket);
+				_global_socket_list.erase(find(_global_socket_list.begin(), _global_socket_list.end(), socket));
+				delete (*it);
+				it = _request_list.erase(it);
 				log(e.what(), socket, "", 1);
 			}
 		}
@@ -223,7 +229,7 @@ void Webserv::readRequests(fd_set &readfds, fd_set &writefds)
 	}
 }
 
-void Webserv::sendResponses(fd_set &readfds, fd_set &writefds)
+void Webserv::sendResponses(fd_set &writefds)
 {
 	int socket;
 	
@@ -233,13 +239,13 @@ void Webserv::sendResponses(fd_set &readfds, fd_set &writefds)
 		socket = (*it)->getSocket();
 		if (FD_ISSET(socket, &writefds))
 		{
+			FD_CLR(socket, &writefds);
 			try
 			{
 				// TODO handle Client based on method if _error_status is not set in the Client;
 				(*it)->_response->buildMessage();
 				(*it)->_response->sendMessage();
 				// TODO what with chunked Clients?
-				FD_CLR(socket, &writefds);
 				log("", socket, (*it)->_response->getResourcePath(), 3);
 				if ((*it)->_headers.count("Connection") &&
 				    (std::find((*it)->_headers["Connection"].begin(), (*it)->_headers["Connection"].end(), "keep-alive") ==
@@ -253,23 +259,20 @@ void Webserv::sendResponses(fd_set &readfds, fd_set &writefds)
 				}
 				else
 				{
-					FD_SET(socket, &readfds);
 					*(*it) = Request(socket, (*it)->_potential_servers);
 					it++;
 				}
 			}
 			catch (std::exception &e)
 			{
+				close(socket);
+				_global_socket_list.erase(find(_global_socket_list.begin(), _global_socket_list.end(), socket));
+				delete (*it);
+				it = _request_list.erase(it);
 				log(e.what(), socket, "", 1);
 			}
 		}
 		else
 			it++;
-	}
-	for (std::vector<int>::iterator it = _global_socket_list.begin(); it != _global_socket_list.end(); it++)
-	{
-		if (FD_ISSET(*it, &readfds))
-			continue;
-		FD_SET(*it, &readfds);
 	}
 }

@@ -20,6 +20,14 @@ class Response
 	void sendMessage();
 	const std::string &getResourcePath() const;
 	friend std::ostream &operator<<(std::ostream &o, const Response &rhs);
+	class sendResponseException : public std::exception
+	{
+	  public:
+		virtual const char *what() const throw()
+		{
+			return "Error while sending response";
+		}
+	};
 
 
   private:
