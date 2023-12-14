@@ -7,12 +7,15 @@
 #include "messages/Request.hpp"
 #include "messages/Response.hpp"
 #include <algorithm>
+#include <vector>
 
 
 // For Linux
 #ifndef FD_COPY
 # define FD_COPY(from, to) bcopy(from, to, sizeof(*(from)));
 #endif
+
+class Request;
 
 class Webserv
 {
@@ -28,15 +31,14 @@ class Webserv
 	void sendResponses(fd_set &, fd_set &);
 	std::string _conf;
 	std::map<int, struct sockaddr_in> _socket_list;
-
   public:
+	static std::vector<std::string> implementedMethods;
 	Webserv();
 	explicit Webserv(const std::string &);
 	~Webserv();
 	void startListen();
 	void startServer();
 	void parseConf();
-	std::vector<Server *> getPotentialServers(int client_fd) const;
 
 	class openSocketException : public std::exception
 	{

@@ -50,6 +50,7 @@ t_location newLocation(const std::string &location_name, const std::string &loca
 	std::string method, buffer, name, value, slash = "/",
 	                                         option_list[4] = {"root", "index", "allow_methods", "autoindex"};
 
+	bool allow_methods_is_not_defined = true;
 	loc.location = location_name;
 	loc.root = "";
 	loc.index = "";
@@ -94,6 +95,7 @@ t_location newLocation(const std::string &location_name, const std::string &loca
 			loc.index = value;
 			break;
 		case 2:
+			allow_methods_is_not_defined = false;
 			value.push_back(' ');
 			while (1)
 			{
@@ -139,6 +141,9 @@ t_location newLocation(const std::string &location_name, const std::string &loca
 	}
 	if (loc.root == "")
 		loc.root = root;
+	//TODO does the server block also need an allow_methods directive?
+	if (loc.methods.empty() && allow_methods_is_not_defined)
+		loc.methods = Webserv::implementedMethods;
 	loc.valid = true;
 	return loc;
 }

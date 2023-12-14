@@ -7,10 +7,13 @@
 #include "../utils/utils.hpp"
 #include "../utils/webserv_utils.hpp"
 #include <utility>
+#include "../Webserv.hpp"
 
 #include "Response.hpp"
+#include "../Server.hpp"
 
 class Response;
+class Server;
 
 class Request
 {

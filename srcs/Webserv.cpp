@@ -2,6 +2,17 @@
 
 using namespace webserv_utils;
 
+static std::vector<std::string> getImplementedMethods()
+{
+	std::vector<std::string> v;
+	v.push_back("GET");
+	v.push_back("POST");
+	v.push_back("DELETE");
+	return v;
+}
+
+std::vector<std::string> Webserv::implementedMethods = getImplementedMethods();
+
 Webserv::Webserv()
 {
 }

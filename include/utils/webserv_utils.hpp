@@ -4,6 +4,8 @@
 #include "utils.hpp"
 #include "../Server.hpp"
 
+class Server;
+
 namespace webserv_utils
 {
 

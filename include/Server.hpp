@@ -3,6 +3,7 @@
 
 #include "utils/utils.hpp"
 #include "utils/server_utils.hpp"
+#include "Webserv.hpp"
 
 struct t_location;
 

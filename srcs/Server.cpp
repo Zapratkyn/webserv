@@ -92,11 +92,13 @@ bool Server::addEndPoint(const std::string &value)
 			ip_address = "0.0.0.0";
 		port_num = value.substr(pos);
 	}
+	//TODO why is this unreachable??
 	else if (value.find('.') != std::string::npos || value.find_first_not_of(DIGITS) != std::string::npos)
 	{
 		ip_address = value;
 		port_num = "8080";
 	}
+	//TODO why is this unreachable??
 	else if (value.find_first_not_of(DIGITS) == std::string::npos)
 	{
 		port_num = value;
@@ -152,7 +154,7 @@ void Server::addDefaultLocation()
 //		default_location.root = "www/server00/";
 	default_location.location = "/";
 	default_location.autoindex = "off";
-	default_location.methods.push_back("GET");
+	default_location.methods = Webserv::implementedMethods;
 
 	_location_list["/"] = default_location;
 }

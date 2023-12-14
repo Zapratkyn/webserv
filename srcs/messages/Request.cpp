@@ -75,7 +75,7 @@ void Request::_parseHeader(const std::string &line)
 
 void Request::_retrieveBodyInfo()
 {
-	//TODO check the _method is ok with having a body ???
+	// TODO check the _method is ok with having a body ???
 	if (_headers.count("Content-Length") == 1)
 	{
 		if (_chunked_request)
@@ -178,12 +178,17 @@ void Request::_validateParsedBody()
 
 void Request::_validateMethod()
 {
-	const std::vector<std::string> &methods(_server->getLocationlist().at(_server_location).methods);
-	_server->getLocationlist().at(_server_location);
-	if (std::find(methods.begin(), methods.end(), _method) == methods.end())
+	if (!std::count(Webserv::implementedMethods.begin(), Webserv::implementedMethods.end(), _method))
+	{
+		_error_status = 501;
+		return;
+	}
+
+	const std::vector<std::string> &allowed_methods(_server->getLocationlist().at(_server_location).methods);
+	if (!std::count(allowed_methods.begin(), allowed_methods.end(), _method))
 	{
 		_error_status = 405;
-		return ;
+		return;
 	}
 }
 
@@ -215,7 +220,7 @@ void Request::_setServer()
 		     server_it != _potential_servers.end(); server_it++)
 		{
 			if (_server == *server_it)
-				break ;
+				break;
 			i++;
 		}
 		std::cout << "************** Server ***************" << std::endl;
@@ -266,7 +271,6 @@ bool Request::retrieveRequest()
 
 	_parseRequest(buffer);
 
-
 	if (DISPLAY_REQUEST)
 	{
 		std::cout << "****** Request on socket " << _socket << " (Received) ******" << std::endl;
@@ -297,7 +301,7 @@ const std::string &Request::getHTTPVersion() const
 	return _http_version;
 }
 
-const std::map<std::string, std::vector<std::string> > &Request::getHeaders() const
+const std::map<std::string, std::vector<std::string > > &Request::getHeaders() const
 {
 	return _headers;
 }
@@ -323,7 +327,7 @@ size_t Request::getContentLength() const
 
 bool Request::getValueOfHeader(const std::string &key, std::vector<std::string> &value) const
 {
-	std::map<std::string, std::vector<std::string> >::const_iterator it;
+	std::map<std::string, std::vector<std::string > >::const_iterator it;
 	it = _headers.find(key);
 	if (it == _headers.end())
 		return false;
@@ -343,7 +347,7 @@ std::ostream &operator<<(std::ostream &o, const Request &rhs)
 	o << "_request_target: " << rhs.getRequestTarget() << std::endl;
 	o << "_http_version: " << rhs.getHTTPVersion() << std::endl;
 	o << "_headers: " << std::endl;
-	std::map<std::string, std::vector<std::string> >::const_iterator it = rhs.getHeaders().begin();
+	std::map<std::string, std::vector<std::string > >::const_iterator it = rhs.getHeaders().begin();
 	for (; it != rhs.getHeaders().end(); ++it)
 	{
 		o << "   " << it->first << std::endl;
