@@ -37,7 +37,7 @@ Request &Request::operator=(const Request &rhs)
 	_server = rhs._server;
 	_server_location = rhs._server_location;
 	delete this->_response;
-	_response = rhs._response;
+	_response = new Response(this);
 	return *this;
 }
 

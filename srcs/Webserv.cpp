@@ -171,6 +171,7 @@ bool Webserv::acceptNewConnections(fd_set &readfds)
 					break;
 				setsockopt(new_socket, SOL_SOCKET, SO_KEEPALIVE, &opt, sizeof(opt));
 				new_request = new Request(new_socket);
+				new_request->_response = new Response(new_request);
 				new_request->getPotentialServers(_server_list, _socket_list[*it]);
 				_request_list.push_back(new_request);
 				_global_socket_list.push_back(new_socket);
@@ -225,7 +226,6 @@ void Webserv::readRequests(fd_set &readfds, fd_set &writefds)
 void Webserv::sendResponses(fd_set &readfds, fd_set &writefds)
 {
 	int socket;
-	std::vector<Server *> pot_ser;
 	
 	std::vector<Request *>::iterator it;
 	for (it = _request_list.begin(); it != _request_list.end();)
@@ -235,7 +235,6 @@ void Webserv::sendResponses(fd_set &readfds, fd_set &writefds)
 		{
 			try
 			{
-				(*it)->_response = new Response(*it);
 				// TODO handle Client based on method if _error_status is not set in the Client;
 				(*it)->_response->buildMessage();
 				(*it)->_response->sendMessage();
@@ -255,9 +254,7 @@ void Webserv::sendResponses(fd_set &readfds, fd_set &writefds)
 				else
 				{
 					FD_SET(socket, &readfds);
-					pot_ser = (*it)->_potential_servers;
-					delete (*it);
-					*it = new Request(socket, pot_ser);
+					*(*it) = Request(socket, (*it)->_potential_servers);
 					it++;
 				}
 			}
