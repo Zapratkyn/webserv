@@ -100,6 +100,7 @@ static void sigHandler(int sig_num)
 
 void Webserv::startListen()
 {
+	std::cout << "\n*** Webserv started ***\n" << std::endl;
 	log("Webserv started", -1, "", 0);
 
 	int select_return, max, step = 1;
@@ -129,7 +130,7 @@ void Webserv::startListen()
 		}
 		else if (select_return == 0)
 		{
-			// std::cout << "Server is waiting ..." << std::endl;
+			std::cout << "Server is waiting ..." << std::endl;
 			continue;
 		}
 		if (step == 1)
@@ -152,6 +153,7 @@ void Webserv::startListen()
 			step = 1;
 		}
 	}
+	std::cout << "\n*** Webserv stopped ***\n" << std::endl;
 	log("Webserv stopped", -1, "", 0);
 }
 
@@ -175,7 +177,6 @@ bool Webserv::acceptNewConnections(fd_set &readfds)
 					break;
 				setsockopt(new_socket, SOL_SOCKET, SO_KEEPALIVE, &opt, sizeof(opt));
 				new_request = new Request(new_socket);
-				new_request->_response = new Response(new_request);
 				new_request->getPotentialServers(_server_list, _socket_list[*it]);
 				_request_list.push_back(new_request);
 				_global_socket_list.push_back(new_socket);

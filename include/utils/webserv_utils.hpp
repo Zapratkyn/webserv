@@ -2,7 +2,8 @@
 #define __WEBSERV_UTILS_HPP__
 
 #include "utils.hpp"
-#include "../Server.hpp"
+
+class Server;
 
 namespace webserv_utils
 {
@@ -16,7 +17,6 @@ bool methodIsImplemented(const std::string &method);
 bool httpVersionIsSupported(const std::string &version);
 bool socketIsSet(std::map<int, struct sockaddr_in> &, struct sockaddr_in &);
 void freeSockets(std::vector<int> &, std::vector<int> &, fd_set &, std::vector<struct t_request> &);
-void deleteRequest(int, std::vector<struct t_request> &);
 void printSocketAddress(struct sockaddr_in &_socketAddr);
 
 class readRequestException : public std::exception

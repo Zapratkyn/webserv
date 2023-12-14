@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <fstream>
 #include <iostream>
+#include <string>
 #include <map>
 #include <netdb.h>
 #include <netinet/in.h>
@@ -17,9 +18,16 @@
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
+#include <utility>
 #include <vector>
 #include "../Server.hpp"
+#include "../utils/server_utils.hpp"
+#include "../utils/webserv_utils.hpp"
+#include "../utils/UrlParser.hpp"
+#include "../messages/Request.hpp"
+#include "../messages/Response.hpp"
 
 #define DISPLAY_SERVERS false
 #define DISPLAY_REQUEST false
@@ -28,7 +36,7 @@
 #define DISPLAY_RESPONSE false
 
 #define DIGITS "0123456789"
-#define BUFFER_SIZE 10000
+#define BUFFER_SIZE 1000
 #define MAX_LISTEN 1000 //TODO check if os can set this
 
 class Server;

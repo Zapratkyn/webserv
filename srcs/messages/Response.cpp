@@ -226,10 +226,40 @@ const std::string &Response::getResourcePath() const
 	return _resource_path;
 }
 
+void Response::_ChunkReponse()
+{
+	size_t pos1 = _message.find("Content-Length"), pos2 = _message.find("\r\nContent-Type"), copied;
+	std::string result = "";
+	char buffer[1000];
+	
+	_message.replace(pos1, pos2 - pos1, "Transfer-Encoding: chunked");
+
+	pos1 = _message.find("\r\n\r\n") + 4;
+	pos2 = pos1;
+
+	copied = _message.copy(buffer, 1000, pos1);
+
+	while (copied > 0) // Does not work yet. Needs to empty the buffer before each loop
+	{
+		result.append(ft_to_string(copied));
+		result.append("\r\n");
+		result.append(buffer);
+		result.append("\r\n");
+		pos1 += copied;
+		copied = _message.copy(buffer, 1000, pos1);
+	}
+
+	result.append("0\r\n\r\n");
+
+	_message.replace(pos2, result.size(), result);
+
+	std::cout << _message << std::endl;
+}
+
 void Response::sendMessage()
 {
-	if (_message.size() > BUFFER_SIZE)
-		; //TODO do chunked
+	if (_body.size() > BUFFER_SIZE)
+		_ChunkReponse(); //TODO do chunked
 	ssize_t bytes_sent = send(_request->_socket, _message.c_str(), _message.size(), 0);
 	if (bytes_sent < 0)
 		throw Response::sendResponseException();
@@ -239,7 +269,7 @@ std::ostream &operator<<(std::ostream &o, const Response &rhs)
 {
 	o << "[ MESSAGE INFO ]" << std::endl;
 	o << "Path to resource : " << rhs._resource_path << std::endl;
-	o << "[ MESSAGE ]" << std::endl;
+	o << "[ HEADER ]" << std::endl;
 	o << rhs._message << "[EOL]";
 	return o;
 }

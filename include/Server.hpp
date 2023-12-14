@@ -2,7 +2,6 @@
 #define __SERVER_HPP__
 
 #include "utils/utils.hpp"
-#include "utils/server_utils.hpp"
 
 struct t_location;
 
@@ -21,6 +20,14 @@ class Server
 
 	bool parseOption(const int &, std::string &, std::stringstream &);
 	void addDefaultLocation();
+	bool addServerName(const std::string &);
+	bool setRoot(std::string &);
+	bool setIndex(const std::string &);
+	bool setBodySize(const std::string &);
+	bool addEndPoint(const std::string &);
+	bool addLocation(std::stringstream &, std::string &);
+	bool addErrorPage(std::string &);
+	bool setAutoIndex(std::string &);
 
   public:
 	Server();
@@ -34,16 +41,7 @@ class Server
 	std::vector<struct sockaddr_in> getEndPoints() const;
 	const std::map<int, std::string> &getErrorPages() const;
 
-	bool addServerName(const std::string &);
-	bool setRoot(std::string &);
-	bool setIndex(const std::string &);
-	bool setBodySize(const std::string &);
-	bool addEndPoint(const std::string &);
-	bool addLocation(std::stringstream &, std::string &);
-	bool addErrorPage(std::string &);
-	bool setAutoIndex(std::string &);
 	bool parseServer(const std::string &);
-	void handleRequest(struct t_request &, bool &);
 };
 
 #endif

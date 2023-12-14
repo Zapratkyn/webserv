@@ -1,11 +1,7 @@
 #ifndef RESPONSE_HPP
 #define RESPONSE_HPP
 
-#include <iostream>
-#include <map>
-#include "Request.hpp"
-#include <sys/stat.h>
-#include "../utils/UrlParser.hpp"
+#include "../utils/utils.hpp"
 
 class Request;
 
@@ -25,7 +21,7 @@ class Response
 	  public:
 		virtual const char *what() const throw()
 		{
-			return "Error while sending response";
+			return "Error while sending response. Client dismissed.";
 		}
 	};
 
@@ -55,6 +51,8 @@ class Response
 	void _buildErrorBody();
 	void _buildDefaultErrorBody();
 	bool _buildCustomErrorBody();
+
+	void _ChunkReponse();
 };
 
 #endif

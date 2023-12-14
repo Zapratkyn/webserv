@@ -4,6 +4,7 @@ Request::Request(int socket)
     : _socket(socket), _error_status(0), _chunked_request(false), _content_length(0), _server(nullptr),
       _response(nullptr)
 {
+	_response = new Response(this);
 }
 
 Request::Request(int socket, const std::vector<Server *> &potential_servers)
@@ -246,10 +247,7 @@ bool Request::retrieveRequest()
 	if (bytes < 0)
 		throw Request::readRequestException();
 	else if (bytes == 0)
-	{
-		log("closed connection", _socket, "", 1);
 		return false;
-	}
 
 	_parseRequest(buffer);
 

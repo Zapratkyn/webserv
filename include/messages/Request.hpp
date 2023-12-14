@@ -1,16 +1,10 @@
 #ifndef REQUEST_HPP
 #define REQUEST_HPP
 
-#include <iostream>
-#include <map>
-#include <vector>
 #include "../utils/utils.hpp"
-#include "../utils/webserv_utils.hpp"
-#include <utility>
-
-#include "Response.hpp"
 
 class Response;
+class Server;
 
 class Request
 {
@@ -40,7 +34,7 @@ class Request
 	  public:
 		virtual const char *what() const throw()
 		{
-			return "Error while reading request";
+			return "Error while reading request. Client dismissed.";
 		}
 	};
 

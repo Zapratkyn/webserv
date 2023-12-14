@@ -2,17 +2,14 @@
 #define __WEBSERV_HPP__
 
 #include "utils/utils.hpp"
-#include "utils/webserv_utils.hpp"
-#include "utils/UrlParser.hpp"
-#include "messages/Request.hpp"
-#include "messages/Response.hpp"
-#include <algorithm>
-
 
 // For Linux
 #ifndef FD_COPY
 # define FD_COPY(from, to) bcopy(from, to, sizeof(*(from)));
 #endif
+
+class Server;
+class Request;
 
 class Webserv
 {
