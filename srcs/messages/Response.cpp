@@ -230,24 +230,28 @@ void Response::_ChunkReponse()
 {
 	size_t pos1 = _message.find("Content-Length"), pos2 = _message.find("\r\nContent-Type"), copied;
 	std::string result = "";
-	char buffer[1000];
+	char *buffer = new char[BUFFER_SIZE];
 	
 	_message.replace(pos1, pos2 - pos1, "Transfer-Encoding: chunked");
 
 	pos1 = _message.find("\r\n\r\n") + 4;
 	pos2 = pos1;
 
-	copied = _message.copy(buffer, 1000, pos1);
+	copied = _message.copy(buffer, BUFFER_SIZE, pos1);
 
-	while (copied > 0) // Does not work yet. Needs to empty the buffer before each loop
+	while (copied > 0)
 	{
 		result.append(ft_to_string(copied));
 		result.append("\r\n");
 		result.append(buffer);
 		result.append("\r\n");
 		pos1 += copied;
-		copied = _message.copy(buffer, 1000, pos1);
+		delete[] buffer;
+		buffer = new char[BUFFER_SIZE];
+		copied = _message.copy(buffer, BUFFER_SIZE, pos1);
 	}
+
+	delete[] buffer;
 
 	result.append("0\r\n\r\n");
 
