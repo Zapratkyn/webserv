@@ -68,7 +68,7 @@ t_location newLocation(const std::string &location_name, const std::string &loca
 		}
 		name = getOptionName(buffer);
 		value = getOptionValue(buffer);
-		for (int i = 0; i <= 4; i++)
+		for (int i = 0; i < 4; i++)
 		{
 			option = i;
 			if (name == option_list[i])
