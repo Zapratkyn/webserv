@@ -37,6 +37,7 @@ class Response
 	size_t _content_length;
 	std::string _headersAsString;
 	std::string _body;
+	// std::ifstream _sbody;
 	std::string _message;
 
 	bool _chunked_response;
@@ -52,7 +53,8 @@ class Response
 	void _buildDefaultErrorBody();
 	bool _buildCustomErrorBody();
 
-	void _ChunkReponse();
+	void _chunkReponse();
+	void handleCgi();
 };
 
 #endif

@@ -9,6 +9,8 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <string.h>
+#include <iterator>
 #include <map>
 #include <netdb.h>
 #include <netinet/in.h>
@@ -36,7 +38,7 @@
 #define DISPLAY_RESPONSE false
 
 #define DIGITS "0123456789"
-#define BUFFER_SIZE 1000
+#define BUFFER_SIZE 10000
 #define MAX_LISTEN 1000 //TODO check if os can set this
 
 class Server;

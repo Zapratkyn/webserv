@@ -251,7 +251,6 @@ bool Request::retrieveRequest()
 
 	_parseRequest(buffer);
 
-
 	if (DISPLAY_REQUEST)
 	{
 		std::cout << "****** Request on socket " << _socket << " (Received) ******" << std::endl;

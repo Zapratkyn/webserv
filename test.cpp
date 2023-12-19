@@ -1,13 +1,24 @@
 #include <iostream>
 #include <string>
+#include <fstream>
+#include <sstream>
 
 int main()
 {
-	std::string str = "Salut les amis", str2 = "super potes que j'adore";
+	std::ifstream ifs("./www/server00/assets/favicon.ico", std::ifstream::binary | std::ifstream::ate);
 
-	str.replace(str.find("amis"), str2.size(), str2);
+	std::cout << ifs.gcount() << std::endl;
+	// std::stringstream ss;
+	// std::string str;
 
-	std::cout << str << std::endl;
+	// ss << ifs.rdbuf();
+	// str = ss.str();
+
+	// std::cout << str << std::endl;
+
+	// std::cout << "==========" << std::endl;
+
+	// std::cout << &str[50] << std::endl;
 
 	return 0;
 }

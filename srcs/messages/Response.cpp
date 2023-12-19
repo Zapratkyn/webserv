@@ -68,19 +68,43 @@ static bool checkPermissions(const std::string &path, bool read, bool write, boo
 	return true;
 }
 
+void Response::handleCgi()
+{
+	char **argv = NULL;
+	char **env = NULL;
+
+	argv[0] = strdup(_request->getBody().c_str());
+	env[0] = strdup(ft_to_string(_request->_server->getBodySize()).c_str());
+
+	_status_code = execve(&_resource_path[1], argv, env);
+
+	if (_status_code != 200)
+	{
+		_resource_path.clear();
+		_buildErrorBody();
+	}
+	free(argv[0]);
+	free(env[0]);
+}
+
 void Response::buildMessage()
 {
+	std::string extension, message;
+
 	if (_status_code != 0)
 		_buildErrorBody();
 	else
 	{
 		_setResourcePath();
-		if (!isValidFile(_resource_path) || !checkPermissions(_resource_path, true, false, false))
+		extension = &_resource_path[_resource_path.rfind('.')];
+		if (extension != ".cgi" && (!isValidFile(_resource_path) || !checkPermissions(_resource_path, true, false, false)))
 		{
 			_status_code = 404; //TODO diff between 403 and 404???
 			_resource_path.clear();
 			_buildErrorBody();
 		}
+		else if (extension == ".cgi")
+			handleCgi();
 		else if (!_retrieveMessageBody(_resource_path))
 			_buildErrorBody();
 		else
@@ -89,7 +113,7 @@ void Response::buildMessage()
 	_buildStatusLine();
 	_buildHeaders();
 
-	_message = _status_line + "\r\n" + _headersAsString + "\r\n" + _body;
+	_message = _status_line + "\r\n" + _headersAsString + "\r\n";
 	if (DISPLAY_RESPONSE)
 	{
 		std::cout << "*************** RESPONSE ****************" << std::endl;
@@ -141,7 +165,7 @@ void Response::_buildHeaders()
 
 bool Response::_retrieveMessageBody(const std::string &path)
 {
-	std::ifstream ifs(path);
+	std::ifstream ifs(path, std::ifstream::binary);
 	if (ifs.is_open())
 	{
 		std::stringstream ss;
@@ -226,44 +250,57 @@ const std::string &Response::getResourcePath() const
 	return _resource_path;
 }
 
-void Response::_ChunkReponse()
+void Response::_chunkReponse()
 {
-	size_t pos1 = _message.find("Content-Length"), pos2 = _message.find("\r\nContent-Type"), copied;
-	std::string result = "";
-	char *buffer = new char[BUFFER_SIZE];
+
+	size_t pos1 = _message.find("Content-Length"), pos2 = _message.find("\r\nContent-Type"), copied = 0;
+	std::ifstream file(_resource_path, std::ifstream::binary);
+	std::stringstream converter;
+	std::vector<char> buffer;
+	char c;
 	
 	_message.replace(pos1, pos2 - pos1, "Transfer-Encoding: chunked");
+	_body = "";
 
-	pos1 = _message.find("\r\n\r\n") + 4;
-	pos2 = pos1;
-
-	copied = _message.copy(buffer, BUFFER_SIZE, pos1);
+	for (int i = 0; i < BUFFER_SIZE; i++)
+	{
+		if (file.eof())
+			break;
+		copied++;
+		file.read(&c, 1);
+		buffer.push_back(c);
+	}
 
 	while (copied > 0)
 	{
-		result.append(ft_to_string(copied));
-		result.append("\r\n");
-		result.append(buffer);
-		result.append("\r\n");
-		pos1 += copied;
-		delete[] buffer;
-		buffer = new char[BUFFER_SIZE];
-		copied = _message.copy(buffer, BUFFER_SIZE, pos1);
+		converter.str("");
+		converter << std::hex << copied;
+		_body.append(converter.str());
+		_body.append("\r\n");
+		for(std::vector<char>::iterator it = buffer.begin(); it != buffer.end(); it++)
+			_body.append(1, *it);
+		_body.append("\r\n");
+		buffer.clear();
+		copied = 0;
+		for (int i = 0; i < BUFFER_SIZE; i++)
+		{
+			if (file.eof())
+				break;
+			copied++;
+			file.read(&c, 1);
+			buffer.push_back(c);
+		}
 	}
 
-	delete[] buffer;
-
-	result.append("0\r\n\r\n");
-
-	_message.replace(pos2, result.size(), result);
-
-	std::cout << _message << std::endl;
+	file.close();
+	_body.append("0\r\n\r\n");
 }
 
 void Response::sendMessage()
 {
 	if (_body.size() > BUFFER_SIZE)
-		_ChunkReponse(); //TODO do chunked
+		_chunkReponse(); //TODO do chunked
+	_message.append(_body);
 	ssize_t bytes_sent = send(_request->_socket, _message.c_str(), _message.size(), 0);
 	if (bytes_sent < 0)
 		throw Response::sendResponseException();
