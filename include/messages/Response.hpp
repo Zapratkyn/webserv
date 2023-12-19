@@ -13,8 +13,6 @@ class Response
 {
   public:
 	Response(Request *request);
-	Response(const Response &src);
-	Response &operator=(const Response &rhs);
 	virtual ~Response();
 	void handleRequest();
 	void buildMessage();
@@ -22,9 +20,10 @@ class Response
 	const std::string &getResourcePath() const;
 	friend std::ostream &operator<<(std::ostream &o, const Response &rhs);
 
-
   private:
 	Response();
+	Response(const Response &src);
+	Response &operator=(const Response &rhs);
 	static std::map<int, std::string> _all_status_codes;
 	Request *_request;
 	int _status_code;
@@ -48,6 +47,10 @@ class Response
 	void _buildErrorBody();
 	void _buildDefaultErrorBody();
 	bool _buildCustomErrorBody();
+
+	void _doGETmethod();
+	void _doPOSTmethod();
+	void _doDELETEmethod();
 };
 
 #endif

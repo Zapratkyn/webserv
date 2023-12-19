@@ -29,24 +29,14 @@ bool Server::addServerName(const std::string &name)
 }
 bool Server::setRoot(std::string &root)
 {
-//	DIR *dir;
-
 	if (_root != "")
 	{
 		ft_error(0, root, "root");
 		return false;
 	}
-//	dir = opendir(root.c_str());
-//	if (!dir)
-//	{
-//		ft_error(9, root, "root");
-//		return false;
-//	}
-	//TODO compare with NGINX
 	if (root[root.size() - 1] != '/')
 		root.append("/");
 	_root = root;
-//	closedir(dir);
 	return true;
 }
 bool Server::setBodySize(const std::string &size)

@@ -29,18 +29,6 @@ Response::Response(Request *request)
 {
 }
 
-Response::Response(const Response &src)
-{
-	(void)src;
-}
-
-Response &Response::operator=(const Response &rhs)
-{
-	if (this == &rhs)
-		return *this;
-	return *this;
-}
-
 Response::~Response()
 {
 }
@@ -70,22 +58,8 @@ static bool checkPermissions(const std::string &path, bool read, bool write, boo
 
 void Response::buildMessage()
 {
-	if (_status_code != 0)
+	if (_status_code >= 400)
 		_buildErrorBody();
-	else
-	{
-		_setResourcePath();
-		if (!isValidFile(_resource_path) || !checkPermissions(_resource_path, true, false, false))
-		{
-			_status_code = 404; //TODO diff between 403 and 404???
-			_resource_path.clear();
-			_buildErrorBody();
-		}
-		else if (!_retrieveMessageBody(_resource_path))
-			_buildErrorBody();
-		else
-			_status_code = 200;
-	}
 	_buildStatusLine();
 	_buildHeaders();
 
@@ -241,4 +215,45 @@ std::ostream &operator<<(std::ostream &o, const Response &rhs)
 	o << "[ MESSAGE ]" << std::endl;
 	o << rhs._message << "[EOL]";
 	return o;
+}
+
+
+void Response::handleRequest()
+{
+	if (_request->_method == "GET")
+		_doGETmethod();
+	else if (_request->_method == "POST")
+		_doPOSTmethod();
+	else if (_request->_method == "DELETE")
+		_doDELETEmethod();
+}
+
+
+void Response::_doGETmethod()
+{
+	//TODO check there is no body, if there is one, set _status_code to 400 and return
+
+	_setResourcePath();
+	if (!isValidFile(_resource_path) || !checkPermissions(_resource_path, true, false, false))
+	{
+		_status_code = 404; //TODO diff between 403 and 404???
+		_resource_path.clear();
+		return ;
+	}
+
+	// ADD all the things about autoindex shizzle
+
+	if (_retrieveMessageBody(_resource_path))
+		_status_code = 200;
+
+}
+
+void Response::_doPOSTmethod()
+{
+
+}
+
+void Response::_doDELETEmethod()
+{
+
 }
