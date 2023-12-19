@@ -242,6 +242,38 @@ void setResponse(t_request &request, bool &kill, std::string root)
 
 }
 
+//main branch wip parse and config commit
+void sendTable(struct t_request &request, std::string root, std::string folder)
+{
+	std::ifstream ifs(request.url.c_str());
+	std::string html = "", buffer, local;
+	std::string result = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: ";
+
+	(void)root;
+
+	while (!ifs.eof())
+	{
+		getline(ifs, buffer);
+		html.append(buffer);
+		html.append("\n");
+	}
+	ifs.close();
+
+	html.insert(html.find("</caption>"), request.location);
+
+	local = getLocalFolder(folder);
+	if (local != "/")
+		addParentDirectory(html, local, root);
+
+	addLinkList(html, folder, request.local);
+
+	result.append(ft_to_string(html.size())); // We append the size of the html page to the http response
+	result.append("\n\n");                    // The http response's header stops here
+	result.append(html);                      // The http reponse body (html page)
+
+	write(request.socket, result.c_str(), result.size());
+}
+
 void addParentDirectory(std::string &html, std::string local, std::string root)
 {
 	int spot = html.rfind("</tbody>");
