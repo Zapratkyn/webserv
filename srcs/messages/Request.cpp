@@ -1,7 +1,7 @@
 #include "../../include/messages/Request.hpp"
 
 Request::Request(int socket)
-    : _socket(socket), _error_status(0), _chunked_request(false), _content_length(0), _server(nullptr),
+    : _socket(socket), _request(""), _error_status(0), _chunked_request(false), _content_length(0), _server(nullptr),
       _response(nullptr)
 {
 	_response = new Response(this);
@@ -26,6 +26,7 @@ Request &Request::operator=(const Request &rhs)
 {
 	if (this == &rhs)
 		return *this;
+	_request = rhs._request;
 	_socket = rhs._socket;
 	_method = rhs._method;
 	_http_version = rhs._http_version;
@@ -100,7 +101,7 @@ void Request::_parseBody(std::stringstream &ss)
 		; // TODO parse function for chunked body
 }
 
-void Request::_parseRequest(const char *buffer)
+void Request::parseRequest(std::string buffer)
 {
 	std::stringstream ss(buffer);
 	std::string line;
@@ -241,20 +242,23 @@ void Request::_setLocation()
 bool Request::retrieveRequest()
 {
 	ssize_t bytes;
-	char buffer[BUFFER_SIZE] = {};
+	std::vector<char> buffer(BUFFER_SIZE);
 
-	bytes = recv(_socket, buffer, BUFFER_SIZE, 0);
+	bytes = recv(_socket, &buffer[0], buffer.size(), 0);
 	if (bytes < 0)
-		throw Request::readRequestException();
-	else if (bytes == 0)
+		throw readRequestException();
+	if (bytes == 0)
 		return false;
 
-	_parseRequest(buffer);
+	for (std::vector<char>::iterator it = buffer.begin(); it != buffer.end(); it++)
+		_request.append(1, *it);
+
+	// _parseRequest(_request.c_str());
 
 	if (DISPLAY_REQUEST)
 	{
 		std::cout << "****** Request on socket " << _socket << " (Received) ******" << std::endl;
-		std::cout << buffer << "[EOF]" << std::endl;
+		std::cout << _request << "[EOF]" << std::endl;
 		std::cout << "******* Request on socket " << _socket << " (Parsed) *******" << std::endl;
 		std::cout << *this;
 	}
