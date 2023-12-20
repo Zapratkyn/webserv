@@ -10,7 +10,5 @@ int main(int argc, char **argv, char **env)
 
 	std::cout << "I'm in the CGI !!!\n" << std::endl;
 
-	std::cout << str << std::endl;
-
 	return 200;
 }

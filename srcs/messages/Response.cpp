@@ -70,14 +70,30 @@ static bool checkPermissions(const std::string &path, bool read, bool write, boo
 
 void Response::handleCgi()
 {
-	char **argv = NULL;
-	char **env = NULL;
+	std::string body = _request->getBody(), cgi = &_resource_path[_resource_path.rfind('/')];
+	std::ofstream tmp("tmp", std::ofstream::trunc | std::ofstream::binary);
+	char *argv[1];
+	char *env[1];
+	int pid;
 
-	argv[0] = strdup(_request->getBody().c_str());
+	cgi.insert(0, "www/cgi-bin");
+
+	tmp << body;
+
+	argv[0] = strdup("tmp");
 	env[0] = strdup(ft_to_string(_request->_server->getBodySize()).c_str());
 
-	_status_code = execve(&_resource_path[1], argv, env);
+	pid = fork();
 
+	if (!pid)
+		execve(cgi.c_str(), argv, env);
+
+	waitpid(pid, &_status_code, 0);
+
+	_status_code = WIFEXITED(_status_code);
+
+	std::cout << _status_code << std::endl;
+	
 	if (_status_code != 200)
 	{
 		_resource_path.clear();
