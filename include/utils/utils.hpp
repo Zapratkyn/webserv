@@ -57,10 +57,5 @@ int ft_stoi(std::string);
 std::string ft_to_string(int);
 std::string trim(const std::string &);
 void log(std::string, int, std::string, int);
-bool sendText(struct t_request &);
-void sendFile(struct t_request &);
-void sendError(int, int);
-std::string getContentType(std::string);
-std::string getLocalFolder(std::string);
 
 #endif

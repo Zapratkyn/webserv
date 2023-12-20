@@ -25,7 +25,7 @@ std::map<int, std::string> Response::_all_status_codes = getStatusCodes();
 
 Response::Response(Request *request)
     : _request(request), _status_code(request->_error_status), _http_version("HTTP/1.1"), _content_length(0),
-      _chunked_response(false)
+      _chunked_response(false), _dir_listing(false)
 {
 }
 
@@ -43,17 +43,6 @@ static bool isValidFile(const std::string &path)
 {
 	struct stat sb = {};
 	return (stat(path.c_str(), &sb) == 0 && S_ISREG(sb.st_mode));
-}
-
-static bool checkPermissions(const std::string &path, bool read, bool write, bool execute)
-{
-	if (read && access(path.c_str(), R_OK) < 0)
-		return false;
-	if (write && access(path.c_str(), W_OK) < 0)
-		return false;
-	if (execute && access(path.c_str(), X_OK) < 0)
-		return false;
-	return true;
 }
 
 void Response::buildMessage()
@@ -97,8 +86,7 @@ void Response::_buildHeaders()
 	tmp = UrlParser(_resource_path).file_extension;
 	_headers["Content-Type"].push_back(tmp);
 
-
-	std::map<std::string, std::vector<std::string > >::const_iterator cit;
+	std::map<std::string, std::vector<std::string> >::const_iterator cit;
 	std::vector<std::string>::const_iterator cite;
 	for (cit = _headers.begin(); cit != _headers.end(); ++cit)
 	{
@@ -113,8 +101,10 @@ void Response::_buildHeaders()
 	}
 }
 
-bool Response::_retrieveMessageBody(const std::string &path)
+bool Response::_retrieveResponseBody(const std::string &path)
 {
+	if (_dir_listing)
+		return (_buildDirListing());
 	std::ifstream ifs(path);
 	if (ifs.is_open())
 	{
@@ -132,22 +122,69 @@ bool Response::_retrieveMessageBody(const std::string &path)
 	}
 }
 
+static std::vector<std::string> getDirEntries(const std::string &dir_path)
+{
+	std::vector<std::string> result;
+	DIR *dir;
+	struct dirent *entry;
+
+	dir = opendir(dir_path.c_str());
+	if (dir)
+	{
+		while ((entry = readdir(dir)))
+		{
+			if (entry->d_type == DT_DIR)
+				result.push_back(std::string(entry->d_name) + "/");
+			else
+				result.push_back(entry->d_name);
+		}
+		closedir(dir);
+	}
+	return result;
+}
+
+bool Response::_buildDirListing()
+{
+	std::stringstream ss;
+
+	std::vector<std::string> dir_entries = getDirEntries(_resource_path);
+
+	ss << "<!DOCTYPE html>"
+	      "<html>\n"
+	      "<head><title>"
+	   << "Index of " + UrlParser(_request->_request_target).path +
+	          "</title></head>\n"
+	          "<body>\n"
+	   << "<h1>" "Index of " + UrlParser(_request->_request_target).path + "</h1><hr><pre>";
+
+	std::vector<std::string>::const_iterator cit;
+	for (cit = dir_entries.begin(); cit != dir_entries.end(); ++cit)
+		ss << "<a href=\"" + *cit + "\">" + *cit + "</a>\n";
+
+	ss << "</pre><hr></body>\n"
+	      "</html>";
+
+	_body = ss.str();
+
+	return true;
+}
+
 void Response::_buildDefaultErrorBody()
 {
 	std::stringstream ss;
 	ss << "<!DOCTYPE html>"
 	      "<html>\n"
 	      "<head><title>"
-	      << _status_code
-	      << " " + _all_status_codes[_status_code] +
-	             "</title></head>\n"
-	             "<body>\n"
-	             "<center><h1>"
-	      << _status_code
-	      << " " + _all_status_codes[_status_code] +
-	             "</h1></center>\n"
-	             "</body>\n"
-	             "</html>";
+	   << _status_code
+	   << " " + _all_status_codes[_status_code] +
+	          "</title></head>\n"
+	          "<body>\n"
+	          "<center><h1>"
+	   << _status_code
+	   << " " + _all_status_codes[_status_code] +
+	          "</h1></center>\n"
+	          "</body>\n"
+	          "</html>";
 	_body = ss.str();
 }
 
@@ -166,21 +203,20 @@ bool Response::_buildCustomErrorBody()
 
 	std::string root = _request->_server->getRoot();
 
-	//TODO is this check needed?
-	if (!isValidDirectory(root) || !checkPermissions(root, true, false, true))
+	if (!isValidDirectory(root) || access(root.c_str(), R_OK | X_OK) < 0)
 		return false;
 
 	_resource_path = root;
 	std::string error_page = _request->_server->getErrorPages().find(_status_code)->second;
 	_resource_path += error_page;
 
-	if (!isValidFile(_resource_path) || !checkPermissions(_resource_path, true, false, false))
+	if (!isValidFile(_resource_path) || access(root.c_str(), R_OK) < 0)
 	{
 		_resource_path.clear();
 		return false;
 	}
 
-	if (!_retrieveMessageBody(_resource_path))
+	if (!_retrieveResponseBody(_resource_path))
 	{
 		_resource_path.clear();
 		return false;
@@ -203,7 +239,7 @@ const std::string &Response::getResourcePath() const
 void Response::sendMessage()
 {
 	if (_message.size() > BUFFER_SIZE)
-		; //TODO do chunked
+		; // TODO do chunked
 	ssize_t bytes_sent = send(_request->_socket, _message.c_str(), _message.size(), 0);
 	(void)bytes_sent;
 }
@@ -217,43 +253,82 @@ std::ostream &operator<<(std::ostream &o, const Response &rhs)
 	return o;
 }
 
-
 void Response::handleRequest()
 {
 	if (_request->_method == "GET")
-		_doGETmethod();
+		_doGet();
 	else if (_request->_method == "POST")
-		_doPOSTmethod();
+		_doPost();
 	else if (_request->_method == "DELETE")
-		_doDELETEmethod();
+		_doDelete();
 }
 
-
-void Response::_doGETmethod()
+void Response::_doGet()
 {
-	//TODO check there is no body, if there is one, set _status_code to 400 and return
-
-	_setResourcePath();
-	if (!isValidFile(_resource_path) || !checkPermissions(_resource_path, true, false, false))
+	if (!_request->_body.empty() ||
+	    (_request->_headers.count("Content-Length") && _request->_headers["Content-Length"][0] != "0"))
 	{
-		_status_code = 404; //TODO diff between 403 and 404???
-		_resource_path.clear();
-		return ;
+		_status_code = 400;
+		return;
 	}
 
-	// ADD all the things about autoindex shizzle
+	_setResourcePath();
 
-	if (_retrieveMessageBody(_resource_path))
+	t_location location = _request->_server->getLocationlist().find(_request->_server_location)->second;
+
+	if (isValidDirectory(_resource_path) && location.autoindex == "on")
+	{
+		std::string dir_path = _resource_path;
+		if (dir_path[dir_path.size() - 1] != '/')
+			dir_path += '/';
+
+		if (isValidFile(dir_path + location.index))
+		{
+			if (access((dir_path + location.index).c_str(), R_OK) == 0)
+				_resource_path = dir_path + location.index;
+			else
+			{
+				_resource_path.clear();
+				_status_code = 403;
+				return;
+			}
+		}
+		else if (access(dir_path.c_str(), R_OK | X_OK) < 0)
+		{
+			_resource_path.clear();
+			_status_code = 403;
+			return;
+		}
+		else
+		{
+			_resource_path = dir_path;
+			_dir_listing = true;
+		}
+	}
+	else if (isValidFile(_resource_path))
+	{
+		if (access(_resource_path.c_str(), R_OK) < 0)
+		{
+			_resource_path.clear();
+			_status_code = 403;
+			return;
+		}
+	}
+	else
+	{
+		_status_code = 404;
+		_resource_path.clear();
+		return;
+	}
+
+	if (_retrieveResponseBody(_resource_path))
 		_status_code = 200;
-
 }
 
-void Response::_doPOSTmethod()
+void Response::_doPost()
 {
-
 }
 
-void Response::_doDELETEmethod()
+void Response::_doDelete()
 {
-
 }

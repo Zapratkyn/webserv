@@ -36,21 +36,24 @@ class Response
 	std::string _message;
 
 	bool _chunked_response;
+	bool _dir_listing;
 
 	std::string _resource_path;
 	void _setResourcePath();
 
 	void _buildHeaders();
 	void _buildStatusLine();
-	bool _retrieveMessageBody(const std::string &path);
+	bool _retrieveResponseBody(const std::string &path);
+
+	bool _buildDirListing();
 
 	void _buildErrorBody();
 	void _buildDefaultErrorBody();
 	bool _buildCustomErrorBody();
 
-	void _doGETmethod();
-	void _doPOSTmethod();
-	void _doDELETEmethod();
+	void _doGet();
+	void _doPost();
+	void _doDelete();
 };
 
 #endif
