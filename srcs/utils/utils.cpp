@@ -1,35 +1,21 @@
 #include "../../include/utils/utils.hpp"
 
-std::string ft_pop_back(std::string str)
+std::string ft_pop_back(const std::string &str)
 {
 	std::string result;
-	int pos = str.size() - 1;
+	size_t pos = str.size() - 1;
 
-	for (int i = 0; i < pos; i++)
+	for (size_t i = 0; i < pos; i++)
 		result += str[i];
 
 	return result;
-}
-
-std::string ft_to_string(int nb)
-{
-	std::string result, ch;
-
-	while (nb > 0)
-	{
-		ch = nb % 10 + '0';
-		ch += result;
-		result = ch;
-		nb /= 10;
-	}
-	return ch;
 }
 
 std::string trim(const std::string &str)
 {
 	std::string result;
 
-	if (str.size() && str.find_first_not_of(" \t") != std::string::npos)
+	if (!str.empty() && str.find_first_not_of(" \t") != std::string::npos)
 	{
 		result = &str[str.find_first_not_of(" \t")];
 		while (result[result.size() - 1] == ' ' || result[result.size() - 1] == '\t')
@@ -38,18 +24,18 @@ std::string trim(const std::string &str)
 	return result;
 }
 
-int ft_stoi(std::string str)
+int ft_stoi(const std::string &str)
 {
 	int result = 0;
-	int size = str.size();
+	size_t size = str.size();
 
-	for (int i = 0; i < size; i++)
+	for (size_t i = 0; i < size; i++)
 		result = result * 10 + str[i] - '0';
 
 	return result;
 }
 
-void log(std::string line, int client_fd, std::string url, int type)
+void log(const std::string &line, int client_fd, const std::string &url, int type)
 {
 	time_t tm = std::time(NULL);
 	char *dt = ctime(&tm);

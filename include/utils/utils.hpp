@@ -22,40 +22,18 @@
 #include "../Server.hpp"
 
 #define DISPLAY_SERVERS true
-#define DISPLAY_REQUEST false
+#define DISPLAY_REQUEST true
 #define DISPLAY_SERVER_FOR_REQUEST true
 #define DISPLAY_LOCATION_FOR_REQUEST true
-#define DISPLAY_RESPONSE false
+#define DISPLAY_RESPONSE true
 
 #define DIGITS "0123456789"
 #define BUFFER_SIZE 10000
 #define MAX_LISTEN 1000 //TODO check if os can set this
 
-class Server;
-
-struct t_request
-{
-
-	std::map<std::string, std::vector<std::string> > headers;
-	std::string method;
-	std::string location;
-	std::string url;
-	std::string code;
-	std::vector<Server *> potentialServers;
-	Server *server;
-	std::string client;
-	std::string header;
-	std::string body;
-	std::string host;
-	std::string local;
-	int socket;
-	bool is_chunked;
-};
-
-std::string ft_pop_back(std::string);
-int ft_stoi(std::string);
-std::string ft_to_string(int);
+std::string ft_pop_back(const std::string &);
+int ft_stoi(const std::string &);
 std::string trim(const std::string &);
-void log(std::string, int, std::string, int);
+void log(const std::string &line, int client_fd, const std::string &url, int type);
 
 #endif

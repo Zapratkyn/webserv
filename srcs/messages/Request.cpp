@@ -90,12 +90,18 @@ void Request::_retrieveBodyInfo()
 	}
 }
 
+
 void Request::_parseBody(std::stringstream &ss)
 {
-	std::stringstream buf;
-	buf << ss.rdbuf();
 	if (!isChunkedRequest())
-		_body = buf.str();
+	{
+		char c;
+		for (size_t i(0); i < _content_length; ++i)
+		{
+			ss.read(&c, sizeof(c));
+			_body.push_back(c);
+		}
+	}
 	else
 		; // TODO parse function for chunked body
 }
@@ -274,7 +280,9 @@ bool Request::retrieveRequest()
 	if (DISPLAY_REQUEST)
 	{
 		std::cout << "****** Request on socket " << _socket << " (Received) ******" << std::endl;
-		std::cout << buffer << "[EOF]" << std::endl;
+		for (ssize_t i(0); i < bytes; ++i)
+			std::cout << buffer[i];
+		std::cout << "[EOF]" << std::endl;
 		std::cout << "******* Request on socket " << _socket << " (Parsed) *******" << std::endl;
 		std::cout << *this;
 	}
@@ -301,12 +309,12 @@ const std::string &Request::getHTTPVersion() const
 	return _http_version;
 }
 
-const std::map<std::string, std::vector<std::string > > &Request::getHeaders() const
+const std::map<std::string, std::vector<std::string> > &Request::getHeaders() const
 {
 	return _headers;
 }
 
-const std::string &Request::getBody() const
+const std::vector<char> &Request::getBody() const
 {
 	return _body;
 }
@@ -327,7 +335,7 @@ size_t Request::getContentLength() const
 
 bool Request::getValueOfHeader(const std::string &key, std::vector<std::string> &value) const
 {
-	std::map<std::string, std::vector<std::string > >::const_iterator it;
+	std::map<std::string, std::vector<std::string> >::const_iterator it;
 	it = _headers.find(key);
 	if (it == _headers.end())
 		return false;
@@ -347,7 +355,7 @@ std::ostream &operator<<(std::ostream &o, const Request &rhs)
 	o << "_request_target: " << rhs.getRequestTarget() << std::endl;
 	o << "_http_version: " << rhs.getHTTPVersion() << std::endl;
 	o << "_headers: " << std::endl;
-	std::map<std::string, std::vector<std::string > >::const_iterator it = rhs.getHeaders().begin();
+	std::map<std::string, std::vector<std::string> >::const_iterator it = rhs.getHeaders().begin();
 	for (; it != rhs.getHeaders().end(); ++it)
 	{
 		o << "   " << it->first << std::endl;
@@ -356,7 +364,9 @@ std::ostream &operator<<(std::ostream &o, const Request &rhs)
 			o << "      " << *it2 << std::endl;
 	}
 	o << "_body: " << std::endl;
-	o << rhs.getBody() << "[EOL]" << std::endl;
+	for (size_t i(0); i < rhs.getBody().size(); ++i)
+		o << rhs.getBody().at(i);
+	o << "[EOL]" << std::endl;
 	o << "*****************************************" << std::endl << std::endl;
 	return o;
 }
