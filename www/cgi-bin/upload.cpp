@@ -34,6 +34,8 @@ int main(int argc, char **argv, char **env)
 		file.append(1, c);
 	}
 
+	std::cout << file << std::endl;
+
 	size = &file[file.find("Content-Length: ") + 16];
 	size = size.substr(0, size.find_first_of("\r\n"));
 	file_size = ft_stoi(size);
