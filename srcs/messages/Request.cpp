@@ -253,8 +253,6 @@ bool Request::retrieveRequest()
 	for (std::vector<char>::iterator it = buffer.begin(); it != buffer.end(); it++)
 		_request.append(1, *it);
 
-	// _parseRequest(_request.c_str());
-
 	if (DISPLAY_REQUEST)
 	{
 		std::cout << "****** Request on socket " << _socket << " (Received) ******" << std::endl;
@@ -278,6 +276,11 @@ const std::string &Request::getMethod() const
 const std::string &Request::getRequestTarget() const
 {
 	return _request_target;
+}
+
+const std::string &Request::getRequest() const
+{
+	return _request;
 }
 
 const std::string &Request::getHTTPVersion() const

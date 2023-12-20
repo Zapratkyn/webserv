@@ -70,18 +70,23 @@ static bool checkPermissions(const std::string &path, bool read, bool write, boo
 
 void Response::handleCgi()
 {
-	std::string body = _request->getBody(), cgi = &_resource_path[_resource_path.rfind('/')];
+	std::string cgi = &_resource_path[_resource_path.rfind('/')];
+	std::string size = ft_to_string(_request->_server->getBodySize());
+	std::string socket = ft_to_string(_request->_socket);
 	std::ofstream tmp("tmp", std::ofstream::trunc | std::ofstream::binary);
 	char *argv[1];
-	char *env[1];
+	char *env[2];
 	int pid;
 
 	cgi.insert(0, "www/cgi-bin");
+	size.insert(0, "BODY_SIZE=");
+	socket.insert(0, "SOCKET=");
 
-	tmp << body;
+	tmp << _request->_request;
 
 	argv[0] = strdup("tmp");
-	env[0] = strdup(ft_to_string(_request->_server->getBodySize()).c_str());
+	env[0] = strdup(size.c_str());
+	env[1] = strdup(socket.c_str());
 
 	pid = fork();
 
@@ -90,17 +95,9 @@ void Response::handleCgi()
 
 	waitpid(pid, &_status_code, 0);
 
-	_status_code = WIFEXITED(_status_code);
-
-	std::cout << _status_code << std::endl;
-	
-	if (_status_code != 200)
-	{
-		_resource_path.clear();
-		_buildErrorBody();
-	}
 	free(argv[0]);
 	free(env[0]);
+	free(env[1]);
 }
 
 void Response::buildMessage()

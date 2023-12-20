@@ -37,7 +37,6 @@ class Response
 	size_t _content_length;
 	std::string _headersAsString;
 	std::string _body;
-	// std::ifstream _sbody;
 	std::string _message;
 
 	bool _chunked_response;

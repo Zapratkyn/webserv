@@ -27,6 +27,7 @@ class Request
 	const std::map<std::string, std::vector<std::string> >&getHeaders() const;
 	bool getValueOfHeader(const std::string &key, std::vector<std::string> &value) const;
 	const std::string &getBody() const;
+	const std::string &getRequest() const;
 	bool isChunkedRequest() const;
 	size_t getContentLength() const;
 	int getErrorStatus() const;
