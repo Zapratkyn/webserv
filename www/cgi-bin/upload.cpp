@@ -10,9 +10,7 @@
 int ft_stoi(std::string);
 std::string successPage();
 std::string getFilename(std::string &);
-void trim(std::string &);
 std::string getBoundary(std::string &);
-void fileOnly(std::string &, std::string &);
 int findStartOfFile(std::string &, std::string &);
 
 int main(int argc, char **argv, char **env)
@@ -119,14 +117,6 @@ std::string getBoundary(std::string &file)
 	result = result.substr(0, result.find("\r\n"));
 
 	return result;
-}
-
-void fileOnly(std::string &file, std::string &boundary)
-{
-	file = &file[file.find("\r\n\r\n")];
-	file = &file[file.find(boundary) + boundary.size()];
-	file = &file[file.find("\r\n\r\n") + 4];
-	file = file.substr(0, file.find(boundary));
 }
 
 int findStartOfFile(std::string &file, std::string &boundary)
