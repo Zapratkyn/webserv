@@ -337,7 +337,11 @@ void Response::_doDelete()
 		{
 			_resource_path.clear();
 			_status_code = 403;
-			return;
+		}
+		else
+		{
+			//TODO how to delete a directory ????
+			_status_code = 204;
 		}
 	}
 	else if (isValidFile(_resource_path))
@@ -346,15 +350,16 @@ void Response::_doDelete()
 		{
 			_resource_path.clear();
 			_status_code = 403;
-			return;
+		}
+		else
+		{
+			std::remove(_resource_path.c_str());
+			_status_code = 204;
 		}
 	}
 	else
 	{
 		_status_code = 404;
 		_resource_path.clear();
-		return;
 	}
-	std::remove(_resource_path.c_str());
-	_status_code = 204;
 }
