@@ -1,10 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <vector>
-#include <map>
 #include <sys/socket.h>
-#include <stdlib.h>
 #include <unistd.h>
 
 int ft_stoi(std::string);
