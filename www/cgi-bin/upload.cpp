@@ -77,7 +77,7 @@ std::string ft_to_string(int nb)
 
 std::string successPage()
 {
-	std::string html, message = "HTTP/1.1 200 OK\r\nConnection: keep-alive\r\nContent-Length: \r\nContent-Type: text/html\r\n\r\n";
+	std::string html, message = "HTTP/1.1 201 Created\r\nConnection: keep-alive\r\nContent-Length: \r\nContent-Type: text/html\r\n\r\n";
 	std::stringstream ss;
 	ss << "<!DOCTYPE html>"
 	      "<html>\n"
