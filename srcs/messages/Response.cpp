@@ -271,21 +271,16 @@ void Response::_doGet()
 		_status_code = 400;
 		return;
 	}
-
 	_setResourcePath();
 
 	t_location location = _request->_server->getLocationlist().find(_request->_server_location)->second;
 
 	if (isValidDirectory(_resource_path) && location.autoindex == "on")
 	{
-		std::string dir_path = _resource_path;
-		if (dir_path[dir_path.size() - 1] != '/')
-			dir_path += '/';
-
-		if (isValidFile(dir_path + location.index))
+		if (isValidFile(_resource_path + location.index))
 		{
-			if (access((dir_path + location.index).c_str(), R_OK) == 0)
-				_resource_path = dir_path + location.index;
+			if (access((_resource_path + location.index).c_str(), R_OK) == 0)
+				_resource_path += location.index;
 			else
 			{
 				_resource_path.clear();
@@ -293,17 +288,14 @@ void Response::_doGet()
 				return;
 			}
 		}
-		else if (access(dir_path.c_str(), R_OK | X_OK) < 0)
+		else if (access(_resource_path.c_str(), R_OK | X_OK) < 0)
 		{
 			_resource_path.clear();
 			_status_code = 403;
 			return;
 		}
 		else
-		{
-			_resource_path = dir_path;
 			_dir_listing = true;
-		}
 	}
 	else if (isValidFile(_resource_path))
 	{
@@ -325,10 +317,44 @@ void Response::_doGet()
 		_status_code = 200;
 }
 
+
+//TODO parsing of _body in case Content-Type ==
+// - multipart/form-data
+// - application/x-www-form-urlencoded
+//TODO https://developer.mozilla.org/en-US/docs/Learn/Forms/Sending_and_retrieving_form_data
 void Response::_doPost()
 {
+
 }
 
 void Response::_doDelete()
 {
+	_setResourcePath();
+
+	if (isValidDirectory(_resource_path))
+	{
+		if (access(_resource_path.c_str(), W_OK | X_OK) < 0)
+		{
+			_resource_path.clear();
+			_status_code = 403;
+			return;
+		}
+	}
+	else if (isValidFile(_resource_path))
+	{
+		if (access(_resource_path.c_str(), W_OK) < 0)
+		{
+			_resource_path.clear();
+			_status_code = 403;
+			return;
+		}
+	}
+	else
+	{
+		_status_code = 404;
+		_resource_path.clear();
+		return;
+	}
+	std::remove(_resource_path.c_str());
+	_status_code = 204;
 }

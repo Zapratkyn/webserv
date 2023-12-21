@@ -93,24 +93,26 @@ void Request::_retrieveBodyInfo()
 
 void Request::_parseBody(std::stringstream &ss)
 {
+	size_t size = ss.str().size() - ss.tellg();
 	if (!isChunkedRequest())
 	{
 		char c;
-		for (size_t i(0); i < _content_length; ++i)
+		for (size_t i(0); i < size; ++i)
 		{
 			ss.read(&c, sizeof(c));
-			_body.push_back(c);
+			_body += c;
 		}
 	}
 	else
 		; // TODO parse function for chunked body
 }
 
-void Request::_parseRequest(const char *buffer)
+void Request::_parseRequest(const char *buffer, size_t size)
 {
-	std::stringstream ss(buffer);
-	std::string line;
+	std::stringstream ss;
+	ss.write(buffer, size);
 
+	std::string line;
 	getline(ss, line);
 	line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
 	_parseRequestLine(line);
@@ -275,7 +277,7 @@ bool Request::retrieveRequest()
 		return false;
 	}
 
-	_parseRequest(buffer);
+	_parseRequest(buffer, bytes);
 
 	if (DISPLAY_REQUEST)
 	{
@@ -314,7 +316,7 @@ const std::map<std::string, std::vector<std::string> > &Request::getHeaders() co
 	return _headers;
 }
 
-const std::vector<char> &Request::getBody() const
+const std::string &Request::getBody() const
 {
 	return _body;
 }

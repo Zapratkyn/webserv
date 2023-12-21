@@ -34,7 +34,7 @@ class Request
 	const std::string &getHTTPVersion() const;
 	const std::map<std::string, std::vector<std::string> >&getHeaders() const;
 	bool getValueOfHeader(const std::string &key, std::vector<std::string> &value) const;
-	const std::vector<char> &getBody() const;
+	const std::string &getBody() const;
 	bool isChunkedRequest() const;
 	size_t getContentLength() const;
 	int getErrorStatus() const;
@@ -58,7 +58,7 @@ class Request
 	std::string _request_target;
 	std::string _http_version;
 	std::map<std::string, std::vector<std::string > > _headers;
-	std::vector<char> _body;
+	std::string _body;
 	int _error_status;
 	bool _chunked_request;
 	size_t _content_length;
@@ -67,7 +67,7 @@ class Request
 	std::string _server_location;
 	Response *_response;
 
-	void _parseRequest(const char *buffer);
+	void _parseRequest(const char *buffer, size_t size);
 	void _parseRequestLine(const std::string &line);
 	void _parseHeader(const std::string &line);
 	void _retrieveBodyInfo();

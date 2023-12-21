@@ -6,6 +6,7 @@
 #include "Request.hpp"
 #include <sys/stat.h>
 #include "../utils/UrlParser.hpp"
+#include <cstdio>
 
 class Request;
 
