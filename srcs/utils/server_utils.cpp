@@ -139,7 +139,6 @@ t_location newLocation(const std::string &location_name, const std::string &loca
 	}
 	if (loc.root == "")
 		loc.root = root;
-	//TODO does the server block also need an allow_methods directive?
 	if (loc.methods.empty() && allow_methods_is_not_defined)
 		loc.methods = Webserv::implementedMethods;
 	loc.valid = true;

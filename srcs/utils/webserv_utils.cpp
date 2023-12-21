@@ -59,8 +59,6 @@ void printSocketAddress(struct sockaddr_in &_socketAddr)
 	std::cout << s << ":" << ntohs(_socketAddr.sin_port);
 }
 
-//TODO add autoindex and error_pages to main server block
-//TODO apply inheritance after (or before) parsing config?
 void displayServers(std::vector<Server *> &server_list)
 {
 	std::string value;

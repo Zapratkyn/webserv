@@ -251,6 +251,7 @@ void Webserv::sendResponses(fd_set &writefds)
 			FD_CLR(socket, &writefds);
 			try
 			{
+				(*it)->_parseRequest();
 				if (!(*it)->_error_status)
 					(*it)->_response->handleRequest();
 				(*it)->_response->buildMessage();

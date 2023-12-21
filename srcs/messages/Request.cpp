@@ -77,7 +77,6 @@ void Request::_parseHeader(const std::string &line)
 
 void Request::_retrieveBodyInfo()
 {
-	// TODO check the _method is ok with having a body ???
 	if (_headers.count("Content-Length") == 1)
 	{
 		if (_chunked_request)
@@ -127,7 +126,7 @@ void Request::_parseRequest()
 			_parseHeader(line);
 		else if (line.empty())
 		{
-			_validateParsedRequestLine(line);
+			_validateParsedRequestLine();
 			_validateParsedHeaders();
 			_setServer();
 			_setLocation();
@@ -147,10 +146,8 @@ void Request::_parseRequest()
 	}
 }
 
-void Request::_validateParsedRequestLine(const std::string &line)
+void Request::_validateParsedRequestLine()
 {
-	(void)line;
-	// TODO check if there are still things in the line after _http_version
 	if (_method.empty() || _request_target.empty() || _http_version.empty())
 		_error_status = 400;
 	else if (!webserv_utils::methodIsImplemented(_method))
@@ -168,8 +165,6 @@ void Request::_validateParsedHeaders()
 		_error_status = 400;
 }
 
-// TODO is maxBodySize set for a server block or also for a location?
-// TODO checks in which order?
 void Request::_validateParsedBody()
 {
 	if (_body.size() > static_cast<size_t>(_server->getBodySize()))
@@ -278,14 +273,12 @@ bool Request::retrieveRequest()
 	for (ssize_t i(0); i < bytes; ++i)
 		_request += buffer[i];
 
-	_parseRequest();
-
-		if (DISPLAY_REQUEST)
-		{
-			std::cout << "****** Request on socket " << _socket << " (Received) ******" << std::endl;
-			std::cout << _request << "[EOF]" << std::endl;
-		}
-		return true;
+	if (DISPLAY_REQUEST)
+	{
+		std::cout << "****** Request on socket " << _socket << " (Received) ******" << std::endl;
+		std::cout << _request << "[EOF]" << std::endl;
+	}
+	return true;
 }
 
 int Request::getSocket() const

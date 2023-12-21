@@ -396,13 +396,12 @@ void Response::_doGet()
 
 	if (isValidDirectory(_resource_path) && location.autoindex == "on")
 	{
-		std::string dir_path(_resource_path);
-		if (dir_path[dir_path.size() - 1] != '/')
-			dir_path += '/';
-		if (isValidFile(dir_path + location.index))
+		if (_resource_path[_resource_path.size() - 1] != '/')
+			_resource_path += '/';
+		if (isValidFile(_resource_path + location.index))
 		{
-			if (access((dir_path + location.index).c_str(), R_OK) == 0)
-				_resource_path = dir_path + location.index;
+			if (access((_resource_path + location.index).c_str(), R_OK) == 0)
+				_resource_path += location.index;
 			else
 			{
 				_resource_path.clear();
@@ -420,7 +419,6 @@ void Response::_doGet()
 		{
 			if (_request->_request_target[_request->_request_target.size() - 1] != '/')
 				_request->_request_target += '/';
-			_resource_path = dir_path;
 			_dir_listing = true;
 		}
 	}
@@ -476,6 +474,14 @@ static void removeDirectory(const std::string &dir_path)
 
 void Response::_doDelete()
 {
+	if (!_request->_body.empty() ||
+	    (_request->_headers.count("Content-Length") && _request->_headers["Content-Length"][0] != "0"))
+	{
+		_resource_path.clear();
+		_status_code = 400;
+		return;
+	}
+
 	if (isValidDirectory(_resource_path))
 	{
 		if (access(_resource_path.c_str(), W_OK | X_OK) < 0)

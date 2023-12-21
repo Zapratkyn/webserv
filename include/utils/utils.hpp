@@ -29,7 +29,7 @@
 
 #define DIGITS "0123456789"
 #define BUFFER_SIZE 10000
-#define MAX_LISTEN 1000 //TODO check if os can set this
+#define MAX_LISTEN 1000
 
 std::string ft_pop_back(const std::string &);
 int ft_stoi(const std::string &);
