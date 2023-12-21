@@ -25,6 +25,7 @@
 #include <utility>
 #include <vector>
 #include <stdlib.h>
+#include <cstdio>
 #include "../Server.hpp"
 #include "../utils/server_utils.hpp"
 #include "../utils/webserv_utils.hpp"
@@ -33,7 +34,7 @@
 #include "../messages/Response.hpp"
 
 #define DISPLAY_SERVERS false
-#define DISPLAY_REQUEST false
+#define DISPLAY_REQUEST true
 #define DISPLAY_SERVER_FOR_REQUEST false
 #define DISPLAY_LOCATION_FOR_REQUEST false
 #define DISPLAY_RESPONSE false

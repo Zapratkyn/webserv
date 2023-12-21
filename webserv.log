@@ -3546,3 +3546,500 @@ Thu Dec 21 15:12:32 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to
 Thu Dec 21 15:12:32 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
 Thu Dec 21 15:12:32 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
 Thu Dec 21 15:12:41 2023 - Webserv stopped
+Thu Dec 21 15:36:50 2023 - Webserv started
+Thu Dec 21 15:36:52 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:36:52 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:36:52 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:36:52 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:36:53 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 5
+Thu Dec 21 15:36:53 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:36:53 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:36:53 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:36:53 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:36:54 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 15:36:54 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:36:54 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:36:54 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:36:54 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:36:56 2023 - : Reponse ( www/server00/errors/404.html ) sent to socket 5
+Thu Dec 21 15:37:23 2023 - Webserv stopped
+Thu Dec 21 15:37:27 2023 - Webserv started
+Thu Dec 21 15:37:29 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:37:29 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:37:29 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:37:29 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:37:29 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 5
+Thu Dec 21 15:37:29 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:37:29 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:37:29 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:37:29 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:37:30 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 15:37:30 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:37:30 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:37:30 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:37:30 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:37:37 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:37:37 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:37:38 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:37:38 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:37:41 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 15:37:41 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:37:41 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:37:41 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:37:41 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:37:43 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 15:38:23 2023 - Webserv stopped
+Thu Dec 21 15:38:27 2023 - Webserv started
+Thu Dec 21 15:38:30 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:38:30 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:38:30 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:38:30 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:38:31 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 5
+Thu Dec 21 15:38:31 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:38:31 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:38:31 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:38:31 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:38:32 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 15:38:32 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:38:32 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:38:32 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:38:32 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:39:17 2023 - Webserv stopped
+Thu Dec 21 15:39:36 2023 - Webserv started
+Thu Dec 21 15:39:38 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:39:38 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:39:38 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:39:38 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:39:38 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 5
+Thu Dec 21 15:39:38 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:39:38 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:39:38 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:39:38 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:39:39 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 15:39:39 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:39:39 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:39:39 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:39:39 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:39:43 2023 - : Reponse ( www/server00/errors/404.html ) sent to socket 5
+Thu Dec 21 15:40:06 2023 - Webserv stopped
+Thu Dec 21 15:40:48 2023 - Webserv started
+Thu Dec 21 15:40:52 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:40:52 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:40:52 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:40:52 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:40:54 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 15:40:54 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:40:54 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:40:54 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:40:54 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:40:56 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 15:41:07 2023 - : Reponse ( www/server00/errors/404.html ) sent to socket 5
+Thu Dec 21 15:41:11 2023 - Webserv stopped
+Thu Dec 21 15:48:09 2023 - Webserv started
+Thu Dec 21 15:48:11 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:48:11 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:48:11 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:48:11 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:48:11 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 5
+Thu Dec 21 15:48:11 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:48:11 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:48:11 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:48:11 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:48:12 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 15:48:12 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:48:12 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:48:12 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:48:12 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:48:14 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 15:48:22 2023 - : Reponse ( www/server00/download.cgi ) sent to socket 5
+Thu Dec 21 15:48:49 2023 - Webserv stopped
+Thu Dec 21 15:48:49 2023 - : Reponse ( www/server00/download.cgi ) sent to socket 5
+Thu Dec 21 15:48:49 2023 - Webserv stopped
+Thu Dec 21 15:52:46 2023 - Webserv started
+Thu Dec 21 15:52:48 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:52:48 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:52:48 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:52:48 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:52:49 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 5
+Thu Dec 21 15:52:49 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:52:49 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:52:49 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:52:49 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:52:50 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 15:52:50 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:52:50 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:52:50 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:52:50 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:52:55 2023 - : Reponse ( www/server00/doznload.cgi ) sent to socket 5
+Thu Dec 21 15:53:04 2023 - Webserv stopped
+Thu Dec 21 15:53:40 2023 - Webserv started
+Thu Dec 21 15:53:44 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:53:44 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:53:45 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:53:45 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:53:46 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 15:53:46 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:53:46 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 15:53:46 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:53:46 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 15:53:50 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 15:53:57 2023 - : Reponse ( www/server00/assets/favicon.ico/download.cgi ) sent to socket 5
+Thu Dec 21 15:54:02 2023 - Webserv stopped
+Thu Dec 21 15:54:02 2023 - : Reponse ( www/server00/assets/favicon.ico/download.cgi ) sent to socket 5
+Thu Dec 21 15:54:02 2023 - Webserv stopped
+Thu Dec 21 16:18:50 2023 - Webserv started
+Thu Dec 21 16:18:52 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:18:53 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:18:53 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:18:53 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:18:53 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 5
+Thu Dec 21 16:18:53 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:18:53 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:18:53 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:18:53 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:18:54 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:18:54 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:18:54 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:18:54 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:18:54 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:18:55 2023 - : Reponse ( www/server00/assets/favicon.ico/download.cgi ) sent to socket 5
+Thu Dec 21 16:19:03 2023 - : Reponse ( www/server00/assets/favicon.ico/download.cgi ) sent to socket 6
+Thu Dec 21 16:19:06 2023 - : Reponse ( www/server00/assets/favicon.ico/download.cgi ) sent to socket 7
+Thu Dec 21 16:19:29 2023 - 7: connection closed by client
+Thu Dec 21 16:19:29 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 8
+Thu Dec 21 16:19:29 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 8
+Thu Dec 21 16:19:29 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 8
+Thu Dec 21 16:19:29 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 8
+Thu Dec 21 16:19:30 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 8
+Thu Dec 21 16:19:30 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 8
+Thu Dec 21 16:19:30 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 8
+Thu Dec 21 16:19:30 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 8
+Thu Dec 21 16:19:30 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 8
+Thu Dec 21 16:19:45 2023 - Webserv stopped
+Thu Dec 21 16:19:45 2023 - : Reponse ( www/server00/assets/favicon.ico/download.cgi ) sent to socket 6
+Thu Dec 21 16:19:45 2023 - Webserv stopped
+Thu Dec 21 16:19:45 2023 - : Reponse ( www/server00/assets/favicon.ico/download.cgi ) sent to socket 5
+Thu Dec 21 16:19:45 2023 - Webserv stopped
+Thu Dec 21 16:19:50 2023 - Webserv started
+Thu Dec 21 16:19:51 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 5
+Thu Dec 21 16:19:51 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:19:51 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:19:51 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:19:51 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:19:52 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:19:55 2023 - 5: connection closed by client
+Thu Dec 21 16:19:58 2023 - Webserv stopped
+Thu Dec 21 16:19:58 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:19:58 2023 - Webserv stopped
+Thu Dec 21 16:20:32 2023 - Webserv started
+Thu Dec 21 16:20:33 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 5
+Thu Dec 21 16:20:33 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:20:33 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:20:33 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:20:33 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:20:36 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:20:39 2023 - Webserv stopped
+Thu Dec 21 16:20:39 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:20:39 2023 - Webserv stopped
+Thu Dec 21 16:22:04 2023 - Webserv started
+Thu Dec 21 16:22:05 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:22:05 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:22:05 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:22:05 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:22:06 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 5
+Thu Dec 21 16:22:06 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:22:06 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:22:06 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:22:06 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:22:07 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:22:07 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:22:07 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:22:07 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:22:07 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:22:11 2023 - : Reponse ( www/server00/assets/favicon.ico/download.cgi ) sent to socket 5
+Thu Dec 21 16:22:16 2023 - Webserv stopped
+Thu Dec 21 16:22:16 2023 - : Reponse ( www/server00/assets/favicon.ico/download.cgi ) sent to socket 5
+Thu Dec 21 16:22:16 2023 - Webserv stopped
+Thu Dec 21 16:24:32 2023 - Webserv started
+Thu Dec 21 16:24:35 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:24:35 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:24:35 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:24:35 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:24:36 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 5
+Thu Dec 21 16:24:36 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:24:36 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:24:36 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:24:36 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:24:37 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:24:39 2023 - 5: connection closed by client
+Thu Dec 21 16:24:41 2023 - Webserv stopped
+Thu Dec 21 16:24:41 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:24:41 2023 - Webserv stopped
+Thu Dec 21 16:25:05 2023 - Webserv started
+Thu Dec 21 16:25:07 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 5
+Thu Dec 21 16:25:07 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:25:07 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:25:07 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:25:07 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:25:10 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:25:23 2023 - Webserv stopped
+Thu Dec 21 16:25:23 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:25:23 2023 - Webserv stopped
+Thu Dec 21 16:25:50 2023 - Webserv started
+Thu Dec 21 16:25:52 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:25:52 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:25:52 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:25:52 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:25:52 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 5
+Thu Dec 21 16:25:52 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:25:52 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:25:52 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:25:52 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:25:53 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:25:53 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:25:53 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:25:53 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:25:53 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:26:26 2023 - : Reponse ( www/server00/assets/favicon.ico/download.cgi ) sent to socket 5
+Thu Dec 21 16:26:35 2023 - Webserv stopped
+Thu Dec 21 16:26:35 2023 - : Reponse ( www/server00/assets/favicon.ico/download.cgi ) sent to socket 5
+Thu Dec 21 16:26:35 2023 - Webserv stopped
+Thu Dec 21 16:29:37 2023 - Webserv started
+Thu Dec 21 16:29:41 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:29:41 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:29:41 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:29:41 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:29:41 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 5
+Thu Dec 21 16:29:41 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:29:41 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:29:42 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:29:42 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:29:42 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:29:45 2023 - 5: connection closed by client
+Thu Dec 21 16:29:52 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 5
+Thu Dec 21 16:29:52 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:29:52 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:29:57 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:29:57 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:29:57 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 6
+Thu Dec 21 16:29:57 2023 - 5: Error while reading request. Client dismissed.
+Thu Dec 21 16:29:57 2023 - 6: Error while reading request. Client dismissed.
+Thu Dec 21 16:29:57 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 7
+Thu Dec 21 16:29:57 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 8
+Thu Dec 21 16:29:57 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 9
+Thu Dec 21 16:29:57 2023 - 9: Error while reading request. Client dismissed.
+Thu Dec 21 16:30:02 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 7
+Thu Dec 21 16:30:02 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 7
+Thu Dec 21 16:30:02 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 7
+Thu Dec 21 16:30:02 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 7
+Thu Dec 21 16:30:03 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 7
+Thu Dec 21 16:30:06 2023 - 7: connection closed by client
+Thu Dec 21 16:30:08 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 8
+Thu Dec 21 16:30:08 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 8
+Thu Dec 21 16:30:08 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 8
+Thu Dec 21 16:30:08 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 8
+Thu Dec 21 16:30:18 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 8
+Thu Dec 21 16:30:20 2023 - 8: connection closed by client
+Thu Dec 21 16:30:22 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 5
+Thu Dec 21 16:30:22 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:30:22 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:30:22 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:30:25 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:30:30 2023 - 5: connection closed by client
+Thu Dec 21 16:30:32 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 5
+Thu Dec 21 16:30:32 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:30:32 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:30:32 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:30:41 2023 - Webserv stopped
+Thu Dec 21 16:30:41 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:30:41 2023 - Webserv stopped
+Thu Dec 21 16:30:41 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 8
+Thu Dec 21 16:30:41 2023 - Webserv stopped
+Thu Dec 21 16:30:41 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 7
+Thu Dec 21 16:30:41 2023 - Webserv stopped
+Thu Dec 21 16:30:41 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:30:41 2023 - Webserv stopped
+Thu Dec 21 16:31:35 2023 - Webserv started
+Thu Dec 21 16:31:37 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 5
+Thu Dec 21 16:31:37 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:31:37 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:31:37 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:31:40 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:31:40 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:31:40 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:31:40 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:31:40 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:31:50 2023 - : Reponse ( www/server00/assets/favicon.ico/download.cgi ) sent to socket 5
+Thu Dec 21 16:31:59 2023 - Webserv stopped
+Thu Dec 21 16:31:59 2023 - : Reponse ( www/server00/assets/favicon.ico/download.cgi ) sent to socket 5
+Thu Dec 21 16:31:59 2023 - Webserv stopped
+Thu Dec 21 16:32:53 2023 - Webserv started
+Thu Dec 21 16:33:39 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:33:39 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:33:39 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:33:39 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:33:42 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:33:43 2023 - 5: connection closed by client
+Thu Dec 21 16:33:44 2023 - Webserv stopped
+Thu Dec 21 16:33:44 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:33:44 2023 - Webserv stopped
+Thu Dec 21 16:33:46 2023 - Webserv started
+Thu Dec 21 16:33:48 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 5
+Thu Dec 21 16:33:48 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:33:48 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:33:48 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:33:48 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:33:49 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:33:51 2023 - 5: connection closed by client
+Thu Dec 21 16:33:52 2023 - Webserv stopped
+Thu Dec 21 16:33:52 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:33:52 2023 - Webserv stopped
+Thu Dec 21 16:33:59 2023 - Webserv started
+Thu Dec 21 16:34:01 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 5
+Thu Dec 21 16:34:01 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:34:01 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:34:01 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:34:01 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:34:02 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:34:03 2023 - 5: connection closed by client
+Thu Dec 21 16:34:04 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 5
+Thu Dec 21 16:34:04 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:34:04 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:34:04 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:34:04 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:34:05 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 5
+Thu Dec 21 16:34:05 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:34:05 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:34:05 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:34:05 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:34:06 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 5
+Thu Dec 21 16:34:06 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:34:06 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:34:06 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:34:06 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:34:33 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:34:34 2023 - 5: connection closed by client
+Thu Dec 21 16:34:36 2023 - Webserv stopped
+Thu Dec 21 16:34:36 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:34:36 2023 - Webserv stopped
+Thu Dec 21 16:34:36 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:34:36 2023 - Webserv stopped
+Thu Dec 21 16:34:54 2023 - Webserv started
+Thu Dec 21 16:34:58 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 5
+Thu Dec 21 16:34:58 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:34:58 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:34:59 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:34:59 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:34:59 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:35:00 2023 - 5: connection closed by client
+Thu Dec 21 16:35:02 2023 - Webserv stopped
+Thu Dec 21 16:35:02 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:35:02 2023 - Webserv stopped
+Thu Dec 21 16:41:48 2023 - Webserv started
+Thu Dec 21 16:41:51 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 5
+Thu Dec 21 16:41:51 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:41:51 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:41:51 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:41:51 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:41:54 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:41:54 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:41:54 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:41:54 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:41:54 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:41:59 2023 - : Reponse ( www/server00/assets/favicon.ico/download.cgi ) sent to socket 5
+Thu Dec 21 16:42:05 2023 - Webserv stopped
+Thu Dec 21 16:42:32 2023 - Webserv started
+Thu Dec 21 16:42:36 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:42:36 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:42:36 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:42:36 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:42:36 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 5
+Thu Dec 21 16:42:36 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:42:36 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:42:36 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:42:36 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:42:37 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:42:37 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:42:37 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:42:37 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:42:37 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:42:39 2023 - : Reponse ( www/server00/assets/favicon.ico/download.cgi ) sent to socket 5
+Thu Dec 21 16:42:43 2023 - Webserv stopped
+Thu Dec 21 16:43:10 2023 - Webserv started
+Thu Dec 21 16:43:16 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:43:16 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:43:16 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:43:16 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:43:17 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 5
+Thu Dec 21 16:43:17 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:43:17 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:43:17 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:43:17 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:43:18 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:43:18 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:43:18 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:43:18 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:43:18 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:43:19 2023 - : Reponse ( www/server00/assets/favicon.ico/download.cgi ) sent to socket 5
+Thu Dec 21 16:43:49 2023 - Webserv stopped
+Thu Dec 21 16:44:18 2023 - Webserv started
+Thu Dec 21 16:44:21 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:44:21 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:44:21 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:44:21 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:44:21 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 5
+Thu Dec 21 16:44:21 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:44:21 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:44:21 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:44:21 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:44:22 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:44:22 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:44:22 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:44:22 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:44:22 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:44:23 2023 - : Reponse ( www/server00/assets/favicon.ico/download.cgi ) sent to socket 5
+Thu Dec 21 16:44:35 2023 - Webserv stopped
+Thu Dec 21 16:46:53 2023 - Webserv started
+Thu Dec 21 16:46:56 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:46:56 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:46:56 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:46:56 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:46:56 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 5
+Thu Dec 21 16:46:56 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:46:56 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:46:56 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:46:56 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:46:57 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:46:57 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:46:57 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:46:57 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:46:57 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:46:58 2023 - : Reponse ( www/server00/assets/favicon.ico/download.cgi ) sent to socket 5
+Thu Dec 21 16:47:05 2023 - Webserv stopped
+Thu Dec 21 16:47:30 2023 - Webserv started
+Thu Dec 21 16:47:33 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:47:33 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:47:33 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:47:33 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:47:34 2023 - : Reponse ( www/server00/pages/test.html ) sent to socket 5
+Thu Dec 21 16:47:34 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:47:34 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:47:34 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:47:34 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:47:35 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:47:35 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:47:35 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:47:35 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:47:35 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:47:35 2023 - : Reponse ( www/server00/assets/favicon.ico/download.cgi ) sent to socket 5
+Thu Dec 21 16:47:46 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:47:46 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:47:46 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:47:46 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:47:50 2023 - : Reponse ( www/server00/upload.cgi ) sent to socket 5
+Thu Dec 21 16:47:50 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:47:50 2023 - : Reponse ( www/server00/assets/favicon.ico ) sent to socket 5
+Thu Dec 21 16:47:50 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:47:50 2023 - : Reponse ( www/server00/assets/stylesheet.css ) sent to socket 5
+Thu Dec 21 16:47:54 2023 - : Reponse ( www/server00/assets/favicon.ico/download.cgi ) sent to socket 5
+Thu Dec 21 16:49:41 2023 - Webserv stopped

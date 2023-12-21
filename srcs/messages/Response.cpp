@@ -83,8 +83,9 @@ bool Response::handleCgi()
 {
 	std::string cgi = &_resource_path[_resource_path.rfind('/') + 1];
 	std::string socket = ft_to_string(_request->_socket);
+	std::string buff_size = ft_to_string(BUFFER_SIZE);
 	std::ofstream tmp;
-	char *argv[1];
+	char *argv[4];
 	int pid;
 
 	// Check if the method matches the cgi called
@@ -100,22 +101,25 @@ bool Response::handleCgi()
 		return false;
 	}
 
-	tmp.open("tmp", std::ofstream::trunc | std::ofstream::binary);
-	if (tmp.fail())
+	if (_request->getMethod() == "POST")
 	{
-		_status_code = 500;
-		return false;
+		tmp.open("tmp", std::ofstream::trunc | std::ofstream::binary);
+		if (tmp.fail())
+		{
+			_status_code = 500;
+			return false;
+		}
+		tmp << _request->_request;
+		tmp.close();
 	}
 
 	cgi.insert(0, "www/cgi-bin/");
 	socket.insert(0, "SOCKET=");
-
-	// Put the whole request (headers and body) in a temporary file
-	tmp << _request->_request;
-
-	tmp.close();
-
+	buff_size.insert(0, "BUFFER_SIZE=");
 	argv[0] = strdup(socket.c_str());
+	argv[1] = strdup(buff_size.c_str());
+	argv[2] = strdup(_request->_request_target.c_str());
+	argv[3] = NULL;
 
 	pid = fork();
 
@@ -125,6 +129,8 @@ bool Response::handleCgi()
 	waitpid(pid, &_status_code, 0);
 
 	free(argv[0]);
+	free(argv[1]);
+	free(argv[2]);
 
 	return true;
 }
