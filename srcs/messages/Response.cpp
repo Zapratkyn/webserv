@@ -396,10 +396,13 @@ void Response::_doGet()
 
 	if (isValidDirectory(_resource_path) && location.autoindex == "on")
 	{
-		if (isValidFile(_resource_path + location.index))
+		std::string dir_path(_resource_path);
+		if (dir_path[dir_path.size() - 1] != '/')
+			dir_path += '/';
+		if (isValidFile(dir_path + location.index))
 		{
-			if (access((_resource_path + location.index).c_str(), R_OK) == 0)
-				_resource_path += location.index;
+			if (access((dir_path + location.index).c_str(), R_OK) == 0)
+				_resource_path = dir_path + location.index;
 			else
 			{
 				_resource_path.clear();
@@ -417,6 +420,7 @@ void Response::_doGet()
 		{
 			if (_request->_request_target[_request->_request_target.size() - 1] != '/')
 				_request->_request_target += '/';
+			_resource_path = dir_path;
 			_dir_listing = true;
 		}
 	}
