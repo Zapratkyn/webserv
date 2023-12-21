@@ -26,6 +26,8 @@ static std::map<std::string, std::string> getMethodMatches()
 	std::map<std::string, std::string> m;
 	m["upload.cgi"] = "POST";
 	m["download.cgi"] = "GET";
+	m["delete.cgi"] = "DELETE";
+	m["createNewPage.cgi"] = "POST";
 	return m;
 }
 
