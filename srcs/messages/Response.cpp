@@ -25,6 +25,7 @@ static std::map<std::string, std::string> getMethodMatches()
 {
 	std::map<std::string, std::string> m;
 	m["upload.cgi"] = "POST";
+	m["download.cgi"] = "GET";
 	return m;
 }
 
@@ -81,7 +82,6 @@ bool Response::handleCgi()
 	std::string cgi = &_resource_path[_resource_path.rfind('/') + 1];
 	std::string socket = ft_to_string(_request->_socket);
 	std::ofstream tmp;
-	std::string len = *_request->getHeaders().at("Content-Length").begin();
 	char *argv[1];
 	int pid;
 
@@ -90,7 +90,7 @@ bool Response::handleCgi()
 		_status_code = 405;
 		return false;
 	}
-	if (ft_stoi(len) > _request->_server->getBodySize())
+	if (_request->getHeaders().count("Content-Length") == 1 && ft_stoi(*_request->getHeaders().at("Content-Length").begin()) > _request->_server->getBodySize())
 	{
 		_status_code = 413;
 		return false;
@@ -124,7 +124,7 @@ bool Response::handleCgi()
 	return true;
 }
 
-void Response::buildMessage()
+bool Response::buildMessage()
 {
 	std::string extension, message;
 
@@ -140,8 +140,13 @@ void Response::buildMessage()
 			_resource_path.clear();
 			_buildErrorBody();
 		}
-		else if (extension == ".cgi" && !handleCgi())
-			_buildErrorBody();
+		else if (extension == ".cgi")
+		{
+			if (handleCgi())
+				return false;
+			else
+				_buildErrorBody();
+		}
 		else if (!_retrieveMessageBody(_resource_path))
 			_buildErrorBody();
 		else
@@ -157,6 +162,7 @@ void Response::buildMessage()
 		std::cout << *this << std::endl;
 		std::cout << "*****************************************" << std::endl << std::endl;
 	}
+	return true;
 }
 
 void Response::_buildStatusLine()

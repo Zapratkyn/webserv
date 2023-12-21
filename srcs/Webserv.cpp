@@ -245,8 +245,8 @@ void Webserv::sendResponses(fd_set &writefds)
 			{
 				// TODO handle Client based on method if _error_status is not set in the Client;
 				(*it)->parseRequest((*it)->_request);
-				(*it)->_response->buildMessage();
-				(*it)->_response->sendMessage();
+				if ((*it)->_response->buildMessage())
+					(*it)->_response->sendMessage();
 				// TODO what with chunked Clients?
 				log("", socket, (*it)->_response->getResourcePath(), 3);
 				if ((*it)->_headers.count("Connection") &&

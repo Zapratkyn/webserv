@@ -12,7 +12,7 @@ class Response
 	Response(const Response &src);
 	Response &operator=(const Response &rhs);
 	virtual ~Response();
-	void buildMessage();
+	bool buildMessage();
 	void sendMessage();
 	const std::string &getResourcePath() const;
 	friend std::ostream &operator<<(std::ostream &o, const Response &rhs);
