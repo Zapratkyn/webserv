@@ -244,7 +244,7 @@ void Webserv::sendResponses(fd_set &writefds)
 			try
 			{
 				// TODO handle Client based on method if _error_status is not set in the Client;
-				(*it)->parseRequest((*it)->_request);
+				// (*it)->parseRequest((*it)->_request);
 				if ((*it)->_response->buildMessage())
 					(*it)->_response->sendMessage();
 				// TODO what with chunked Clients?

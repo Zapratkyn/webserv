@@ -17,7 +17,6 @@ class Request
 	bool operator==(const Request &rhs) const;
 
 	bool retrieveRequest();
-	void parseRequest(std::string buffer);
 	void getPotentialServers(std::vector<Server *> &, struct sockaddr_in &);
 
 	int getSocket() const;
@@ -61,6 +60,7 @@ class Request
 	std::string _server_location;
 	Response *_response;
 
+	void _parseRequest();
 	void _parseRequestLine(const std::string &line);
 	void _parseHeader(const std::string &line);
 	void _retrieveBodyInfo();

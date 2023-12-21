@@ -101,9 +101,9 @@ void Request::_parseBody(std::stringstream &ss)
 		; // TODO parse function for chunked body
 }
 
-void Request::parseRequest(std::string buffer)
+void Request::_parseRequest()
 {
-	std::stringstream ss(buffer);
+	std::stringstream ss(_request);
 	std::string line;
 
 	getline(ss, line);
@@ -257,6 +257,9 @@ bool Request::retrieveRequest()
 
 	for (std::vector<char>::iterator it = buffer.begin(); it != buffer.end(); it++)
 		_request.append(1, *it);
+
+	if (*_request.rbegin() == '\0')
+		_parseRequest();
 
 	if (DISPLAY_REQUEST)
 	{
