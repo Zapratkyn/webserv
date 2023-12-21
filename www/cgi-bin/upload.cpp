@@ -4,27 +4,25 @@
 #include <vector>
 #include <map>
 #include <sys/socket.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 int ft_stoi(std::string);
-void errorPage(std::string &);
-void successPage(std::string &);
-std::map<std::string, std::string> getExtensions();
+std::string successPage();
 std::string getFilename(std::string &);
 void trim(std::string &);
 std::string getBoundary(std::string &);
 void fileOnly(std::string &, std::string &);
-int findStartOfFile(std::string &);
+int findStartOfFile(std::string &, std::string &);
 
 int main(int argc, char **argv, char **env)
 {
-	std::ifstream infile(argv[0], std::ifstream::in | std::ifstream::binary);
+	std::ifstream infile("tmp", std::ifstream::in | std::ifstream::binary);
 	std::ofstream outfile;
-	std::string file, filename, boundary, size;
-	std::string message = "Connection: keep-alive\r\nContent-Length: \r\nContent-Type: text/html\r\n\r\n";
-	std::string body_size(env[0]), socket(env[1]);
-	std::map<std::string, std::string> extensions = getExtensions();
+	std::string file, filename, boundary, message;
+	std::string socket(argv[0]);
 	char c;
-	int file_size, pos;
+	int pos, sock;
 
 	while (true)
 	{
@@ -33,46 +31,26 @@ int main(int argc, char **argv, char **env)
 		infile.read(&c, 1);
 		file.append(1, c);
 	}
+	infile.close();
 
-	std::cout << file << std::endl;
+	sock = ft_stoi(&socket[socket.find_first_of("=") + 1]);
 
-	size = &file[file.find("Content-Length: ") + 16];
-	size = size.substr(0, size.find_first_of("\r\n"));
-	file_size = ft_stoi(size);
+	boundary = getBoundary(file);
+	boundary.insert(0, "--");
+	filename = getFilename(file);
+	filename.insert(0, "www/uploads/");
+	pos = findStartOfFile(file, boundary);
+	file.erase(0, pos);
+	file.erase(file.find(boundary) - 4, file.npos);
 
-	if (file_size > ft_stoi(&body_size[body_size.find_first_of("=") + 1]))
-		errorPage(message);
-	else
-	{
-		boundary = getBoundary(file);
-		boundary.insert(0, "--");
-		filename = getFilename(file);
-		filename.insert(0, "../uploads/");
-		pos = findStartOfFile(file);
-		infile.seekg(0, infile.beg);
-		infile.seekg(pos);
-		file.clear();
-		for (int i = 0; i < file_size; i++)
-		{
-			infile.read(&c, 1);
-			std::cout << c;
-			file.append(1, c);
-		}
+	outfile.open(filename, std::ofstream::out | std::ofstream::trunc | std::ofstream::binary);
+	outfile << file;
+	outfile.close();
+	unlink("tmp");
 
-		std::cout << file << std::endl;
+	message = successPage();
 
-		std::cout << file << std::endl;
-
-		outfile.open(filename, std::ofstream::out | std::ofstream::trunc | std::ofstream::binary);
-
-		outfile << file;
-
-		outfile.close();
-
-		successPage(message);
-	}
-
-	send(ft_stoi(&socket[socket.find_first_of("=") + 1]), message.c_str(), message.size(), 0);
+	send(sock, message.c_str(), message.size(), 0);
 
 	return 0;
 }
@@ -102,31 +80,9 @@ std::string ft_to_string(int nb)
 	return ch;
 }
 
-void errorPage(std::string &message)
+std::string successPage()
 {
-	std::string html;
-	std::stringstream ss;
-	ss << "<!DOCTYPE html>"
-	      "<html>\n"
-	      "<head><title>"
-	      << 413
-	      << " Content Too Large"
-	             "</title></head>\n"
-	             "<body>\n"
-	             "<center><h1>"
-	      << 413
-	      << " Content Too Large"
-	             "</h1></center>\n"
-	             "</body>\n"
-	             "</html>";
-	html = ss.str();
-	message.insert(0, "HTTP/1.1 413 Content Too Large\r\n");
-	message.insert(message.find("\r\nContent-Type"), ft_to_string(html.size()));
-}
-
-void successPage(std::string &message)
-{
-	std::string html;
+	std::string html, message = "HTTP/1.1 200 OK\r\nConnection: keep-alive\r\nContent-Length: \r\nContent-Type: text/html\r\n\r\n";
 	std::stringstream ss;
 	ss << "<!DOCTYPE html>"
 	      "<html>\n"
@@ -140,26 +96,9 @@ void successPage(std::string &message)
 	             "</body>\n"
 	             "</html>";
 	html = ss.str();
-	message.insert(0, "HTTP/1.1 200 OK\r\n");
 	message.insert(message.find("\r\nContent-Type"), ft_to_string(html.size()));
-}
-
-std::map<std::string, std::string> getExtensions()
-{
-	std::map<std::string, std::string> ext;
-	ext["text/html"] = ".html";
-	ext["text/htm"] = ".htm";
-	ext["audio/x-wav"] = ".wav";
-	ext["image/gif"] = ".gif";
-	ext["image/jpeg"] = ".peg";
-	ext["image/jpg"] = ".jpeg";
-	ext["image/png"] = ".png";
-	ext["image/x-icon"] = ".ico";
-	ext["text/css"] = ".css";
-	ext["text/csv"] = ".csv";
-	ext["video/mp4"] = ".mp4";
-	ext["application/pdf"] = ".pdf";
-	return ext;
+	message.append(html);
+	return message;
 }
 
 std::string getFilename(std::string &file)
@@ -190,11 +129,11 @@ void fileOnly(std::string &file, std::string &boundary)
 	file = file.substr(0, file.find(boundary));
 }
 
-int findStartOfFile(std::string &file)
+int findStartOfFile(std::string &file, std::string &boundary)
 {
 	int pos = 0;
 
-	pos = file.find("\r\n\r\n") + 4;
+	pos = file.find(boundary) + boundary.size();
 	pos = file.find("\r\n\r\n", pos) + 4;
 
 	return pos;

@@ -38,6 +38,7 @@ class Response
 	std::string _headersAsString;
 	std::string _body;
 	std::string _message;
+	static std::map<std::string, std::string> _methodMatches;
 
 	bool _chunked_response;
 
@@ -53,7 +54,7 @@ class Response
 	bool _buildCustomErrorBody();
 
 	void _chunkReponse();
-	void handleCgi();
+	bool handleCgi();
 };
 
 #endif

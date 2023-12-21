@@ -21,7 +21,15 @@ static std::map<int, std::string> getStatusCodes()
 	return m;
 }
 
+static std::map<std::string, std::string> getMethodMatches()
+{
+	std::map<std::string, std::string> m;
+	m["upload.cgi"] = "POST";
+	return m;
+}
+
 std::map<int, std::string> Response::_all_status_codes = getStatusCodes();
+std::map<std::string, std::string> Response::_methodMatches = getMethodMatches();
 
 Response::Response(Request *request)
     : _request(request), _status_code(request->_error_status), _http_version("HTTP/1.1"), _content_length(0),
@@ -68,36 +76,45 @@ static bool checkPermissions(const std::string &path, bool read, bool write, boo
 	return true;
 }
 
-void Response::handleCgi()
+bool Response::handleCgi()
 {
-	std::string cgi = &_resource_path[_resource_path.rfind('/')];
-	std::string size = ft_to_string(_request->_server->getBodySize());
+	std::string cgi = &_resource_path[_resource_path.rfind('/') + 1];
 	std::string socket = ft_to_string(_request->_socket);
 	std::ofstream tmp("tmp", std::ofstream::trunc | std::ofstream::binary);
+	std::string len = *_request->getHeaders().at("Content-Length").begin();
 	char *argv[1];
-	char *env[2];
 	int pid;
 
-	cgi.insert(0, "www/cgi-bin");
-	size.insert(0, "BODY_SIZE=");
+	if (_methodMatches[cgi] != _request->_method)
+	{
+		_status_code = 405;
+		return false;
+	}
+	if (ft_stoi(len) > _request->_server->getBodySize())
+	{
+		_status_code = 413;
+		return false;
+	}
+
+	cgi.insert(0, "www/cgi-bin/");
 	socket.insert(0, "SOCKET=");
 
 	tmp << _request->_request;
 
-	argv[0] = strdup("tmp");
-	env[0] = strdup(size.c_str());
-	env[1] = strdup(socket.c_str());
+	tmp.close();
+
+	argv[0] = strdup(socket.c_str());
 
 	pid = fork();
 
 	if (!pid)
-		execve(cgi.c_str(), argv, env);
+		execve(cgi.c_str(), argv, NULL);
 
 	waitpid(pid, &_status_code, 0);
 
 	free(argv[0]);
-	free(env[0]);
-	free(env[1]);
+
+	return true;
 }
 
 void Response::buildMessage()
@@ -116,8 +133,8 @@ void Response::buildMessage()
 			_resource_path.clear();
 			_buildErrorBody();
 		}
-		else if (extension == ".cgi")
-			handleCgi();
+		else if (extension == ".cgi" && !handleCgi())
+			_buildErrorBody();
 		else if (!_retrieveMessageBody(_resource_path))
 			_buildErrorBody();
 		else

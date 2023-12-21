@@ -130,6 +130,11 @@ void Request::parseRequest(std::string buffer)
 				_parseBody(ss);
 				_validateParsedBody();
 			}
+			if (DISPLAY_REQUEST)
+			{
+				std::cout << "******* Request on socket " << _socket << " (Parsed) *******" << std::endl;
+				std::cout << *this;
+			}
 			return;
 		}
 		else
@@ -257,8 +262,6 @@ bool Request::retrieveRequest()
 	{
 		std::cout << "****** Request on socket " << _socket << " (Received) ******" << std::endl;
 		std::cout << _request << "[EOF]" << std::endl;
-		std::cout << "******* Request on socket " << _socket << " (Parsed) *******" << std::endl;
-		std::cout << *this;
 	}
 	return true;
 }

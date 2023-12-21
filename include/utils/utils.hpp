@@ -24,6 +24,7 @@
 #include <unistd.h>
 #include <utility>
 #include <vector>
+#include <stdlib.h>
 #include "../Server.hpp"
 #include "../utils/server_utils.hpp"
 #include "../utils/webserv_utils.hpp"
