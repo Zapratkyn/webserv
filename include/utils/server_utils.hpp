@@ -2,6 +2,8 @@
 #define __SERVER_UTILS_HPP__
 
 #include "utils.hpp"
+#include <string>
+#include <vector>
 
 struct t_location
 {

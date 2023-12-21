@@ -58,6 +58,8 @@ static bool isValidFile(const std::string &path)
 
 void Response::buildMessage()
 {
+//	if (UrlParser(_request->_request_target).file_extension == "cgi" && _status_code < 400)
+//		return ;
 	if (_status_code >= 400)
 		_buildErrorBody();
 	_buildStatusLine();
@@ -170,7 +172,7 @@ bool Response::_buildDirListing()
 
 	std::vector<std::string>::const_iterator cit;
 	for (cit = dir_entries.begin(); cit != dir_entries.end(); ++cit)
-		ss << "<a href=\"" + *cit + "\">" + *cit + "</a>\n";
+		ss << "<a href=\"" + UrlParser(_request->_request_target).path + *cit + "\">" + *cit + "</a>\n";
 
 	ss << "</pre><hr></body>\n"
 	      "</html>";
@@ -247,7 +249,7 @@ const std::string &Response::getResourcePath() const
 	return _resource_path;
 }
 
-void Response::_chunkReponse()
+void Response::_chunkResponse()
 {
 
 	size_t pos1 = _message.find("Content-Length"), pos2 = _message.find("\r\nContent-Type"), copied = 0;
@@ -297,8 +299,10 @@ void Response::_chunkReponse()
 
 void Response::sendMessage()
 {
+//	if (UrlParser(_request->_request_target).file_extension == "cgi" && _status_code < 400)
+//		return ;
 	if (_message.size() > BUFFER_SIZE)
-		_chunkReponse() ;
+		_chunkResponse() ;
 	ssize_t bytes_sent = send(_request->_socket, _message.c_str(), _message.size(), 0);
 	if (bytes_sent < 0)
 		throw Response::sendResponseException();
@@ -317,6 +321,8 @@ void Response::handleRequest()
 {
 	_setResourcePath();
 
+//	if (UrlParser(_request->_request_target).file_extension == "cgi")
+//		_handleCgi();
 	if (_request->_method == "GET")
 		_doGet();
 	else if (_request->_method == "POST")
@@ -408,7 +414,11 @@ void Response::_doGet()
 			return;
 		}
 		else
+		{
+			if (_request->_request_target[_request->_request_target.size() - 1] != '/')
+				_request->_request_target += '/';
 			_dir_listing = true;
+		}
 	}
 	else if (isValidFile(_resource_path))
 	{
@@ -440,10 +450,28 @@ void Response::_doPost()
 
 }
 
+static void removeDirectory(const std::string &dir_path)
+{
+	DIR *dir = opendir(dir_path.c_str());
+	struct dirent *entry = nullptr;
+	while ((entry = readdir(dir)))
+	{
+		std::string s(entry->d_name);
+		if (s != ".")
+		{
+			std::string entry_path(dir_path);
+			entry_path.append('/' + s);
+			if (entry->d_type == DT_DIR)
+				removeDirectory(entry_path);
+			else
+				std::remove(entry_path.c_str());
+		}
+	}
+	std::remove(dir_path.c_str());
+}
+
 void Response::_doDelete()
 {
-
-
 	if (isValidDirectory(_resource_path))
 	{
 		if (access(_resource_path.c_str(), W_OK | X_OK) < 0)
@@ -453,8 +481,12 @@ void Response::_doDelete()
 		}
 		else
 		{
-			//TODO how to delete a directory ????
-			_status_code = 204;
+			errno = 0;
+			removeDirectory(_resource_path);
+			if (!errno)
+				_status_code = 204;
+			else
+				_status_code = 500;
 		}
 	}
 	else if (isValidFile(_resource_path))
@@ -466,8 +498,10 @@ void Response::_doDelete()
 		}
 		else
 		{
-			std::remove(_resource_path.c_str());
-			_status_code = 204;
+			if (std::remove(_resource_path.c_str()) == 0)
+				_status_code = 204;
+			else
+				_status_code = 500;
 		}
 	}
 	else

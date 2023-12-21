@@ -1,4 +1,4 @@
-#include "../include/Webserv.hpp"
+#include "../../include/servers/Webserv.hpp"
 
 using namespace webserv_utils;
 
@@ -32,6 +32,13 @@ Webserv::~Webserv()
 		close((*it)->getSocket());
 		delete (*it);
 	}
+}
+
+void Webserv::run()
+{
+	parseConf();
+	startServer();
+	startListen();
 }
 
 
@@ -102,7 +109,6 @@ void Webserv::startServer()
 
 bool run_webserv = true;
 
-//TODO check relation signal handlers and blocking system calls
 static void sigHandler(int sig_num)
 {
 	if (sig_num == SIGINT)
@@ -116,34 +122,25 @@ void Webserv::startListen()
 
 	int select_return, max, step = 1;
 	fd_set readfds, writefds;
-	// struct timeval timer = {};
 
 	FD_ZERO(&writefds);
 	FD_ZERO(&readfds);
-	// timer.tv_sec = 1;
-	// timer.tv_usec = 0;
 
 	signal(SIGINT, sigHandler);
 
 	while (run_webserv)
 	{
 		errno = 0;
-		for (std::vector<int>::iterator it = _global_socket_list.begin(); it != _global_socket_list.end(); it++)
+		for (std::vector<int>::const_iterator it = _global_socket_list.begin(); it != _global_socket_list.end(); it++)
 			FD_SET(*it, &readfds);
 		max = *std::max_element(_global_socket_list.begin(), _global_socket_list.end()) + 1;
-		select_return = select(max, &readfds, &writefds, NULL, NULL);
+		select_return = select(max, &readfds, &writefds, nullptr, nullptr);
 		if (errno == EINTR)
 			break ;
 		if (select_return < 0)
-		{
-			std::cerr << "Select error";
+			throw std::runtime_error("Select error : " + std::string(strerror(errno)));
+		if (select_return == 0)
 			continue;
-		}
-		else if (select_return == 0)
-		{
-			std::cout << "Server is waiting ..." << std::endl;
-			continue;
-		}
 		if (step == 1)
 		{
 			step = 2;

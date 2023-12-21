@@ -1,9 +1,11 @@
 #ifndef __SERVER_HPP__
 #define __SERVER_HPP__
 
-#include "utils/utils.hpp"
-#include "utils/server_utils.hpp"
+#include "../utils/server_utils.hpp"
+#include "../utils/utils.hpp"
 #include "Webserv.hpp"
+#include <string>
+#include <map>
 
 struct t_location;
 
@@ -30,7 +32,7 @@ class Server
 	const std::vector<std::string> &getServerNames() const;
 	std::string getRoot() const;
 	std::string getIndex() const;
-	int getBodySize() const;
+	ssize_t getBodySize() const;
 	const std::map<std::string, t_location> &getLocationlist() const;
 	std::vector<struct sockaddr_in> getEndPoints() const;
 	const std::map<int, std::string> &getErrorPages() const;

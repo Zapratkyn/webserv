@@ -1,8 +1,8 @@
 # Project files
 NAME		=	webserv
 SRCS		=	srcs/main.cpp \
-                srcs/Server.cpp \
-                srcs/Webserv.cpp \
+                srcs/servers/Server.cpp \
+                srcs/servers/Webserv.cpp \
 				srcs/utils/webserv_utils.cpp \
 				srcs/utils/server_utils.cpp \
 				srcs/utils/utils.cpp \
@@ -11,8 +11,8 @@ SRCS		=	srcs/main.cpp \
 				srcs/messages/Response.cpp
 
 
-HEADERS		=	include/Webserv.hpp \
-				include/Server.hpp \
+HEADERS		=	include/servers/Webserv.hpp \
+				include/servers/Server.hpp \
 				include/utils/webserv_utils.hpp \
 				include/utils/server_utils.hpp \
 				include/utils/utils.hpp \

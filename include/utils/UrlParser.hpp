@@ -20,11 +20,13 @@ class UrlParser
 	std::string file_extension;
 	std::map<std::string, std::string> query_params;
 	static bool queryStringToParams(const std::string &string, std::map<std::string, std::string> &params);
+	std::string getFileType(std::string);
 
   private:
 	UrlParser();
 	UrlParser(const UrlParser &src);
-	UrlParser &operator=(const UrlParser &rhs);
+
+	static std::map<std::string, std::string> _all_file_types;
 };
 
 std::ostream &operator<<(std::ostream &o, const UrlParser &rhs);

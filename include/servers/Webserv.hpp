@@ -1,14 +1,13 @@
 #ifndef __WEBSERV_HPP__
 #define __WEBSERV_HPP__
 
-#include "utils/utils.hpp"
-#include "utils/webserv_utils.hpp"
-#include "utils/UrlParser.hpp"
-#include "messages/Request.hpp"
-#include "messages/Response.hpp"
+#include "../messages/Request.hpp"
+#include "../messages/Response.hpp"
+#include "../utils/UrlParser.hpp"
+#include "../utils/utils.hpp"
+#include "../utils/webserv_utils.hpp"
 #include <algorithm>
 #include <vector>
-
 
 class Request;
 
@@ -31,6 +30,7 @@ class Webserv
 	Webserv();
 	explicit Webserv(const std::string &);
 	~Webserv();
+	void run();
 	void startListen();
 	void startServer();
 	void parseConf();
@@ -65,22 +65,6 @@ class Webserv
 		virtual const char *what() const throw()
 		{
 			return "Configuration failure. Program stopped.";
-		}
-	};
-	class logError : public std::exception
-	{
-	  public:
-		virtual const char *what() const throw()
-		{
-			return "LOG ERROR.";
-		}
-	};
-	class redirectionListException : public std::exception
-	{
-	  public:
-		virtual const char *what() const throw()
-		{
-			return "Redirection list failure. Program stopped.";
 		}
 	};
 	class setSocketoptionException : public std::exception

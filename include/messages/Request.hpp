@@ -1,16 +1,16 @@
 #ifndef REQUEST_HPP
 #define REQUEST_HPP
 
-#include <iostream>
-#include <map>
-#include <vector>
+#include "../servers/Webserv.hpp"
 #include "../utils/utils.hpp"
 #include "../utils/webserv_utils.hpp"
+#include <iostream>
+#include <map>
 #include <utility>
-#include "../Webserv.hpp"
+#include <vector>
 
+#include "../servers/Server.hpp"
 #include "Response.hpp"
-#include "../Server.hpp"
 
 class Response;
 class Server;
@@ -35,6 +35,7 @@ class Request
 	const std::map<std::string, std::vector<std::string> >&getHeaders() const;
 	bool getValueOfHeader(const std::string &key, std::vector<std::string> &value) const;
 	const std::string &getBody() const;
+	const std::string &getRequest() const;
 	bool isChunkedRequest() const;
 	size_t getContentLength() const;
 	int getErrorStatus() const;
@@ -43,7 +44,7 @@ class Request
 	  public:
 		virtual const char *what() const throw()
 		{
-			return "Error while reading request";
+			return "Error while reading request. Client dismissed.";
 		}
 	};
 
@@ -54,8 +55,8 @@ class Request
   private:
 	Request();
 	int _socket;
-	std::string _method;
 	std::string _request;
+	std::string _method;
 	std::string _request_target;
 	std::string _http_version;
 	std::map<std::string, std::vector<std::string > > _headers;
@@ -68,7 +69,7 @@ class Request
 	std::string _server_location;
 	Response *_response;
 
-	void _parseRequest(const char *buffer, size_t size);
+	void _parseRequest();
 	void _parseRequestLine(const std::string &line);
 	void _parseHeader(const std::string &line);
 	void _retrieveBodyInfo();

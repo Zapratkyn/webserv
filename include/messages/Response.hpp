@@ -66,7 +66,7 @@ class Response
 	void _doPost();
 	void _doDelete();
 
-	void _chunkReponse();
+	void _chunkResponse();
 };
 
 #endif

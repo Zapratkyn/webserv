@@ -1,8 +1,10 @@
 #ifndef __UTILS_HPP__
 # define __UTILS_HPP__
 
+#include "../servers/Server.hpp"
 #include <algorithm>
 #include <arpa/inet.h>
+#include <csignal>
 #include <ctime>
 #include <dirent.h>
 #include <fcntl.h>
@@ -12,16 +14,14 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
-#include <csignal>
 #include <sstream>
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <vector>
-#include "../Server.hpp"
 
-#define DISPLAY_SERVERS false
+#define DISPLAY_SERVERS true
 #define DISPLAY_REQUEST false
 #define DISPLAY_SERVER_FOR_REQUEST false
 #define DISPLAY_LOCATION_FOR_REQUEST true

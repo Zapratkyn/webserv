@@ -14,7 +14,7 @@ Request::Request(int socket, const std::vector<Server *> &potential_servers)
 }
 
 Request::Request(const Request &src)
-    : _socket(src._socket), _method(src._method), _request(src._request), _request_target(src._request_target),
+    : _socket(src._socket), _request(src._request), _method(src._method), _request_target(src._request_target),
       _http_version(src._http_version), _headers(src._headers), _body(src._body), _error_status(src._error_status),
       _chunked_request(src._chunked_request), _content_length(src._content_length),
       _potential_servers(src._potential_servers), _server(src._server), _server_location(src._server_location),
@@ -39,7 +39,7 @@ Request &Request::operator=(const Request &rhs)
 	_server = rhs._server;
 	_server_location = rhs._server_location;
 	delete this->_response;
-	_response = rhs._response;
+	_response = new Response(this);
 	return *this;
 }
 
@@ -109,10 +109,10 @@ void Request::_parseBody(std::stringstream &ss)
 		; // TODO parse function for chunked body
 }
 
-void Request::_parseRequest(const char *buffer, size_t size)
+void Request::_parseRequest()
 {
 	std::stringstream ss;
-	ss.write(buffer, size);
+	ss.write(_request.c_str(), _request.size());
 
 	std::string line;
 	getline(ss, line);
@@ -273,24 +273,19 @@ bool Request::retrieveRequest()
 	bytes = recv(_socket, buffer, BUFFER_SIZE, 0);
 	if (bytes < 0)
 		throw Request::readRequestException();
-	else if (bytes == 0)
-	{
-		log("closed connection", _socket, "", 1);
+	if (bytes == 0)
 		return false;
-	}
+	for (ssize_t i(0); i < bytes; ++i)
+		_request += buffer[i];
 
-	_parseRequest(buffer, bytes);
+	_parseRequest();
 
-	if (DISPLAY_REQUEST)
-	{
-		std::cout << "****** Request on socket " << _socket << " (Received) ******" << std::endl;
-		for (ssize_t i(0); i < bytes; ++i)
-			std::cout << buffer[i];
-		std::cout << "[EOF]" << std::endl;
-		std::cout << "******* Request on socket " << _socket << " (Parsed) *******" << std::endl;
-		std::cout << *this;
-	}
-	return true;
+		if (DISPLAY_REQUEST)
+		{
+			std::cout << "****** Request on socket " << _socket << " (Received) ******" << std::endl;
+			std::cout << _request << "[EOF]" << std::endl;
+		}
+		return true;
 }
 
 int Request::getSocket() const
@@ -306,6 +301,11 @@ const std::string &Request::getMethod() const
 const std::string &Request::getRequestTarget() const
 {
 	return _request_target;
+}
+
+const std::string &Request::getRequest() const
+{
+	return _request;
 }
 
 const std::string &Request::getHTTPVersion() const

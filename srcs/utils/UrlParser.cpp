@@ -1,5 +1,31 @@
 #include "../../include/utils/UrlParser.hpp"
 
+std::map<std::string, std::string> getFileTypes()
+{
+	std::map<std::string, std::string> types;
+	types["html"] = "text/html";
+	types["htm"] = "text/html";
+	types["php"] = "text/html";
+	types["js"] = "application/javascript";
+	types["pdf"] = "application/pdf";
+	types["json"] = "application/json";
+	types["xml"] = "application/xml";
+	types["zip"] = "application/zip";
+	types["wav"] = "audio/x-wav";
+	types["gif"] = "image/gif";
+	types["jpeg"] = "image/jpeg";
+	types["jpg"] = "image/jpeg";
+	types["png"] = "image/png";
+	types["ico"] = "image/x-icon";
+	types["css"] = "text/css";
+	types["csv"] = "text/csv";
+	types["mp4"] = "video/mp4";
+	types["cgi"] = "cgi";
+	return types;
+}
+
+std::map<std::string, std::string> UrlParser::_all_file_types = getFileTypes();
+
 UrlParser::UrlParser(const std::string &url) : resource(url)
 {
 	size_t pos;
@@ -20,7 +46,7 @@ UrlParser::UrlParser(const std::string &url) : resource(url)
 	{
 		file_name = path.substr(path.find_last_of('/') + 1);
 		if ((pos = file_name.find('.')) != std::string::npos)
-			file_extension = file_name.substr(pos + 1);
+			file_extension = _all_file_types[(file_name.substr(pos + 1))];
 	}
 	if (file_name.empty() && directory.empty())
 		directory = "/";

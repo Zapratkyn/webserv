@@ -1,8 +1,10 @@
 #ifndef __WEBSERV_UTILS_HPP__
 #define __WEBSERV_UTILS_HPP__
 
+#include "../servers/Server.hpp"
 #include "utils.hpp"
-#include "../Server.hpp"
+#include <string>
+#include <map>
 
 class Server;
 
