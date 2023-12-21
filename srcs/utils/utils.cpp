@@ -11,6 +11,20 @@ std::string ft_pop_back(const std::string &str)
 	return result;
 }
 
+std::string ft_to_string(int nb)
+{
+	std::string result = "", ch;
+
+	while (nb > 0)
+	{
+		ch = nb % 10 + '0';
+		ch += result;
+		result = ch;
+		nb /= 10;
+	}
+	return ch;
+}
+
 std::string trim(const std::string &str)
 {
 	std::string result;

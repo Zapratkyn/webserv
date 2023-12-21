@@ -55,6 +55,7 @@ class Request
 	Request();
 	int _socket;
 	std::string _method;
+	std::string _request;
 	std::string _request_target;
 	std::string _http_version;
 	std::map<std::string, std::vector<std::string > > _headers;

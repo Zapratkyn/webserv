@@ -4,6 +4,7 @@ Request::Request(int socket)
     : _socket(socket), _error_status(0), _chunked_request(false), _content_length(0), _server(nullptr),
       _response(nullptr)
 {
+	_response = new Response(this);
 }
 
 Request::Request(int socket, const std::vector<Server *> &potential_servers)
@@ -13,7 +14,7 @@ Request::Request(int socket, const std::vector<Server *> &potential_servers)
 }
 
 Request::Request(const Request &src)
-    : _socket(src._socket), _method(src._method), _request_target(src._request_target),
+    : _socket(src._socket), _method(src._method), _request(src._request), _request_target(src._request_target),
       _http_version(src._http_version), _headers(src._headers), _body(src._body), _error_status(src._error_status),
       _chunked_request(src._chunked_request), _content_length(src._content_length),
       _potential_servers(src._potential_servers), _server(src._server), _server_location(src._server_location),
@@ -25,6 +26,7 @@ Request &Request::operator=(const Request &rhs)
 {
 	if (this == &rhs)
 		return *this;
+	_request = rhs._request;
 	_socket = rhs._socket;
 	_method = rhs._method;
 	_http_version = rhs._http_version;

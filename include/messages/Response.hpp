@@ -20,6 +20,14 @@ class Response
 	void sendMessage();
 	const std::string &getResourcePath() const;
 	friend std::ostream &operator<<(std::ostream &o, const Response &rhs);
+	class sendResponseException : public std::exception
+	{
+	  public:
+		virtual const char *what() const throw()
+		{
+			return "Error while sending response. Client dismissed.";
+		}
+	};
 
   private:
 	Response();
@@ -35,6 +43,7 @@ class Response
 	std::string _headersAsString;
 	std::string _body;
 	std::string _message;
+	static std::map<std::string, std::string> _methodMatches;
 
 	bool _chunked_response;
 	bool _dir_listing;
@@ -52,9 +61,12 @@ class Response
 	void _buildDefaultErrorBody();
 	bool _buildCustomErrorBody();
 
+	bool _handleCgi();
 	void _doGet();
 	void _doPost();
 	void _doDelete();
+
+	void _chunkReponse();
 };
 
 #endif

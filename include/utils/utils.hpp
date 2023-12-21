@@ -33,6 +33,7 @@
 
 std::string ft_pop_back(const std::string &);
 int ft_stoi(const std::string &);
+std::string ft_to_string(int);
 std::string trim(const std::string &);
 void log(const std::string &line, int client_fd, const std::string &url, int type);
 

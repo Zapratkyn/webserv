@@ -21,7 +21,18 @@ static std::map<int, std::string> getStatusCodes()
 	return m;
 }
 
+static std::map<std::string, std::string> getMethodMatches()
+{
+	std::map<std::string, std::string> m;
+	m["upload.cgi"] = "POST";
+	m["download.cgi"] = "GET";
+	m["delete.cgi"] = "DELETE";
+	m["createNewPage.cgi"] = "POST";
+	return m;
+}
+
 std::map<int, std::string> Response::_all_status_codes = getStatusCodes();
+std::map<std::string, std::string> Response::_methodMatches = getMethodMatches();
 
 Response::Response(Request *request)
     : _request(request), _status_code(request->_error_status), _http_version("HTTP/1.1"), _content_length(0),
@@ -236,12 +247,61 @@ const std::string &Response::getResourcePath() const
 	return _resource_path;
 }
 
+void Response::_chunkReponse()
+{
+
+	size_t pos1 = _message.find("Content-Length"), pos2 = _message.find("\r\nContent-Type"), copied = 0;
+	std::ifstream file(_resource_path, std::ifstream::binary);
+	std::stringstream converter;
+	std::vector<char> buffer;
+	char c;
+
+	_message.replace(pos1, pos2 - pos1, "Transfer-Encoding: chunked");
+	_body = "";
+
+	for (int i = 0; i < BUFFER_SIZE; i++)
+	{
+		if (file.eof())
+			break;
+		copied++;
+		file.read(&c, 1);
+		buffer.push_back(c);
+	}
+
+	while (copied > 0)
+	{
+		converter.str("");
+		converter << std::hex << copied;
+		_body.append(converter.str());
+		_body.append("\r\n");
+		for(std::vector<char>::iterator it = buffer.begin(); it != buffer.end(); it++)
+			_body.append(1, *it);
+		_body.append("\r\n");
+		buffer.clear();
+		copied = 0;
+		for (int i = 0; i < BUFFER_SIZE; i++)
+		{
+			if (file.eof())
+				break;
+			copied++;
+			file.read(&c, 1);
+			buffer.push_back(c);
+		}
+	}
+
+	file.close();
+	_body.append("0\r\n\r\n");
+}
+
+
+
 void Response::sendMessage()
 {
 	if (_message.size() > BUFFER_SIZE)
-		; // TODO do chunked
+		_chunkReponse() ;
 	ssize_t bytes_sent = send(_request->_socket, _message.c_str(), _message.size(), 0);
-	(void)bytes_sent;
+	if (bytes_sent < 0)
+		throw Response::sendResponseException();
 }
 
 std::ostream &operator<<(std::ostream &o, const Response &rhs)
@@ -255,6 +315,8 @@ std::ostream &operator<<(std::ostream &o, const Response &rhs)
 
 void Response::handleRequest()
 {
+	_setResourcePath();
+
 	if (_request->_method == "GET")
 		_doGet();
 	else if (_request->_method == "POST")
@@ -263,15 +325,66 @@ void Response::handleRequest()
 		_doDelete();
 }
 
+bool Response::_handleCgi()
+{
+	std::string cgi = &_resource_path[_resource_path.rfind('/') + 1];
+	std::string socket = ft_to_string(_request->_socket);
+	std::ofstream tmp;
+	char *argv[1];
+	int pid;
+
+	// Check if the method matches the cgi called
+	if (_methodMatches[cgi] != _request->_method)
+	{
+		_status_code = 405;
+		return false;
+	}
+	// Check if there is a Content-Length header in the request and if the value doesn't exceed the max_client_body_size of the requested server
+	if (_request->getHeaders().count("Content-Length") == 1 && ft_stoi(*_request->getHeaders().at("Content-Length").begin()) > _request->_server->getBodySize())
+	{
+		_status_code = 413;
+		return false;
+	}
+
+	tmp.open("tmp", std::ofstream::trunc | std::ofstream::binary);
+	if (tmp.fail())
+	{
+		_status_code = 500;
+		return false;
+	}
+
+	cgi.insert(0, "www/cgi-bin/");
+	socket.insert(0, "SOCKET=");
+
+	// Put the whole request (headers and body) in a temporary file
+	tmp << _request->_request;
+
+	tmp.close();
+
+	argv[0] = strdup(socket.c_str());
+
+	pid = fork();
+
+	if (!pid)
+		execve(cgi.c_str(), argv, NULL);
+
+	waitpid(pid, &_status_code, 0);
+
+	free(argv[0]);
+
+	return true;
+}
+
+
 void Response::_doGet()
 {
 	if (!_request->_body.empty() ||
 	    (_request->_headers.count("Content-Length") && _request->_headers["Content-Length"][0] != "0"))
 	{
+		_resource_path.clear();
 		_status_code = 400;
 		return;
 	}
-	_setResourcePath();
 
 	t_location location = _request->_server->getLocationlist().find(_request->_server_location)->second;
 
@@ -329,7 +442,7 @@ void Response::_doPost()
 
 void Response::_doDelete()
 {
-	_setResourcePath();
+
 
 	if (isValidDirectory(_resource_path))
 	{
