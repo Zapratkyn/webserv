@@ -85,11 +85,13 @@ bool Response::handleCgi()
 	char *argv[1];
 	int pid;
 
+	// Check if the method matches the cgi called
 	if (_methodMatches[cgi] != _request->_method)
 	{
 		_status_code = 405;
 		return false;
 	}
+	// Check if there is a Content-Length header in the request and if the value doesn't exceed the max_client_body_size of the requested server
 	if (_request->getHeaders().count("Content-Length") == 1 && ft_stoi(*_request->getHeaders().at("Content-Length").begin()) > _request->_server->getBodySize())
 	{
 		_status_code = 413;
@@ -106,6 +108,7 @@ bool Response::handleCgi()
 	cgi.insert(0, "www/cgi-bin/");
 	socket.insert(0, "SOCKET=");
 
+	// Put the whole request (headers and body in a temporary file)
 	tmp << _request->_request;
 
 	tmp.close();
