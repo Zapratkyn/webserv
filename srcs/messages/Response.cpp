@@ -80,7 +80,7 @@ bool Response::handleCgi()
 {
 	std::string cgi = &_resource_path[_resource_path.rfind('/') + 1];
 	std::string socket = ft_to_string(_request->_socket);
-	std::ofstream tmp("tmp", std::ofstream::trunc | std::ofstream::binary);
+	std::ofstream tmp;
 	std::string len = *_request->getHeaders().at("Content-Length").begin();
 	char *argv[1];
 	int pid;
@@ -93,6 +93,13 @@ bool Response::handleCgi()
 	if (ft_stoi(len) > _request->_server->getBodySize())
 	{
 		_status_code = 413;
+		return false;
+	}
+
+	tmp.open("tmp", std::ofstream::trunc | std::ofstream::binary);
+	if (tmp.fail())
+	{
+		_status_code = 500;
 		return false;
 	}
 

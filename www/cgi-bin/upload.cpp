@@ -54,9 +54,10 @@ int main(int argc, char **argv, char **env)
 	{
 		outfile << file;
 		outfile.close();
-		unlink("tmp");
 		message = successPage();
 	}
+
+	unlink("tmp");
 
 	send(sock, message.c_str(), message.size(), 0);
 
@@ -113,7 +114,7 @@ std::string successPage()
 	return message;
 }
 
-std::string successPage()
+std::string errorPage()
 {
 	std::string html, message = "HTTP/1.1 500 Internal Server Error\r\nConnection: keep-alive\r\nContent-Length: \r\nContent-Type: text/html\r\n\r\n";
 	std::stringstream ss;
