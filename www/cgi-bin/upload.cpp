@@ -3,6 +3,7 @@
 #include <sstream>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <cstdio>
 
 int ft_stoi(std::string);
 std::string successPage();
@@ -57,7 +58,7 @@ int main(int argc, char **argv, char **env)
 		message = successPage();
 	}
 
-	unlink("tmp");
+	std::remove("tmp");
 
 	send(sock, message.c_str(), message.size(), 0);
 
@@ -121,10 +122,10 @@ std::string errorPage()
 	ss << "<!DOCTYPE html>"
 	      "<html>\n"
 	      "<head>"
-		  	"<meta charset=\"UTF-8\">\n"
-   		  	"<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
-		  	"<link rel=\"shortcut icon\" type=\"image/x-icon\" href=\"/assets/favicon.ico\">\n"
-    	  	"<link rel=\"stylesheet\" type=\"text/css\" href=\"/assets/stylesheet.css\">\n"
+		  	// "<meta charset=\"UTF-8\">\n"
+   		  	// "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
+		  	// "<link rel=\"shortcut icon\" type=\"image/x-icon\" href=\"/assets/favicon.ico\">\n"
+    	  	// "<link rel=\"stylesheet\" type=\"text/css\" href=\"/assets/stylesheet.css\">\n"
 		  	"<title>Upload failed</title>\n"
 	      "</head>\n"
 	             "<body>\n"
