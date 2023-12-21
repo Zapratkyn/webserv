@@ -36,7 +36,7 @@ std::map<std::string, std::string> Response::_methodMatches = getMethodMatches()
 
 Response::Response(Request *request)
     : _request(request), _status_code(request->_error_status), _http_version("HTTP/1.1"), _content_length(0),
-      _chunked_response(false), _dir_listing(false)
+      _chunked_response(false), _dir_listing(false), _handled_by_CGI(false)
 {
 }
 
@@ -58,8 +58,8 @@ static bool isValidFile(const std::string &path)
 
 void Response::buildMessage()
 {
-//	if (UrlParser(_request->_request_target).file_extension == "cgi" && _status_code < 400)
-//		return ;
+	if (_handled_by_CGI)
+		return ;
 	if (_status_code >= 400)
 		_buildErrorBody();
 	_buildStatusLine();
@@ -299,8 +299,8 @@ void Response::_chunkResponse()
 
 void Response::sendMessage()
 {
-//	if (UrlParser(_request->_request_target).file_extension == "cgi" && _status_code < 400)
-//		return ;
+	if (_handled_by_CGI)
+		return ;
 	if (_message.size() > BUFFER_SIZE)
 		_chunkResponse() ;
 	ssize_t bytes_sent = send(_request->_socket, _message.c_str(), _message.size(), 0);
@@ -321,9 +321,9 @@ void Response::handleRequest()
 {
 	_setResourcePath();
 
-//	if (UrlParser(_request->_request_target).file_extension == "cgi")
-//		_handleCgi();
-	if (_request->_method == "GET")
+	if (UrlParser(_request->_request_target).file_extension == "cgi")
+		_handled_by_CGI = _handleCgi();
+	else if (_request->_method == "GET")
 		_doGet();
 	else if (_request->_method == "POST")
 		_doPost();

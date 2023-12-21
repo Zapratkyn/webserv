@@ -252,6 +252,13 @@ void Webserv::sendResponses(fd_set &writefds)
 			try
 			{
 				(*it)->_parseRequest();
+
+				if (DISPLAY_REQUEST)
+				{
+					std::cout << "******* Request on socket " << socket << " (Parsed) *******" << std::endl;
+					std::cout << *(*it);
+				}
+
 				if (!(*it)->_error_status)
 					(*it)->_response->handleRequest();
 				(*it)->_response->buildMessage();

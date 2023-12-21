@@ -21,9 +21,9 @@
 #include <unistd.h>
 #include <vector>
 
-#define DISPLAY_SERVERS true
-#define DISPLAY_REQUEST false
-#define DISPLAY_SERVER_FOR_REQUEST false
+#define DISPLAY_SERVERS false
+#define DISPLAY_REQUEST true
+#define DISPLAY_SERVER_FOR_REQUEST true
 #define DISPLAY_LOCATION_FOR_REQUEST true
 #define DISPLAY_RESPONSE false
 

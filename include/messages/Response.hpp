@@ -47,6 +47,7 @@ class Response
 
 	bool _chunked_response;
 	bool _dir_listing;
+	bool _handled_by_CGI;
 
 	std::string _resource_path;
 	void _setResourcePath();
