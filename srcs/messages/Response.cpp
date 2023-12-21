@@ -108,7 +108,7 @@ bool Response::handleCgi()
 	cgi.insert(0, "www/cgi-bin/");
 	socket.insert(0, "SOCKET=");
 
-	// Put the whole request (headers and body in a temporary file)
+	// Put the whole request (headers and body) in a temporary file
 	tmp << _request->_request;
 
 	tmp.close();
