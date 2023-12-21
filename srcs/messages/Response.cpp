@@ -452,24 +452,26 @@ void Response::_doPost()
 
 }
 
-static void removeDirectory(const std::string &dir_path)
+
+static void removeDirectory(const char *path)
 {
-	DIR *dir = opendir(dir_path.c_str());
-	struct dirent *entry = nullptr;
-	while ((entry = readdir(dir)))
+	struct dirent *entry;
+	DIR *dir = opendir(path);
+	while ((entry = readdir(dir)) != nullptr)
 	{
+		std::string abs_path;
 		std::string s(entry->d_name);
-		if (s != ".")
+		if (s != "." && s != "..")
 		{
-			std::string entry_path(dir_path);
-			entry_path.append('/' + s);
+			abs_path = std::string(path) + "/" + s;
 			if (entry->d_type == DT_DIR)
-				removeDirectory(entry_path);
+				removeDirectory(abs_path.c_str());
 			else
-				std::remove(entry_path.c_str());
+				std::remove(abs_path.c_str());
 		}
 	}
-	std::remove(dir_path.c_str());
+	closedir(dir);
+	std::remove(path);
 }
 
 void Response::_doDelete()
@@ -492,7 +494,7 @@ void Response::_doDelete()
 		else
 		{
 			errno = 0;
-			removeDirectory(_resource_path);
+			removeDirectory(_resource_path.c_str());
 			if (!errno)
 				_status_code = 204;
 			else
