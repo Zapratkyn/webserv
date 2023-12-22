@@ -14,7 +14,7 @@ Request::Request(int socket, const std::vector<Server *> &potential_servers)
 }
 
 Request::Request(const Request &src)
-    : _socket(src._socket), _method(src._method), _request_target(src._request_target),
+    : _socket(src._socket), _request(src._request), _method(src._method), _request_target(src._request_target),
       _http_version(src._http_version), _headers(src._headers), _body(src._body), _error_status(src._error_status),
       _chunked_request(src._chunked_request), _content_length(src._content_length),
       _potential_servers(src._potential_servers), _server(src._server), _server_location(src._server_location),
@@ -91,21 +91,29 @@ void Request::_retrieveBodyInfo()
 	}
 }
 
+
 void Request::_parseBody(std::stringstream &ss)
 {
-	std::stringstream buf;
-	buf << ss.rdbuf();
+	size_t size = ss.str().size() - ss.tellg();
 	if (!isChunkedRequest())
-		_body = buf.str();
+	{
+		char c;
+		for (size_t i(0); i < size; ++i)
+		{
+			ss.read(&c, sizeof(c));
+			_body += c;
+		}
+	}
 	else
 		; // TODO parse function for chunked body
 }
 
 void Request::_parseRequest()
 {
-	std::stringstream ss(_request);
-	std::string line;
+	std::stringstream ss;
+	ss.write(_request.c_str(), _request.size());
 
+	std::string line;
 	getline(ss, line);
 	line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
 	_parseRequestLine(line);
@@ -118,12 +126,13 @@ void Request::_parseRequest()
 			_parseHeader(line);
 		else if (line.empty())
 		{
-			_validateParsedRequestLine(line);
+			_validateParsedRequestLine();
 			_validateParsedHeaders();
+			_setServer();
+			_setLocation();
+			_validateMethod();
 			if (!_error_status)
 			{
-				_setServer();
-				_setLocation();
 				_retrieveBodyInfo();
 				if (_error_status)
 					return;
@@ -142,10 +151,8 @@ void Request::_parseRequest()
 	}
 }
 
-void Request::_validateParsedRequestLine(const std::string &line)
+void Request::_validateParsedRequestLine()
 {
-	(void)line;
-	// TODO check if there are still things in the line after _http_version
 	if (_method.empty() || _request_target.empty() || _http_version.empty())
 		_error_status = 400;
 	else if (!webserv_utils::methodIsImplemented(_method))
@@ -163,8 +170,6 @@ void Request::_validateParsedHeaders()
 		_error_status = 400;
 }
 
-// TODO is maxBodySize set for a server block or also for a location?
-// TODO checks in which order?
 void Request::_validateParsedBody()
 {
 	if (_body.size() > static_cast<size_t>(_server->getBodySize()))
@@ -179,6 +184,25 @@ void Request::_validateParsedBody()
 	// TODO what whith chunked request?
 	else if (!_body.empty() && _headers.count("Content-Length") == 0)
 		_error_status = 411;
+//	if (_error_status)
+//		_body.clear();
+}
+
+
+void Request::_validateMethod()
+{
+	if (!std::count(Webserv::implementedMethods.begin(), Webserv::implementedMethods.end(), _method))
+	{
+		_error_status = 501;
+		return;
+	}
+
+	const std::vector<std::string> &allowed_methods(_server->getLocationlist().at(_server_location).methods);
+	if (!std::count(allowed_methods.begin(), allowed_methods.end(), _method))
+	{
+		_error_status = 405;
+		return;
+	}
 }
 
 void Request::_setServer()
@@ -209,7 +233,7 @@ void Request::_setServer()
 		     server_it != _potential_servers.end(); server_it++)
 		{
 			if (_server == *server_it)
-				break ;
+				break;
 			i++;
 		}
 		std::cout << "************** Server ***************" << std::endl;
@@ -247,19 +271,16 @@ void Request::_setLocation()
 bool Request::retrieveRequest()
 {
 	ssize_t bytes;
-	std::vector<char> buffer(BUFFER_SIZE);
+	char buffer[BUFFER_SIZE] = {};
+	std::string size;
 
 	bytes = recv(_socket, &buffer[0], buffer.size(), 0);
 	if (bytes < 0)
-		throw readRequestException();
+		throw Request::readRequestException();
 	if (bytes == 0)
 		return false;
-
-	for (std::vector<char>::iterator it = buffer.begin(); it != buffer.end(); it++)
-		_request.append(1, *it);
-
-	if (*_request.rbegin() == '\0')
-		_parseRequest();
+	for (ssize_t i(0); i < bytes; ++i)
+		_request += buffer[i];
 
 	if (DISPLAY_REQUEST)
 	{
@@ -349,7 +370,9 @@ std::ostream &operator<<(std::ostream &o, const Request &rhs)
 			o << "      " << *it2 << std::endl;
 	}
 	o << "_body: " << std::endl;
-	o << rhs.getBody() << "[EOL]" << std::endl;
+	for (size_t i(0); i < rhs.getBody().size(); ++i)
+		o << rhs.getBody().at(i);
+	o << "[EOL]" << std::endl;
 	o << "*****************************************" << std::endl << std::endl;
 	return o;
 }

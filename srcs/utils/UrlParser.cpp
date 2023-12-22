@@ -20,6 +20,7 @@ std::map<std::string, std::string> getFileTypes()
 	types["css"] = "text/css";
 	types["csv"] = "text/csv";
 	types["mp4"] = "video/mp4";
+	types["cgi"] = "cgi";
 	return types;
 }
 

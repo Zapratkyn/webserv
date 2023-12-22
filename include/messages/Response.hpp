@@ -9,10 +9,9 @@ class Response
 {
   public:
 	Response(Request *request);
-	Response(const Response &src);
-	Response &operator=(const Response &rhs);
 	virtual ~Response();
-	bool buildMessage();
+	void handleRequest();
+	void buildMessage();
 	void sendMessage();
 	const std::string &getResourcePath() const;
 	friend std::ostream &operator<<(std::ostream &o, const Response &rhs);
@@ -25,9 +24,10 @@ class Response
 		}
 	};
 
-
   private:
 	Response();
+	Response(const Response &src);
+	Response &operator=(const Response &rhs);
 	static std::map<int, std::string> _all_status_codes;
 	Request *_request;
 	int _status_code;
@@ -41,20 +41,28 @@ class Response
 	static std::map<std::string, std::string> _methodMatches;
 
 	bool _chunked_response;
+	bool _dir_listing;
+	bool _handled_by_CGI;
 
 	std::string _resource_path;
 	void _setResourcePath();
 
 	void _buildHeaders();
 	void _buildStatusLine();
-	bool _retrieveMessageBody(const std::string &path);
+	bool _retrieveResponseBody(const std::string &path);
+
+	bool _buildDirListing();
 
 	void _buildErrorBody();
 	void _buildDefaultErrorBody();
 	bool _buildCustomErrorBody();
 
-	void _chunkReponse();
-	bool handleCgi();
+	bool _handleCgi();
+	void _doGet();
+	void _doPost();
+	void _doDelete();
+
+	void _chunkResponse();
 };
 
 #endif

@@ -106,7 +106,7 @@ std::string successPage(std::string filename)
 	             "<body>\n"
 	             "<center><h1>"
 				 "You file has been successfully uploaded !\n\n</h1>"
-				 "<a href=\"" + filename + "\" download>Download it back</a>"
+				 "<a href=\"" + filename + "\" download=\"" + filename.substr(0, filename.find('/')) + "\">Download it back</a>"
 	      "</center>\n"
 	             "</body>\n"
 	             "</html>";

@@ -1,6 +1,17 @@
-#include "../include/Webserv.hpp"
+#include "../../include/servers/Webserv.hpp"
 
 using namespace webserv_utils;
+
+static std::vector<std::string> getImplementedMethods()
+{
+	std::vector<std::string> v;
+	v.push_back("GET");
+	v.push_back("POST");
+	v.push_back("DELETE");
+	return v;
+}
+
+std::vector<std::string> Webserv::implementedMethods = getImplementedMethods();
 
 Webserv::Webserv()
 {
@@ -21,6 +32,13 @@ Webserv::~Webserv()
 		close((*it)->getSocket());
 		delete (*it);
 	}
+}
+
+void Webserv::run()
+{
+	parseConf();
+	startServer();
+	startListen();
 }
 
 
@@ -91,7 +109,6 @@ void Webserv::startServer()
 
 bool run_webserv = true;
 
-//TODO check relation signal handlers and blocking system calls
 static void sigHandler(int sig_num)
 {
 	if (sig_num == SIGINT)
@@ -105,34 +122,25 @@ void Webserv::startListen()
 
 	int select_return, max, step = 1;
 	fd_set readfds, writefds;
-	// struct timeval timer = {};
 
 	FD_ZERO(&writefds);
 	FD_ZERO(&readfds);
-	// timer.tv_sec = 1;
-	// timer.tv_usec = 0;
 
 	signal(SIGINT, sigHandler);
 
 	while (run_webserv)
 	{
 		errno = 0;
-		for (std::vector<int>::iterator it = _global_socket_list.begin(); it != _global_socket_list.end(); it++)
+		for (std::vector<int>::const_iterator it = _global_socket_list.begin(); it != _global_socket_list.end(); it++)
 			FD_SET(*it, &readfds);
 		max = *std::max_element(_global_socket_list.begin(), _global_socket_list.end()) + 1;
-		select_return = select(max, &readfds, &writefds, NULL, NULL);
+		select_return = select(max, &readfds, &writefds, nullptr, nullptr);
 		if (errno == EINTR)
 			break ;
 		if (select_return < 0)
-		{
-			std::cerr << "Select error";
+			throw std::runtime_error("Select error : " + std::string(strerror(errno)));
+		if (select_return == 0)
 			continue;
-		}
-		else if (select_return == 0)
-		{
-			std::cout << "Server is waiting ..." << std::endl;
-			continue;
-		}
 		if (step == 1)
 		{
 			step = 2;
@@ -149,7 +157,7 @@ void Webserv::startListen()
 		}
 		else if (step == 3)
 		{
-			sendResponses(writefds);
+			sendResponses(writefds, readfds);
 			step = 1;
 		}
 	}
@@ -230,7 +238,7 @@ void Webserv::readRequests(fd_set &readfds, fd_set &writefds)
 	}
 }
 
-void Webserv::sendResponses(fd_set &writefds)
+void Webserv::sendResponses(fd_set &writefds, fd_set &readfds)
 {
 	int socket;
 	
@@ -238,16 +246,23 @@ void Webserv::sendResponses(fd_set &writefds)
 	for (it = _request_list.begin(); it != _request_list.end();)
 	{
 		socket = (*it)->getSocket();
-		if (FD_ISSET(socket, &writefds))
+		if (FD_ISSET(socket, &writefds) && !FD_ISSET(socket, &readfds))
 		{
 			FD_CLR(socket, &writefds);
 			try
 			{
-				// TODO handle Client based on method if _error_status is not set in the Client;
-				// (*it)->parseRequest((*it)->_request);
-				if ((*it)->_response->buildMessage())
-					(*it)->_response->sendMessage();
-				// TODO what with chunked Clients?
+				(*it)->_parseRequest();
+
+				if (DISPLAY_REQUEST)
+				{
+					std::cout << "******* Request on socket " << socket << " (Parsed) *******" << std::endl;
+					std::cout << *(*it);
+				}
+
+				(*it)->_response->handleRequest();
+				(*it)->_response->buildMessage();
+				(*it)->_response->sendMessage();
+				// TODO what with chunked requests?
 				log("", socket, (*it)->_response->getResourcePath(), 3);
 				if ((*it)->_headers.count("Connection") &&
 				    (std::find((*it)->_headers["Connection"].begin(), (*it)->_headers["Connection"].end(), "keep-alive") ==

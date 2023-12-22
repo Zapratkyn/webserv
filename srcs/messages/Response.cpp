@@ -36,20 +36,8 @@ std::map<std::string, std::string> Response::_methodMatches = getMethodMatches()
 
 Response::Response(Request *request)
     : _request(request), _status_code(request->_error_status), _http_version("HTTP/1.1"), _content_length(0),
-      _chunked_response(false)
+      _chunked_response(false), _dir_listing(false), _handled_by_CGI(false)
 {
-}
-
-Response::Response(const Response &src)
-{
-	(void)src;
-}
-
-Response &Response::operator=(const Response &rhs)
-{
-	if (this == &rhs)
-		return *this;
-	return *this;
 }
 
 Response::~Response()
@@ -68,101 +56,12 @@ static bool isValidFile(const std::string &path)
 	return (stat(path.c_str(), &sb) == 0 && S_ISREG(sb.st_mode));
 }
 
-static bool checkPermissions(const std::string &path, bool read, bool write, bool execute)
+void Response::buildMessage()
 {
-	if (read && access(path.c_str(), R_OK) < 0)
-		return false;
-	if (write && access(path.c_str(), W_OK) < 0)
-		return false;
-	if (execute && access(path.c_str(), X_OK) < 0)
-		return false;
-	return true;
-}
-
-bool Response::handleCgi()
-{
-	std::string cgi = &_resource_path[_resource_path.rfind('/') + 1];
-	std::string socket = ft_to_string(_request->_socket);
-	std::string buff_size = ft_to_string(BUFFER_SIZE);
-	std::ofstream tmp;
-	char *argv[4];
-	int pid;
-
-	// Check if the method matches the cgi called
-	if (_methodMatches[cgi] != _request->_method)
-	{
-		_status_code = 405;
-		return false;
-	}
-	// Check if there is a Content-Length header in the request and if the value doesn't exceed the max_client_body_size of the requested server
-	if (_request->getHeaders().count("Content-Length") == 1 && ft_stoi(*_request->getHeaders().at("Content-Length").begin()) > _request->_server->getBodySize())
-	{
-		_status_code = 413;
-		return false;
-	}
-
-	if (_request->getMethod() == "POST")
-	{
-		tmp.open("tmp", std::ofstream::trunc | std::ofstream::binary);
-		if (tmp.fail())
-		{
-			_status_code = 500;
-			return false;
-		}
-		tmp << _request->_request;
-		tmp.close();
-	}
-
-	cgi.insert(0, "www/cgi-bin/");
-	socket.insert(0, "SOCKET=");
-	buff_size.insert(0, "BUFFER_SIZE=");
-	argv[0] = strdup(socket.c_str());
-	argv[1] = strdup(buff_size.c_str());
-	argv[2] = strdup(_request->_request_target.c_str());
-	argv[3] = NULL;
-
-	pid = fork();
-
-	if (!pid)
-		execve(cgi.c_str(), argv, NULL);
-
-	waitpid(pid, &_status_code, 0);
-
-	free(argv[0]);
-	free(argv[1]);
-	free(argv[2]);
-
-	return true;
-}
-
-bool Response::buildMessage()
-{
-	std::string extension, message;
-
-	if (_status_code != 0)
+	if (_handled_by_CGI)
+		return ;
+	if (_status_code >= 400)
 		_buildErrorBody();
-	else
-	{
-		_setResourcePath();
-		extension = &_resource_path[_resource_path.rfind('.')];
-		if (extension != ".cgi" && (!isValidFile(_resource_path) || !checkPermissions(_resource_path, true, false, false)))
-		{
-			_status_code = 404; //TODO diff between 403 and 404???
-			_resource_path.clear();
-			_buildErrorBody();
-		}
-		else if (extension == ".cgi")
-		{
-			if (handleCgi())
-				return false;
-			else
-				_buildErrorBody();
-		}
-		else if (!_retrieveMessageBody(_resource_path))
-			_buildErrorBody();
-		else
-			_status_code = 200;
-	}
 	_buildStatusLine();
 	_buildHeaders();
 
@@ -201,8 +100,7 @@ void Response::_buildHeaders()
 	tmp = UrlParser(_resource_path).file_extension;
 	_headers["Content-Type"].push_back(tmp);
 
-
-	std::map<std::string, std::vector<std::string > >::const_iterator cit;
+	std::map<std::string, std::vector<std::string> >::const_iterator cit;
 	std::vector<std::string>::const_iterator cite;
 	for (cit = _headers.begin(); cit != _headers.end(); ++cit)
 	{
@@ -217,9 +115,11 @@ void Response::_buildHeaders()
 	}
 }
 
-bool Response::_retrieveMessageBody(const std::string &path)
+bool Response::_retrieveResponseBody(const std::string &path)
 {
-	std::ifstream ifs(path, std::ifstream::binary);
+	if (_dir_listing)
+		return (_buildDirListing());
+	std::ifstream ifs(path);
 	if (ifs.is_open())
 	{
 		std::stringstream ss;
@@ -236,22 +136,74 @@ bool Response::_retrieveMessageBody(const std::string &path)
 	}
 }
 
+static std::vector<std::string> getDirEntries(const std::string &dir_path)
+{
+	std::vector<std::string> result;
+	DIR *dir;
+	struct dirent *entry;
+
+	dir = opendir(dir_path.c_str());
+	if (dir)
+	{
+		while ((entry = readdir(dir)))
+		{
+			if (entry->d_type == DT_DIR)
+				result.push_back(std::string(entry->d_name) + "/");
+			else
+				result.push_back(entry->d_name);
+		}
+		closedir(dir);
+	}
+	return result;
+}
+
+bool Response::_buildDirListing()
+{
+	std::stringstream ss;
+
+	std::vector<std::string> dir_entries = getDirEntries(_resource_path);
+
+	ss << "<!DOCTYPE html>"
+	      "<html>\n"
+	      "<head><title>"
+	   << "Index of " + UrlParser(_request->_request_target).path +
+	          "</title></head>\n"
+	          "<body>\n"
+	   << "<h1>" "Index of " + UrlParser(_request->_request_target).path + "</h1><hr><pre>";
+
+	std::vector<std::string>::const_iterator cit;
+	for (cit = dir_entries.begin(); cit != dir_entries.end(); ++cit)
+	{
+		ss << "<a href=\"" + UrlParser(_request->_request_target).path + *cit + "\"";
+		if (_request->_request_target == "/uploads/")
+			ss << " download";
+		ss << ">" + *cit + "</a>\n";
+	}
+
+	ss << "</pre><hr></body>\n"
+	      "</html>";
+
+	_body = ss.str();
+
+	return true;
+}
+
 void Response::_buildDefaultErrorBody()
 {
 	std::stringstream ss;
 	ss << "<!DOCTYPE html>"
 	      "<html>\n"
 	      "<head><title>"
-	      << _status_code
-	      << " " + _all_status_codes[_status_code] +
-	             "</title></head>\n"
-	             "<body>\n"
-	             "<center><h1>"
-	      << _status_code
-	      << " " + _all_status_codes[_status_code] +
-	             "</h1></center>\n"
-	             "</body>\n"
-	             "</html>";
+	   << _status_code
+	   << " " + _all_status_codes[_status_code] +
+	          "</title></head>\n"
+	          "<body>\n"
+	          "<center><h1>"
+	   << _status_code
+	   << " " + _all_status_codes[_status_code] +
+	          "</h1></center>\n"
+	          "</body>\n"
+	          "</html>";
 	_body = ss.str();
 }
 
@@ -270,21 +222,20 @@ bool Response::_buildCustomErrorBody()
 
 	std::string root = _request->_server->getRoot();
 
-	//TODO is this check needed?
-	if (!isValidDirectory(root) || !checkPermissions(root, true, false, true))
+	if (!isValidDirectory(root) || access(root.c_str(), R_OK | X_OK) < 0)
 		return false;
 
 	_resource_path = root;
 	std::string error_page = _request->_server->getErrorPages().find(_status_code)->second;
 	_resource_path += error_page;
 
-	if (!isValidFile(_resource_path) || !checkPermissions(_resource_path, true, false, false))
+	if (!isValidFile(_resource_path) || access(root.c_str(), R_OK) < 0)
 	{
 		_resource_path.clear();
 		return false;
 	}
 
-	if (!_retrieveMessageBody(_resource_path))
+	if (!_retrieveResponseBody(_resource_path))
 	{
 		_resource_path.clear();
 		return false;
@@ -304,7 +255,7 @@ const std::string &Response::getResourcePath() const
 	return _resource_path;
 }
 
-void Response::_chunkReponse()
+void Response::_chunkResponse()
 {
 
 	size_t pos1 = _message.find("Content-Length"), pos2 = _message.find("\r\nContent-Type"), copied = 0;
@@ -312,7 +263,6 @@ void Response::_chunkReponse()
 	std::stringstream converter;
 	std::vector<char> buffer;
 	char c;
-	
 	_message.replace(pos1, pos2 - pos1, "Transfer-Encoding: chunked");
 	_body = "";
 
@@ -350,11 +300,14 @@ void Response::_chunkReponse()
 	_body.append("0\r\n\r\n");
 }
 
+
+
 void Response::sendMessage()
 {
-	if (_body.size() > BUFFER_SIZE)
-		_chunkReponse(); //TODO do chunked
-	_message.append(_body);
+	if (_handled_by_CGI)
+		return ;
+	if (_message.size() > BUFFER_SIZE)
+		_chunkResponse() ;
 	ssize_t bytes_sent = send(_request->_socket, _message.c_str(), _message.size(), 0);
 	if (bytes_sent < 0)
 		throw Response::sendResponseException();
@@ -367,4 +320,210 @@ std::ostream &operator<<(std::ostream &o, const Response &rhs)
 	o << "[ HEADER ]" << std::endl;
 	o << rhs._message << "[EOL]";
 	return o;
+}
+
+void Response::handleRequest()
+{
+	if (_request->_error_status)
+	{
+		_status_code = _request->_error_status;
+		return;
+	}
+	_setResourcePath();
+
+	if (UrlParser(_request->_request_target).file_extension == "cgi")
+		_handled_by_CGI = _handleCgi();
+	else if (_request->_method == "GET")
+		_doGet();
+	else if (_request->_method == "POST")
+		_doPost();
+	else if (_request->_method == "DELETE")
+		_doDelete();
+}
+
+bool Response::_handleCgi()
+{
+	std::string cgi = &_resource_path[_resource_path.rfind('/') + 1];
+	std::string socket = ft_to_string(_request->_socket);
+	std::ofstream tmp;
+	char *argv[2];
+	int pid;
+
+	// Check if the method matches the cgi called
+	if (_methodMatches[cgi] != _request->_method)
+	{
+		_status_code = 405;
+		_resource_path.clear();
+		return false;
+	}
+
+	tmp.open("tmp", std::ofstream::trunc | std::ofstream::binary);
+	if (tmp.fail())
+	{
+		_status_code = 500;
+		_resource_path.clear();
+		return false;
+	}
+
+	cgi.insert(0, "www/cgi-bin/");
+	socket.insert(0, "SOCKET=");
+
+	// Put the whole request (headers and body) in a temporary file
+	tmp << _request->_request;
+
+	tmp.close();
+
+	argv[0] = strdup(socket.c_str());
+	argv[1] = strdup(_request->_request_target.c_str());
+
+	pid = fork();
+
+	if (!pid)
+		execve(cgi.c_str(), argv, NULL);
+
+	waitpid(pid, &_status_code, 0);
+
+	free(argv[0]);
+	free(argv[1]);
+
+	return true;
+}
+
+
+void Response::_doGet()
+{
+	if (!_request->_body.empty() ||
+	    (_request->_headers.count("Content-Length") && _request->_headers["Content-Length"][0] != "0"))
+	{
+		_resource_path.clear();
+		_status_code = 400;
+		return;
+	}
+
+	t_location location = _request->_server->getLocationlist().find(_request->_server_location)->second;
+
+	if (isValidDirectory(_resource_path) && location.autoindex == "on")
+	{
+		if (_resource_path[_resource_path.size() - 1] != '/')
+			_resource_path += '/';
+		if (isValidFile(_resource_path + location.index))
+		{
+			if (access((_resource_path + location.index).c_str(), R_OK) == 0)
+				_resource_path += location.index;
+			else
+			{
+				_resource_path.clear();
+				_status_code = 403;
+				return;
+			}
+		}
+		else if (access(_resource_path.c_str(), R_OK | X_OK) < 0)
+		{
+			_resource_path.clear();
+			_status_code = 403;
+			return;
+		}
+		else
+		{
+			if (_request->_request_target[_request->_request_target.size() - 1] != '/')
+				_request->_request_target += '/';
+			_dir_listing = true;
+		}
+	}
+	else if (isValidFile(_resource_path))
+	{
+		if (access(_resource_path.c_str(), R_OK) < 0)
+		{
+			_resource_path.clear();
+			_status_code = 403;
+			return;
+		}
+	}
+	else
+	{
+		_status_code = 404;
+		_resource_path.clear();
+		return;
+	}
+
+	if (_retrieveResponseBody(_resource_path))
+		_status_code = 200;
+}
+
+void Response::_doPost()
+{
+//	std::ofstream outfile("test", std::ofstream::out | std::ofstream::app | std::ofstream::binary);
+//	outfile << _request->_body;
+//	outfile.close();
+}
+
+
+static void removeDirectory(const char *path)
+{
+	struct dirent *entry;
+	DIR *dir = opendir(path);
+	while ((entry = readdir(dir)) != nullptr)
+	{
+		std::string abs_path;
+		std::string s(entry->d_name);
+		if (s != "." && s != "..")
+		{
+			abs_path = std::string(path) + "/" + s;
+			if (entry->d_type == DT_DIR)
+				removeDirectory(abs_path.c_str());
+			else
+				std::remove(abs_path.c_str());
+		}
+	}
+	closedir(dir);
+	std::remove(path);
+}
+
+void Response::_doDelete()
+{
+	if (!_request->_body.empty() ||
+	    (_request->_headers.count("Content-Length") && _request->_headers["Content-Length"][0] != "0"))
+	{
+		_resource_path.clear();
+		_status_code = 400;
+		return;
+	}
+
+	if (isValidDirectory(_resource_path))
+	{
+		if (access(_resource_path.c_str(), W_OK | X_OK) < 0)
+		{
+			_resource_path.clear();
+			_status_code = 403;
+		}
+		else
+		{
+			errno = 0;
+			removeDirectory(_resource_path.c_str());
+			if (!errno)
+				_status_code = 204;
+			else
+				_status_code = 500;
+		}
+	}
+	else if (isValidFile(_resource_path))
+	{
+		if (access(_resource_path.c_str(), W_OK) < 0)
+		{
+			_resource_path.clear();
+			_status_code = 403;
+		}
+		else
+		{
+			if (std::remove(_resource_path.c_str()) == 0)
+				_status_code = 204;
+			else
+				_status_code = 500;
+		}
+	}
+	else
+	{
+		_status_code = 404;
+		_resource_path.clear();
+	}
 }

@@ -1,8 +1,8 @@
-#include "../include/Server.hpp"
+#include "../../include/servers/Server.hpp"
 
 using namespace server_utils;
 
-Server::Server() : _root(""), _index(""), _autoindex("off"), _client_max_body_size(-1)
+Server::Server() : _autoindex("off"), _client_max_body_size(-1)
 {
 	return;
 }
@@ -29,28 +29,19 @@ bool Server::addServerName(const std::string &name)
 }
 bool Server::setRoot(std::string &root)
 {
-	DIR *dir;
-
-	if (_root != "")
+	if (!_root.empty())
 	{
 		ft_error(0, root, "root");
-		return false;
-	}
-	dir = opendir(root.c_str());
-	if (!dir)
-	{
-		ft_error(9, root, "root");
 		return false;
 	}
 	if (root[root.size() - 1] != '/')
 		root.append("/");
 	_root = root;
-	closedir(dir);
 	return true;
 }
 bool Server::setBodySize(const std::string &size)
 {
-	if (_client_max_body_size >= 0 || size.find_first_not_of(DIGITS) != size.npos)
+	if (_client_max_body_size >= 0 || size.find_first_not_of(DIGITS) != std::string::npos)
 	{
 		ft_error(2, size, "client_max_body_size");
 		return false;
@@ -60,7 +51,7 @@ bool Server::setBodySize(const std::string &size)
 }
 bool Server::setIndex(const std::string &index)
 {
-	if (_index != "")
+	if (!_index.empty())
 	{
 		ft_error(0, index, "index");
 		return false;
@@ -104,9 +95,12 @@ bool Server::addEndPoint(const std::string &value)
 	}
 
 	if (!setSocketAddress(ip_address, port_num, &addr_in))
+	{
+		ft_error(7, value, "listen");
 		return false;
+	}
 
-	for (std::vector<struct sockaddr_in>::iterator it = _end_points.begin(); it != _end_points.end(); ++it)
+	for (std::vector<struct sockaddr_in>::const_iterator it = _end_points.begin(); it != _end_points.end(); ++it)
 	{
 		if (it->sin_addr.s_addr == addr_in.sin_addr.s_addr && it->sin_port == addr_in.sin_port)
 		{
@@ -130,7 +124,7 @@ bool Server::addLocation(std::stringstream &ifs, std::string &value)
 		}
 	}
 	location_block = getLocationBlock(ifs);
-	if (location_block.size())
+	if (!location_block.empty())
 	{
 		_location_list[value] = newLocation(value, location_block, _root, _autoindex);
 		if (!_location_list[value].valid)
@@ -142,17 +136,15 @@ void Server::addDefaultLocation()
 {
 	t_location default_location;
 
-	if (_index != "")
+	if (!_index.empty())
 		default_location.index = _index;
 	else
 		default_location.index = "index.html";
-	if (_root != "")
+	if (!_root.empty())
 		default_location.root = _root;
-//	else
-//		default_location.root = "www/server00/";
 	default_location.location = "/";
 	default_location.autoindex = "off";
-	default_location.methods.push_back("GET");
+	default_location.methods = Webserv::implementedMethods;
 
 	_location_list["/"] = default_location;
 }
@@ -186,7 +178,11 @@ bool Server::addErrorPage(std::string &value)
 		}
 		else
 		{
-			// TODO check if status_code is not present yet (check of valid url should be done in handling request)
+			if (_error_pages.count(code))
+			{
+				ft_error(0, tmp[0], "error_page");
+				return false;
+			}
 			_error_pages.insert(std::make_pair(code, tmp[0]));
 			code_is_set = false;
 		}
@@ -219,7 +215,7 @@ std::string Server::getIndex() const
 {
 	return _index;
 }
-int Server::getBodySize() const
+ssize_t Server::getBodySize() const
 {
 	return _client_max_body_size;
 }
@@ -235,15 +231,7 @@ const std::map<int, std::string> &Server::getErrorPages() const
 {
 	return _error_pages;
 }
-/*
-In the 2 functions below :
-We use the server_block to parse any option written in it to the server's attributes
-If an option doesn't exist or is in double, we throw an error and stop the program
-If a line doesn't start with "location" and doesn't end with a ';' or a bracket, we throw an error and stop the program
-There can be several ports and locations (structures) in a server
-There can be several methods in a location
-Location names are used to make sure a same location is not used more than once
-*/
+
 bool Server::parseOption(const int &option, std::string &value, std::stringstream &ifs)
 {
 	switch (option)
@@ -287,8 +275,7 @@ bool Server::parseServer(const std::string &server_block)
 {
 	std::string buffer, name, value,
 	    option_list[8] = {"listen", "server_name", "client_max_body_size", "root", "index", "location", "error_page", "autoindex"};
-	std::stringstream ifs(server_block); // std::stringstream works the same as a std::ifstream but is constructed from
-	                                     // a string instead of a file
+	std::stringstream ifs(server_block);
 	int option;
 	t_location folder;
 	std::ifstream index;
@@ -296,7 +283,7 @@ bool Server::parseServer(const std::string &server_block)
 	while (!ifs.eof())
 	{
 		getline(ifs, buffer);
-		if (!buffer.size()) // Skips empty lines
+		if (buffer.empty())
 			continue;
 		name = getOptionName(buffer);
 		value = getOptionValue(buffer);
@@ -313,10 +300,6 @@ bool Server::parseServer(const std::string &server_block)
 			if (name == option_list[option])
 				break;
 		}
-		/*
-		Thanks to the 'option == 8' condition, we don't need a default
-		behavior for the switch statement in the parseOption() function
-		*/
 		if (option == 8)
 		{
 			ft_error(4, name, "");
@@ -325,12 +308,11 @@ bool Server::parseServer(const std::string &server_block)
 		if (!parseOption(option, value, ifs))
 			return false;
 	}
-	if (_index == "")
+	if (_index.empty())
 		_index = "index.html";
 	if (_client_max_body_size == -1)
-		_client_max_body_size = 60000; // The PDF states we need to limit the client_max_body_size
+		_client_max_body_size = 60000;
 	if (_location_list.find("/") == _location_list.end())
 		addDefaultLocation();
 	return true;
 }
-

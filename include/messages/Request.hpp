@@ -65,10 +65,10 @@ class Request
 	void _parseHeader(const std::string &line);
 	void _retrieveBodyInfo();
 	void _parseBody(std::stringstream &ss);
-	void _validateParsedRequestLine(const std::string &line);
+	void _validateParsedRequestLine();
 	void _validateParsedHeaders();
 	void _validateParsedBody();
-
+	void _validateMethod();
 
 	void _setServer();
 	void _setLocation();

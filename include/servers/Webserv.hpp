@@ -1,12 +1,15 @@
 #ifndef __WEBSERV_HPP__
 #define __WEBSERV_HPP__
 
-#include "utils/utils.hpp"
+#include "../messages/Request.hpp"
+#include "../messages/Response.hpp"
+#include "../utils/UrlParser.hpp"
+#include "../utils/utils.hpp"
+#include "../utils/webserv_utils.hpp"
+#include <algorithm>
+#include <vector>
 
-// For Linux
-#ifndef FD_COPY
-# define FD_COPY(from, to) bcopy(from, to, sizeof(*(from)));
-#endif
+class Request;
 
 class Server;
 class Request;
@@ -25,15 +28,15 @@ class Webserv
 	void sendResponses(fd_set &);
 	std::string _conf;
 	std::map<int, struct sockaddr_in> _socket_list;
-
   public:
+	static std::vector<std::string> implementedMethods;
 	Webserv();
 	explicit Webserv(const std::string &);
 	~Webserv();
+	void run();
 	void startListen();
 	void startServer();
 	void parseConf();
-	std::vector<Server *> getPotentialServers(int client_fd) const;
 
 	class openSocketException : public std::exception
 	{
@@ -65,22 +68,6 @@ class Webserv
 		virtual const char *what() const throw()
 		{
 			return "Configuration failure. Program stopped.";
-		}
-	};
-	class logError : public std::exception
-	{
-	  public:
-		virtual const char *what() const throw()
-		{
-			return "LOG ERROR.";
-		}
-	};
-	class redirectionListException : public std::exception
-	{
-	  public:
-		virtual const char *what() const throw()
-		{
-			return "Redirection list failure. Program stopped.";
 		}
 	};
 	class setSocketoptionException : public std::exception

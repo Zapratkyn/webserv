@@ -13,12 +13,11 @@ int main(int argc, char **argv, char **env)
 {
 	std::ifstream infile;
 	std::string socket(argv[0]);
-	std::string buff_size(argv[1]);
-	std::string filename(argv[2]);
+	std::string filename(argv[1]);
 	std::string body;
 	std::string message = "HTTP/1.1 200 OK\r\nConnection: keep-alive\r\nContent-Length: \r\nContent-Type: \r\n\r\n";
 	std::map<std::string, std::string> types = getFileTypes();
-	int sock, size, pos;
+	int sock, pos;
 	char c;
 
 	filename = filename.substr(1, filename.rfind('/') - 1);
@@ -30,7 +29,6 @@ int main(int argc, char **argv, char **env)
 	else
 	{
 		sock = ft_stoi(&socket[socket.find('=') + 1]);
-		size = ft_stoi(&buff_size[buff_size.find('=') + 1]);
 		while (!infile.eof())
 		{
 			infile.read(&c, 1);
@@ -116,49 +114,3 @@ std::string errorPage()
 	message.append(html);
 	return message;
 }
-
-// void chunkReponse(std::string message)
-// {
-
-// 	size_t pos1 = _message.find("Content-Length"), pos2 = _message.find("\r\nContent-Type"), copied = 0;
-// 	std::ifstream file(_resource_path, std::ifstream::binary);
-// 	std::stringstream converter;
-// 	std::vector<char> buffer;
-// 	char c;
-	
-// 	_message.replace(pos1, pos2 - pos1, "Transfer-Encoding: chunked");
-// 	_body = "";
-
-// 	for (int i = 0; i < BUFFER_SIZE; i++)
-// 	{
-// 		if (file.eof())
-// 			break;
-// 		copied++;
-// 		file.read(&c, 1);
-// 		buffer.push_back(c);
-// 	}
-
-// 	while (copied > 0)
-// 	{
-// 		converter.str("");
-// 		converter << std::hex << copied;
-// 		_body.append(converter.str());
-// 		_body.append("\r\n");
-// 		for(std::vector<char>::iterator it = buffer.begin(); it != buffer.end(); it++)
-// 			_body.append(1, *it);
-// 		_body.append("\r\n");
-// 		buffer.clear();
-// 		copied = 0;
-// 		for (int i = 0; i < BUFFER_SIZE; i++)
-// 		{
-// 			if (file.eof())
-// 				break;
-// 			copied++;
-// 			file.read(&c, 1);
-// 			buffer.push_back(c);
-// 		}
-// 	}
-
-// 	file.close();
-// 	_body.append("0\r\n\r\n");
-// }

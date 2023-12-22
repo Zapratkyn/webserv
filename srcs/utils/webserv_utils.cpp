@@ -3,35 +3,6 @@
 namespace webserv_utils
 {
 
-bool checkRedirectionList(std::vector<std::string> &url_list)
-{
-	std::ifstream list("./others/redirections.list");
-	std::string buffer, url, dot;
-	bool is_url;
-
-	while (!list.eof())
-	{
-		is_url = false;
-		dot = ".";
-		getline(list, buffer);
-		url = dot.append(buffer.substr(buffer.find_first_of(":") + 1));
-		for (std::vector<std::string>::iterator it = url_list.begin(); it != url_list.end(); it++)
-		{
-			if (url == *it)
-			{
-				is_url = true;
-				break;
-			}
-		}
-		if (!is_url)
-		{
-			ft_error(2, url);
-			return false;
-		}
-	}
-	return true;
-}
-
 std::string getServerBlock(std::ifstream &ifs)
 {
 	int brackets = 1;
@@ -58,6 +29,7 @@ std::string getServerBlock(std::ifstream &ifs)
 
 void ft_error(int type, std::string value)
 {
+	(void)value;
 	switch (type)
 	{
 	case 0:
@@ -66,8 +38,6 @@ void ft_error(int type, std::string value)
 	case 1:
 		std::cerr << "Server failed to accept incoming connection from ADDRESS: ";
 		break;
-	case 2:
-		std::cerr << "ERROR\nRedirection: " << &value[1] << ": no matching file" << std::endl;
 	}
 }
 
@@ -89,8 +59,6 @@ void printSocketAddress(struct sockaddr_in &_socketAddr)
 	std::cout << s << ":" << ntohs(_socketAddr.sin_port);
 }
 
-//TODO add autoindex and error_pages to main server block
-//TODO apply inheritance after (or before) parsing config?
 void displayServers(std::vector<Server *> &server_list)
 {
 	std::string value;
