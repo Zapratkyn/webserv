@@ -157,7 +157,7 @@ void Webserv::startListen()
 		}
 		else if (step == 3)
 		{
-			sendResponses(writefds);
+			sendResponses(writefds, readfds);
 			step = 1;
 		}
 	}
@@ -238,7 +238,7 @@ void Webserv::readRequests(fd_set &readfds, fd_set &writefds)
 	}
 }
 
-void Webserv::sendResponses(fd_set &writefds)
+void Webserv::sendResponses(fd_set &writefds, fd_set &readfds)
 {
 	int socket;
 	
@@ -246,7 +246,7 @@ void Webserv::sendResponses(fd_set &writefds)
 	for (it = _request_list.begin(); it != _request_list.end();)
 	{
 		socket = (*it)->getSocket();
-		if (FD_ISSET(socket, &writefds))
+		if (FD_ISSET(socket, &writefds) && !FD_ISSET(socket, &readfds))
 		{
 			FD_CLR(socket, &writefds);
 			try

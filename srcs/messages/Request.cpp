@@ -277,14 +277,6 @@ bool Request::retrieveRequest()
 	for (ssize_t i(0); i < bytes; ++i)
 		_request += buffer[i];
 
-	if (_request.find("\r\n\r\n") != _request.npos && _request.find("Content-Length:") != _request.npos)
-	{
-		size = &_request[_request.find("Content-Length:")];
-		size.substr(size.find_first_of(" ") + 1, size.find("\r\n"));
-		if (ft_stoi(size) > _server->getBodySize())
-			_error_status = 413;
-	}
-
 	if (DISPLAY_REQUEST)
 	{
 		std::cout << "****** Request on socket " << _socket << " (Received) ******" << std::endl;

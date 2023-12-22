@@ -22,7 +22,7 @@ class Webserv
 
 	bool acceptNewConnections(fd_set &);
 	void readRequests(fd_set &, fd_set &);
-	void sendResponses(fd_set &);
+	void sendResponses(fd_set &, fd_set &);
 	std::string _conf;
 	std::map<int, struct sockaddr_in> _socket_list;
   public:
