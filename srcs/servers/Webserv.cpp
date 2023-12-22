@@ -259,8 +259,7 @@ void Webserv::sendResponses(fd_set &writefds)
 					std::cout << *(*it);
 				}
 
-				if (!(*it)->_error_status)
-					(*it)->_response->handleRequest();
+				(*it)->_response->handleRequest();
 				(*it)->_response->buildMessage();
 				(*it)->_response->sendMessage();
 				// TODO what with chunked requests?

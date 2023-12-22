@@ -319,6 +319,11 @@ std::ostream &operator<<(std::ostream &o, const Response &rhs)
 
 void Response::handleRequest()
 {
+	if (_request->_error_status)
+	{
+		_status_code = _request->_error_status;
+		return;
+	}
 	_setResourcePath();
 
 	if (UrlParser(_request->_request_target).file_extension == "cgi")
@@ -343,12 +348,14 @@ bool Response::_handleCgi()
 	if (_methodMatches[cgi] != _request->_method)
 	{
 		_status_code = 405;
+		_resource_path.clear();
 		return false;
 	}
 	// Check if there is a Content-Length header in the request and if the value doesn't exceed the max_client_body_size of the requested server
 	if (_request->getHeaders().count("Content-Length") == 1 && ft_stoi(*_request->getHeaders().at("Content-Length").begin()) > _request->_server->getBodySize())
 	{
 		_status_code = 413;
+		_resource_path.clear();
 		return false;
 	}
 
@@ -356,6 +363,7 @@ bool Response::_handleCgi()
 	if (tmp.fail())
 	{
 		_status_code = 500;
+		_resource_path.clear();
 		return false;
 	}
 
