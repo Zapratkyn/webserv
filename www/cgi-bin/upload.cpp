@@ -6,7 +6,7 @@
 #include <cstdio>
 
 int ft_stoi(std::string);
-std::string successPage();
+std::string successPage(std::string);
 std::string errorPage();
 std::string getFilename(std::string &);
 std::string getBoundary(std::string &);
@@ -27,10 +27,8 @@ int main(int argc, char **argv, char **env)
 		message = errorPage();
 	else
 	{
-		while (true)
+		while (!infile.eof())
 		{
-			if (infile.eof())
-				break;
 			infile.read(&c, 1);
 			file.append(1, c);
 		}
@@ -55,7 +53,9 @@ int main(int argc, char **argv, char **env)
 	{
 		outfile << file;
 		outfile.close();
-		message = successPage();
+		filename = &filename[filename.rfind('/') + 1];
+		filename.append("/download.cgi");
+		message = successPage(filename);
 	}
 
 	std::remove("tmp");
@@ -90,7 +90,7 @@ std::string ft_to_string(int nb)
 	return ch;
 }
 
-std::string successPage()
+std::string successPage(std::string filename)
 {
 	std::string html, message = "HTTP/1.1 201 Created\r\nConnection: keep-alive\r\nContent-Length: \r\nContent-Type: text/html\r\n\r\n";
 	std::stringstream ss;
@@ -105,8 +105,9 @@ std::string successPage()
 	      "</head>\n"
 	             "<body>\n"
 	             "<center><h1>"
-				 "You file has been successfully uploaded !"
-	      "</h1></center>\n"
+				 "You file has been successfully uploaded !\n\n</h1>"
+				 "<a href=\"" + filename + "\" download=\"" + filename.substr(0, filename.find('/')) + "\">Download it back</a>"
+	      "</center>\n"
 	             "</body>\n"
 	             "</html>";
 	html = ss.str();

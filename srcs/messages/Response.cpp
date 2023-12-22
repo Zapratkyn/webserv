@@ -172,7 +172,12 @@ bool Response::_buildDirListing()
 
 	std::vector<std::string>::const_iterator cit;
 	for (cit = dir_entries.begin(); cit != dir_entries.end(); ++cit)
-		ss << "<a href=\"" + UrlParser(_request->_request_target).path + *cit + "\">" + *cit + "</a>\n";
+	{
+		ss << "<a href=\"" + UrlParser(_request->_request_target).path + *cit + "\"";
+		if (_request->_request_target == "/uploads/")
+			ss << " download";
+		ss << ">" + *cit + "</a>\n";
+	}
 
 	ss << "</pre><hr></body>\n"
 	      "</html>";
@@ -341,20 +346,13 @@ bool Response::_handleCgi()
 	std::string cgi = &_resource_path[_resource_path.rfind('/') + 1];
 	std::string socket = ft_to_string(_request->_socket);
 	std::ofstream tmp;
-	char *argv[1];
+	char *argv[2];
 	int pid;
 
 	// Check if the method matches the cgi called
 	if (_methodMatches[cgi] != _request->_method)
 	{
 		_status_code = 405;
-		_resource_path.clear();
-		return false;
-	}
-	// Check if there is a Content-Length header in the request and if the value doesn't exceed the max_client_body_size of the requested server
-	if (_request->getHeaders().count("Content-Length") == 1 && ft_stoi(*_request->getHeaders().at("Content-Length").begin()) > _request->_server->getBodySize())
-	{
-		_status_code = 413;
 		_resource_path.clear();
 		return false;
 	}
@@ -376,6 +374,7 @@ bool Response::_handleCgi()
 	tmp.close();
 
 	argv[0] = strdup(socket.c_str());
+	argv[1] = strdup(_request->_request_target.c_str());
 
 	pid = fork();
 
@@ -385,6 +384,7 @@ bool Response::_handleCgi()
 	waitpid(pid, &_status_code, 0);
 
 	free(argv[0]);
+	free(argv[1]);
 
 	return true;
 }
