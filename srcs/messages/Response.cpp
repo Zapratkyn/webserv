@@ -352,6 +352,7 @@ bool Response::_handleCgi()
 	// Check if the method matches the cgi called
 	if (_methodMatches[cgi] != _request->_method)
 	{
+		std::remove("tmp");
 		_status_code = 405;
 		_resource_path.clear();
 		return false;
@@ -360,6 +361,7 @@ bool Response::_handleCgi()
 	tmp.open("tmp", std::ofstream::trunc | std::ofstream::binary);
 	if (tmp.fail())
 	{
+		std::remove("tmp");
 		_status_code = 500;
 		_resource_path.clear();
 		return false;
