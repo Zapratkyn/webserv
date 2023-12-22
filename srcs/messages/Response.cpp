@@ -442,14 +442,11 @@ void Response::_doGet()
 		_status_code = 200;
 }
 
-
-//TODO parsing of _body in case Content-Type ==
-// - multipart/form-data
-// - application/x-www-form-urlencoded
-//TODO https://developer.mozilla.org/en-US/docs/Learn/Forms/Sending_and_retrieving_form_data
 void Response::_doPost()
 {
-
+	std::ofstream outfile("test", std::ofstream::out | std::ofstream::app | std::ofstream::binary);
+	outfile << _request->_body;
+	outfile.close();
 }
 
 
