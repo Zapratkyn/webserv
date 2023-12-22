@@ -8,6 +8,7 @@
 int ft_stoi(std::string);
 std::string successPage(std::string);
 std::string errorPage();
+std::string noFile();
 std::string getFilename(std::string &);
 std::string getBoundary(std::string &);
 int findStartOfFile(std::string &, std::string &);
@@ -39,23 +40,28 @@ int main(int argc, char **argv, char **env)
 		boundary = getBoundary(file);
 		boundary.insert(0, "--");
 		filename = getFilename(file);
+	}
+	if (!filename.size())
+		message = noFile();
+	else
+	{
 		filename.insert(0, "www/uploads/");
 		pos = findStartOfFile(file, boundary);
 		file.erase(0, pos);
 		file.erase(file.find(boundary) - 4, file.npos);
-	}
 
-	outfile.open(filename, std::ofstream::out | std::ofstream::trunc | std::ofstream::binary);
+		outfile.open(filename, std::ofstream::out | std::ofstream::trunc | std::ofstream::binary);
 
-	if (outfile.fail())
-		message = errorPage();
-	else
-	{
-		outfile << file;
-		outfile.close();
-		filename = &filename[filename.rfind('/') + 1];
-		filename.append("/download.cgi");
-		message = successPage(filename);
+		if (outfile.fail())
+			message = errorPage();
+		else
+		{
+			outfile << file;
+			outfile.close();
+			filename = &filename[filename.rfind('/') + 1];
+			filename.append("/download.cgi");
+			message = successPage(filename);
+		}
 	}
 
 	send(sock, message.c_str(), message.size(), 0);
@@ -121,10 +127,6 @@ std::string errorPage()
 	ss << "<!DOCTYPE html>"
 	      "<html>\n"
 	      "<head>"
-		  	// "<meta charset=\"UTF-8\">\n"
-   		  	// "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
-		  	// "<link rel=\"shortcut icon\" type=\"image/x-icon\" href=\"/assets/favicon.ico\">\n"
-    	  	// "<link rel=\"stylesheet\" type=\"text/css\" href=\"/assets/stylesheet.css\">\n"
 		  	"<title>Upload failed</title>\n"
 	      "</head>\n"
 	             "<body>\n"
@@ -139,9 +141,30 @@ std::string errorPage()
 	return message;
 }
 
+std::string noFile()
+{
+	std::string html, message = "HTTP/1.1 400 Bad Request\r\nConnection: keep-alive\r\nContent-Length: \r\nContent-Type: text/html\r\n\r\n";
+	std::stringstream ss;
+	ss << "<!DOCTYPE html>"
+	      "<html>\n"
+	      "<head>"
+		  	"<title>No file</title>\n"
+	      "</head>\n"
+	             "<body>\n"
+	             "<center><h1>"
+				 "400 Bad Request"
+	      "</h1></center>\n"
+	             "</body>\n"
+	             "</html>";
+	html = ss.str();
+	message.insert(message.find("\r\nContent-Type"), ft_to_string(html.size()));
+	message.append(html);
+	return message;
+}
+
 std::string getFilename(std::string &file)
 {
-	std::string result;
+	std::string result = "";
 
 	result = &file[file.find("filename=\"") + 10];
 	result = result.substr(0, result.find('"'));
