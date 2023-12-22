@@ -452,9 +452,9 @@ void Response::_doGet()
 
 void Response::_doPost()
 {
-	std::ofstream outfile("test", std::ofstream::out | std::ofstream::app | std::ofstream::binary);
-	outfile << _request->_body;
-	outfile.close();
+//	std::ofstream outfile("test", std::ofstream::out | std::ofstream::app | std::ofstream::binary);
+//	outfile << _request->_body;
+//	outfile.close();
 }
 
 
