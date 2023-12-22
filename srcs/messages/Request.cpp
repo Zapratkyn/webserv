@@ -179,7 +179,10 @@ void Request::_validateParsedBody()
 	// TODO what whith chunked request?
 	else if (!_body.empty() && _headers.count("Content-Length") == 0)
 		_error_status = 411;
+//	if (_error_status)
+//		_body.clear();
 }
+
 
 void Request::_validateMethod()
 {
@@ -264,6 +267,7 @@ bool Request::retrieveRequest()
 {
 	ssize_t bytes;
 	char buffer[BUFFER_SIZE] = {};
+	std::string size;
 
 	bytes = recv(_socket, buffer, BUFFER_SIZE, 0);
 	if (bytes < 0)
@@ -272,6 +276,14 @@ bool Request::retrieveRequest()
 		return false;
 	for (ssize_t i(0); i < bytes; ++i)
 		_request += buffer[i];
+
+	if (_request.find("\r\n\r\n") != _request.npos && _request.find("Content-Length:") != _request.npos)
+	{
+		size = &_request[_request.find("Content-Length:")];
+		size.substr(size.find_first_of(" ") + 1, size.find("\r\n"));
+		if (ft_stoi(size) > _server->getBodySize())
+			_error_status = 413;
+	}
 
 	if (DISPLAY_REQUEST)
 	{
