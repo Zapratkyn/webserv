@@ -58,8 +58,6 @@ int main(int argc, char **argv, char **env)
 		message = successPage(filename);
 	}
 
-	std::remove("tmp");
-
 	send(sock, message.c_str(), message.size(), 0);
 
 	return 0;

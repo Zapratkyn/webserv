@@ -385,6 +385,7 @@ bool Response::_handleCgi()
 
 	free(argv[0]);
 	free(argv[1]);
+	std::remove("tmp");
 
 	return true;
 }
